@@ -94,8 +94,10 @@ struct dynbitset {
   }
 
   dynbitset& operator&=(const dynbitset& o) {
-    for (int i = 0; i < (int)a.size(); ++i) a[i] &= i < (int)o.a.size() ? o.a[i] : 0;
-    norm();
+    int m = min((int)a.size(), (int)o.a.size());   // 分两段消除逐元素边界判断
+    for (int i = 0; i < m; ++i) a[i] &= o.a[i];
+    for (int i = m; i < (int)a.size(); ++i) a[i] = 0;
+    // 与运算不会产生越界位、高位字已清零，无需再 norm()
     return *this;
   }
   dynbitset& operator|=(const dynbitset& o) {

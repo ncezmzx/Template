@@ -42,8 +42,19 @@ int pollard_rho(int n) {
     int x = rng() % (n - 1) + 1, y = x, d = 1;
     auto f = [&](int v) { return (mul_mod(v, v, n) + c) % n; };
     while (d == 1) {
-      x = f(x), y = f(f(y));
-      d = std::gcd(x > y ? x - y : y - x, n);
+      // 批量 Floyd：|x-y| 连乘 128 步模 n 后只做一次 gcd，摊薄逐步 gcd 的除法开销
+      int q = 1;
+      for (int i = 0; i < 128 && d == 1; ++i) {
+        x = f(x), y = f(f(y));
+        if (x == y) {
+          d = std::gcd(q, n);          // 指针相遇：用部分积抢救一次
+          if (d == 1) d = n;           // 无效，换 c 重来
+          break;
+        }
+        q = mul_mod(q, x > y ? x - y : y - x, n);
+        if (!(i & 31)) d = std::gcd(q, n);
+      }
+      if (d == 1) d = std::gcd(q, n);
     }
     if (d != n) return d;
   }

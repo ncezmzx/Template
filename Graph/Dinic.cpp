@@ -14,11 +14,13 @@ template <class T> struct dinic {
   T dfs(int u, int t, T flow) {
     if (u == t) return flow;
     T ret = 0;
+    int du = dis[u] + 1;   // 层号提外层，避免每条边重算
     for (int i = cur[u]; i && flow; i = nxt[i]) {
       cur[u] = i;
+      int v = to[i];
       T c = min(cap[i], flow);
-      if (dis[to[i]] == dis[u] + 1 && c > 0) {
-        T tmp = dfs(to[i], t, c);
+      if (c > 0 && dis[v] == du) {
+        T tmp = dfs(v, t, c);
         ret += tmp, cap[i] -= tmp, cap[i ^ 1] += tmp, flow -= tmp;
       }
     }
@@ -27,18 +29,17 @@ template <class T> struct dinic {
   }
   T calc(int s, int t) {
     T ret = 0;
+    vector<int> q(dis.size());   // 扁平数组队列：替代每阶段构造的 std::queue（deque 链表开销）
     while (true) {
-      dis.assign(dis.size(), -1);
-      queue<int> q;
-      q.push(s), dis[s] = 0;
+      fill(dis.begin(), dis.end(), -1);
+      int qh = 0, qt = 0;
+      q[qt++] = s, dis[s] = 0;
       cur = hd;
-      while (!q.empty()) {
-        int u = q.front(); q.pop();
+      while (qh < qt) {
+        int u = q[qh++], du = dis[u] + 1;
         for (int i = hd[u]; i; i = nxt[i]) {
-          if (dis[to[i]] == -1 && cap[i] > 0) {
-            dis[to[i]] = dis[u] + 1;
-            q.push(to[i]);
-          }
+          int v = to[i];
+          if (dis[v] == -1 && cap[i] > 0) dis[v] = du, q[qt++] = v;
         }
       }
       if (dis[t] == -1) return ret;

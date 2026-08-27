@@ -12,9 +12,15 @@ struct matrix {
 };
 matrix operator*(const matrix &lhs, const matrix &rhs) {
   matrix ret(lhs.n, rhs.m);
+  // Floyd 式 i-k-j 转移 + 行指针缓存：顺序访存，免去 operator[] 的逐元素寻址
   for (int i = 0; i < lhs.n; ++i) {
-    for (int j = 0; j < rhs.n; ++j) {
-      for (int k = 0; k < rhs.m; ++k) ret[i][j] = max(ret[i][j], lhs[i][k] + rhs[k][j]);
+    const int *lk = lhs.vec.data() + i * lhs.m;
+    int *ri = ret.vec.data() + i * rhs.m;
+    for (int k = 0; k < lhs.m; ++k) {
+      int v = lk[k];
+      if (v == -inf) continue;
+      const int *rk = rhs.vec.data() + k * rhs.m;
+      for (int j = 0; j < rhs.m; ++j) ri[j] = max(ri[j], v + rk[j]);
     }
   }
   return ret;

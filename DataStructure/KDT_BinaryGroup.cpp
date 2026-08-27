@@ -12,16 +12,15 @@ struct kdnode {
 } t[N];
 
 int tot, dim;
-bool cmp(const pt& a, const pt& b) {
-  if (dim == 0) return a.x < b.x;
-  return a.y < b.y;
-}
+bool cmpx(const pt& a, const pt& b) { return a.x < b.x; }
+bool cmpy(const pt& a, const pt& b) { return a.y < b.y; }
 
 int build(int l, int r) {
   if (l > r) return 0;
   int mid = (l + r) >> 1;
   dim = __lg(r - l + 1) & 1;
-  nth_element(p + l, p + mid, p + r + 1, cmp);
+  // 直接选用无全局依赖的比较器，省去每次比较读全局 dim 再分支
+  nth_element(p + l, p + mid, p + r + 1, dim ? cmpy : cmpx);
   int u = ++tot;
   t[u].x = p[mid].x, t[u].y = p[mid].y, t[u].w = p[mid].w;
   t[u].l = build(l, mid - 1);

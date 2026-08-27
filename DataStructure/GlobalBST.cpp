@@ -28,7 +28,7 @@ void dfs2(int x, int tp) {
     if (y != fa[x] && y != son[x]) dfs2(y, y);
 }
 
-int ls[N], rs[N], f[N], mx[N], tag[N], w[N], Lp[N], Rp[N], root[N];
+int ls[N], rs[N], f[N], mx[N], tag[N], w[N], Lp[N], Rp[N], root[N], pstk[N];
 
 void up(int x) {
   Lp[x] = ls[x] ? Lp[ls[x]] : dfn[x];
@@ -120,9 +120,9 @@ int path_max(int u, int v) {
 }
 
 void point_set(int x, int v) {
-  int tmp[N], tp2 = 0;
-  for (int y = x; y; y = f[y]) tmp[++tp2] = y;
-  while (tp2) pushdown(tmp[tp2--]);
+  int tp2 = 0;   // 复用全局栈数组，避免每次调用在栈上开辟 1.6MB 的 tmp[N]
+  for (int y = x; y; y = f[y]) pstk[++tp2] = y;
+  while (tp2) pushdown(pstk[tp2--]);
   val[x] = v;
   for (int y = x; y; y = f[y]) up(y);
 }

@@ -164,3 +164,34 @@ Template/
 - `#define int long long` 的文件注意 `memset`/`0x3f` 对 64 位 int 的效果。
 - 同算法的不同实现按文件名后缀区分：平衡树（Treap / Splay / WBST_Seq / WBST_Set）、
   GCD（Binary / Table）、哈希表（PBDS / Chain），按题目环境与偏好选用。
+
+## 常数优化记录（2026-08）
+
+对主库做过一轮系统的常数优化（不改接口与复杂度，新旧版本随机数据对拍全部一致）：
+
+| 文件 | 手法 | 实测提速* |
+|---|---|---|
+| `Math/BigInt.cpp` | 字符串构造按 9 位一段乘加（O(n²)→O(n²/9) 次大数乘加） | x3.8 |
+| `Math/PollardRho.cpp` | rho 差值连乘 128 步做一次 gcd（摊薄逐步 gcd 的除法） | x6.5 |
+| `Graph/KruskalWQS.cpp` | 特殊/普通边各排序一次，每轮 WQS 二分线性归并（不再每轮整体 sort） | x1.6 |
+| `Math/FWT.cpp` | 内层 `% md` 全部换条件加减 | x1.45 |
+| `Graph/Flow_Bounds.cpp` | Dinic BFS 换扁平数组队列 + `nv` 收缩 memset/memcpy 到实际点数 | x1.3 |
+| `Math/GaussJordan.cpp` | 消元内层两次取模减为一次 + 条件减 | x1.27 |
+| `Math/MatrixMaxPlus.cpp` | (max,+) 乘法改 i-k-j 序 + 行指针（cache 友好，大矩阵显著） | x1.14 |
+| `Graph/HopcroftKarp.cpp` | BFS 数组队列 + vis 时间戳代替每阶段 memset | x1.1 |
+| `Math/NTT.cpp` | Barrett 约减替代 `% Mod`；`inte` 换线性逆元表；删死代码 | x1.04** |
+| `String/SuffixArray.cpp` | 倍增排序去掉 pair 构造，第二关键字内联比较 | x1.06 |
+| `Graph/Dinic.cpp`、`Graph/MCMF.cpp` | `std::queue` 换数组/环形队列，层号外提，`nv` 收缩 memset | x1.0~1.1 |
+| `String/ACAutomaton.cpp` | ac_build 复用全局数组队列（省 8MB 且免链表开销） | 持平 |
+| `DataStructure/GlobalBST.cpp` | `point_set` 的 1.6MB 栈上 tmp 数组改全局 | 持平 |
+| `DataStructure/WaveletMatrix_Dynamic.cpp` | build/查询提行指针、`cur.swap(nxt)` 免拷贝 | 持平 |
+| `DataStructure/Bitset_Dynamic.cpp` | `&=` 拆两段循环免逐元素边界判断、去掉冗余 norm | 持平 |
+| `Graph/TarjanBCC.cpp`、`KruskalRebuildTree.cpp` | 倍增表构造越顶即止（浅树免空转 19 层，值不变） | 持平~ |
+| `DataStructure/KDT_BinaryGroup.cpp` | 比较器不读全局 dim（消每次比较的访存+分支） | 持平 |
+
+\* g++ 12.2 `-O2`、随机负载、3~7 次取最小值；数字仅供量级参考。
+\** 本机 g++ 12 已把常量 `% 998244353` 自动编成乘法序列，故 Barrett 收益体现在老编译器/OJ 环境；
+逆元表与死代码清理是净收益。平衡树/LCT/TopTree/猫树/Heaps 等原本即为数组实现的紧凑形态，未改动。
+
+已知环境问题（非本轮引入）：`String/SuffixAutomaton.cpp` 的 `link`、`DataStructure/TopTree.cpp` 的
+`chroot` 在部分 glibc 环境与全局符号冲突，遇到编译错误时改名即可；`RangeSemigroup_ACK.cpp` 需 `-std=c++20`。

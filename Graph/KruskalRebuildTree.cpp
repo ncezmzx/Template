@@ -30,7 +30,7 @@ void kruskal_rebuild() {
 int f[N][20], dep[N];
 void dfs_rebuild(int x, int ff) {
   f[x][0] = ff, dep[x] = dep[ff] + 1;
-  for (int i = 1; i < 20; ++i) f[x][i] = f[f[x][i - 1]][i - 1];
+  for (int i = 1; f[x][i - 1]; ++i) f[x][i] = f[f[x][i - 1]][i - 1];  // 越顶即止（默认 0）
   for (int y : T[x])
     if (y != ff) dfs_rebuild(y, x);
 }

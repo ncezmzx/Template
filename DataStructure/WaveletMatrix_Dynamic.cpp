@@ -16,10 +16,11 @@ struct wavelet {
     zc.assign(LOG, 0);
     vector<int> cur = v, nxt(n);
     for (int lv = LOG - 1; lv >= 0; --lv) {
+      int* P = pref[lv].data();   // 行指针提出，避免逐元素 vector 寻址
       int z = 0;
       for (int i = 0; i < n; ++i) {
-        pref[lv][i + 1] = pref[lv][i] + ((cur[i] >> lv & 1) == 0);
-        z += (cur[i] >> lv & 1) == 0;
+        int b = (cur[i] >> lv & 1) == 0;
+        P[i + 1] = P[i] + b, z += b;
       }
       zc[lv] = z;
       int p0 = 0, p1 = z;
@@ -27,14 +28,15 @@ struct wavelet {
         if (cur[i] >> lv & 1) nxt[p1++] = cur[i];
         else nxt[p0++] = cur[i];
       }
-      cur = nxt;
+      cur.swap(nxt);   // 交换代替拷贝
     }
   }
 
   int kth(int l, int r, int k) const {
     int res = 0;
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      int zl = pref[lv][l], zr = pref[lv][r];
+      const int* P = pref[lv].data();
+      int zl = P[l], zr = P[r];
       int zeros = zr - zl;
       if (k < zeros) l = zl, r = zr;
       else {
@@ -50,7 +52,8 @@ struct wavelet {
   int rank_lt(int l, int r, int x) const {
     int res = 0;
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      int zl = pref[lv][l], zr = pref[lv][r];
+      const int* P = pref[lv].data();
+      int zl = P[l], zr = P[r];
       if (x >> lv & 1) {
         res += zr - zl;
         l = zc[lv] + (l - zl);

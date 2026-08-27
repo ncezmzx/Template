@@ -11,19 +11,32 @@ struct e {
 } es[N];
 int n, m, k, fa[N];
 int get(int x) { return x == fa[x] ? x : fa[x] = get(fa[x]); }
+bool es_sorted = false;
+int spi[N], nsi[N], cs, cn;   // 特殊/普通边下标表：一次排序，之后各轮线性归并
+void ensure_sorted() {
+  if (es_sorted) return;
+  cs = cn = 0;
+  for (int i = 1; i <= m; ++i) (es[i].c ? nsi[++cn] : spi[++cs]) = i;
+  auto byz = [](int i, int j) {
+    return es[i].z != es[j].z ? es[i].z < es[j].z : es[i].c < es[j].c;
+  };
+  sort(spi + 1, spi + cs + 1, byz), sort(nsi + 1, nsi + cn + 1, byz);
+  es_sorted = true;
+}
 pair<int, int> calc(int x) {
+  ensure_sorted();   // 特殊边整体减 x 不改变组内相对顺序，故只需排序一次
   iota(fa, fa + n, 0);
-  for (int i = 1; i <= m; ++i)
-    if (!es[i].c) es[i].z -= x;
-  sort(es + 1, es + m + 1);
   int p = 0, q = 0;
-  for (int i = 1, c = 0; c < n - 1 && i <= m; ++i) {
-    if (get(es[i].x) == get(es[i].y)) continue;
-    fa[get(es[i].x)] = get(es[i].y);
-    ++c, p += es[i].z, q += !es[i].c;
+  for (int i = 1, j = 1, c = 0; c < n - 1 && (i <= cs || j <= cn); ) {
+    bool sp;
+    if (i > cs) sp = false;
+    else if (j > cn) sp = true;
+    else sp = es[spi[i]].z - x <= es[nsi[j]].z;   // 平键时特殊边（c=0）在前，与原比较器一致
+    int id = sp ? spi[i++] : nsi[j++];
+    int a = get(es[id].x), b = get(es[id].y);
+    if (a == b) continue;
+    fa[a] = b, ++c, p += es[id].z - (es[id].c ? 0 : x), q += !es[id].c;
   }
-  for (int i = 1; i <= m; ++i)
-    if (!es[i].c) es[i].z += x;
   return {p, q};
 }
 

@@ -4,23 +4,6 @@ namespace Poly {
   constexpr int Mod = 998244353;
   constexpr int Pr = 3;
   constexpr int iPr = 332748118;
-  int qpow(int x, long long y) {
-    long long r = 1, a = x;
-    while (y) {
-      if (y & 1) r = r * a % Mod;
-      a = a * a % Mod;
-      y >>= 1;
-    }
-    return (int)r;
-  }
-  struct poly : vector<int> {
-    poly() {}
-    poly(const initializer_list<int> &s) : vector<int>(s) {}
-    poly(int n) { resize(n); }
-    poly(int n, int val) { resize(n, val); }
-    template <typename Iter>
-    poly(Iter first, Iter last) : vector<int>(first, last) {}
-  };
   inline int addmod(int a, int b) {
     a += b;
     if (a >= Mod) a -= Mod;
@@ -31,7 +14,30 @@ namespace Poly {
     if (a < 0) a += Mod;
     return a;
   }
-  inline int mulmod(long long a, long long b) { return (int)((a * b) % Mod); }
+  // Barrett 约减：以乘法替代 64 位除法，蝴蝶操作每次省一条 div
+  static constexpr unsigned long long BIM = ~0ull / Mod + 1;
+  inline int mulmod(long long a, long long b) {
+    unsigned long long z = (unsigned long long)a * (unsigned)b;
+    unsigned long long x = (unsigned long long)(((__uint128_t)z * BIM) >> 64) * Mod;
+    return (int)(z - x + (z < x ? Mod : 0));
+  }
+  int qpow(int x, long long y) {
+    int r = 1, a = (int)((x % Mod + Mod) % Mod);
+    while (y) {
+      if (y & 1) r = mulmod(r, a);
+      a = mulmod(a, a);
+      y >>= 1;
+    }
+    return r;
+  }
+  struct poly : vector<int> {
+    poly() {}
+    poly(const initializer_list<int> &s) : vector<int>(s) {}
+    poly(int n) { resize(n); }
+    poly(int n, int val) { resize(n, val); }
+    template <typename Iter>
+    poly(Iter first, Iter last) : vector<int>(first, last) {}
+  };
   static vector<int> rev;
   static vector<int> roots{0, 1};
   void ensure_roots(int n) {
@@ -90,7 +96,7 @@ namespace Poly {
       poly res(min(need, an + bn - 1));
       for (int i = 0; i < an; i++) {
         for (int j = 0; j < bn && i + j < need; j++) {
-          res[i + j] = (res[i + j] + (long long)A[i] * B[j]) % Mod;
+          res[i + j] = addmod(res[i + j], mulmod(A[i], B[j]));
         }
       }
       if ((int)res.size() < need) res.resize(need, 0);
@@ -114,14 +120,14 @@ namespace Poly {
     poly r(max(a.size(), b.size()));
     a.resize(r.size());
     b.resize(r.size());
-    for (int i = 0; i < (int)r.size(); i++) r[i] = (a[i] + b[i]) % Mod;
+    for (int i = 0; i < (int)r.size(); i++) r[i] = addmod(a[i], b[i]);
     return r;
   }
   poly operator-(poly a, poly b) {
     poly r(max(a.size(), b.size()));
     a.resize(r.size());
     b.resize(r.size());
-    for (int i = 0; i < (int)r.size(); i++) r[i] = (a[i] - b[i] + Mod) % Mod;
+    for (int i = 0; i < (int)r.size(); i++) r[i] = submod(a[i], b[i]);
     return r;
   }
   poly operator*(const poly &a, const poly &b) {
@@ -135,13 +141,12 @@ namespace Poly {
     ntt(B, lg, false);
     for (int i = 0; i < lg; i++) A[i] = mulmod(A[i], B[i]);
     ntt(A, lg, true);
-    int inv = qpow(lg, Mod - 2);
     A.resize(n + m + 1);
-    for (int i = 0; i <= n + m; i++) A[i] = mulmod(A[i], 1);
     return A;
   }
   poly operator*(poly a, int b) {
-    for (int i = 0; i < (int)a.size(); i++) a[i] = a[i] * b % Mod;
+    b = (int)((b % Mod + Mod) % Mod);
+    for (int i = 0; i < (int)a.size(); i++) a[i] = mulmod(a[i], b);
     return a;
   }
   poly operator>>(const poly &a, int b) {
@@ -186,10 +191,21 @@ namespace Poly {
     for (int i = 1; i < n; i++) b[i - 1] = mulmod(a[i], i);
     return b;
   }
+  // 线性逆元表：inte 不再对每个系数做一次 O(log) 快速幂
+  static vector<int> invs{0, 1};
+  static int inv_mod(int x) {
+    if ((int)invs.size() <= x) {
+      int from = (int)invs.size();
+      invs.resize(x + 1);
+      for (int i = from; i <= x; ++i)
+        invs[i] = (int)((long long)(Mod - Mod / i) * invs[Mod % i] % Mod);
+    }
+    return invs[x];
+  }
   poly inte(const poly &a) {
     int n = a.size();
     poly b(n + 1);
-    for (int i = 0; i < n; i++) b[i + 1] = mulmod(a[i], qpow(i + 1, Mod - 2));
+    for (int i = 0; i < n; i++) b[i + 1] = mulmod(a[i], inv_mod(i + 1));
     return b;
   }
   poly ln(const poly &a, int n = 0) {
