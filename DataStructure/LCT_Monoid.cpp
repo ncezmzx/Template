@@ -98,9 +98,9 @@ class LinkCutTree {
  *   long long w[] = {0, 3, 1, 4, 2, 5};
  *   for (int i = 1; i <= n; ++i) lct.init(i, MxMonoid(w[i]));
  *   lct.link(1, 2), lct.link(2, 3), lct.link(3, 4), lct.link(4, 5);
- *   cout << lct.query(1, 5).v << '\\n';   // 5
+ *   cout << lct.query(1, 5).v << '\n';   // 5
  *   lct.set(3, MxMonoid(9));
- *   cout << lct.query(2, 4).v << '\\n';   // 9
+ *   cout << lct.query(2, 4).v << '\n';   // 9
  * }
  * ============================================================
  */
