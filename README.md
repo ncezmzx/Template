@@ -17,17 +17,17 @@ Template/
 ├── DataStructure/   数据结构（平衡树 / 堆 / 树 / 线段树变体 / bitset / 字典树）
 │   └── Heaps/       15 种堆实现合集（洛谷《对优先队列的爱》）
 ├── Graph/           图论（网络流 / Tarjan 家族 / 树上技巧 / 计数）
-├── String/          字符串（回文 / 后缀结构 / 哈希）
-├── Math/            数学（模运算 / 数论 / 高精度 / 变换 / 多项式）
+├── String/          字符串（回文 / 后缀结构 / 哈希 / Z 函数）
+├── Math/            数学（模运算 / 数论 / 高精度 / 变换 / 多项式 / 同余与类欧）
 ├── Misc/            技巧与杂项
 └── Trash/           被移除的常见/基础/重复模板（保留备查）
 ```
 
-全库共 81 个模板（DataStructure 46 / Graph 15 / String 5 / Math 15 / Misc 7）+ 本 README。
+全库共 86 个模板（DataStructure 41 / Graph 15 / String 6 / Math 17 / Misc 7）+ 本 README。
 
 ## 索引
 
-### DataStructure/（32 个）
+### DataStructure/（41 个，含 Heaps/ 16 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -41,8 +41,9 @@ Template/
 | `ODT.cpp` | 珂朵莉树（map 区间赋值，spl/assign/query） |
 | `SegmentTreeGCD.cpp` | gcd 线段树（单点改 + 前缀 gcd 查询） |
 | `SegmentTreeBeats.cpp` | 势能线段树（区间加 / chmin / chmax / 和与最值，均摊 O((n+q)log n)） |
-| `SegmentTree_Semigroup.cpp` | 半群懒标记线段树（info/tag 自定义，动态开点 + 清空，update/set/query 全套） |
+| `SegmentTree_Semigroup.cpp` | 半群懒标记线段树（info/tag 自定义，动态开点，全程非递归；ACL 对齐接口 get/all_prod/max_right/min_left + O(n) vector 建树） |
 | `SegmentTree_IterativeLazy.cpp` | 非递归线段树（zkw 式，区间加 + 区间和，懒标记，无递归常数小） |
+| `SegmentTree_ACL.cpp` | 懒标记线段树·ACL 式（静态满树，泛型 op/mapping，非递归；接口与 atcoder::lazy_segtree 逐函数对齐，支持依赖段长的作用如区间仿射+和，含 max_right/min_left） |
 | `Bitset_Dynamic.cpp` | 手写动态 bitset（std::bitset 全部操作 + resize 动态长度，ctz 加速枚举） |
 | `YFastTrie.cpp` | y-fast trie（x-fast trie + 分块，O(log 64) 查找/前驱/后继/插入/删除） |
 | `RangeSemigroup_ACK.cpp` | 静态区间半群查询（阿克曼分块，O(n) 预处理 O(α(n)) 查询；已改写为 C++14 兼容） |
@@ -96,6 +97,7 @@ Template/
 | `HopcroftKarp.cpp` | 二分图最大匹配（O(E√V)） |
 | `KM.cpp` | 二分图最大权完美匹配（O(n³)，slack 优化） |
 | `TarjanSCC.cpp` | 强连通分量 + 缩点 |
+| `TwoSat.cpp` | 2-SAT（蕴含图 + 迭代 Tarjan SCC，接口对齐 ACL twosat：add_clause/satisfiable/answer + if/not/xor/eq） |
 | `TarjanCutVertex.cpp` | 割点（low[y] >= dfn[x]，根节点特判） |
 | `TarjanBridge.cpp` | 桥 / 边双连通分量（e-DCC，按边编号处理重边） |
 | `TarjanBCC.cpp` | 点双连通分量 / 圆方树 |
@@ -105,7 +107,7 @@ Template/
 | `KruskalRebuildTree.cpp` | Kruskal 重构树（瓶颈边 / 边权限制连通性） |
 | `TriangleCount.cpp` | 三元环计数（重定向 O(m√m)） |
 
-### String/（5 个）
+### String/（6 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -113,9 +115,10 @@ Template/
 | `SuffixArray.cpp` | 后缀数组（倍增 + 基数排序）+ height |
 | `SuffixAutomaton.cpp` | 后缀自动机 SAM（endpos 统计 / 本质不同子串） |
 | `StringHash.cpp` | 字符串哈希（mod 2^61-1，随机种子 + shift 混淆） |
+| `ZAlgorithm.cpp` | Z 函数 / 扩展 KMP（对齐 ACL z_algorithm，string 与泛型容器双版本，O(n)） |
 | `ACAutomaton.cpp` | AC 自动机（多模式串匹配，Trie + fail + 拓扑计数） |
 
-### Math/（13 个）
+### Math/（17 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -134,6 +137,8 @@ Template/
 | `NTT.cpp` | NTT + 多项式全家桶（convolution / inv / ln / exp / deri / inte；固定模最快） |
 | `Poly_fstdlib.cpp` | fstdlib 多项式库（固定模 NTT + 任意模 MTT（m_poly）/ inv / log / exp；功能更全） |
 | `Min25.cpp` | Min25 筛（积性函数前缀和，f(p) 为多项式；已补 power_sum 依赖并修 prime 越界） |
+| `CRT.cpp` | 中国剩余定理 CRT/exCRT（非互质模数可合并，对齐 ACL crt，无解返回 {0,0}；附 exgcd/inv_gcd） |
+| `FloorSum.cpp` | 类欧几里得 floor_sum（Σ⌊(ai+b)/m⌋，对齐 ACL，支持负 a/b，O(log)） |
 
 ### Misc/（7 个）
 
@@ -147,7 +152,7 @@ Template/
 | `SimulatedAnnealing.cpp` | 模拟退火（通用模板，连续/离散优化） |
 | `ExpressionEval.cpp` | 表达式求值（递归下降，+ - * / % ^ 括号 一元负号 变量） |
 
-### Trash/（24 个，已移除）
+### Trash/（23 个，已移除）
 
 因"代码简单 / 思想基础 / OI 常见 / 不易出错"而移除：
 `FenwickTree`、`DSU`、`SparseTable`、`SegmentTreeLazy`、`SegmentTreeIterative`、
@@ -157,7 +162,7 @@ Template/
 
 移除原因分类：
 - 常见/基础：FenwickTree、DSU、SparseTable、Dijkstra、LCA×2、HLD、Matrix、Combinatorics、EulerSieve、Exgcd、FastIO
-- 难以封装/强藕连：KMP、ZFunction、VirtualTree
+- 难以封装/强藕连：KMP、ZFunction、VirtualTree（Z 函数现已按 ACL 对齐补录为 `String/ZAlgorithm.cpp`）
 - 结构简单但可拓展（按需自写）：SlopeOptimization、TreeReroot、MonotoneQueue、DigitDP、SegmentTreeLazy、SegmentTreeIterative
 - 内容重复/被包含：RollingHash（hash_t 与 StringHash 重复）、Random（splitmix64 与 HashTable_PBDS 重复）、LogTrick（gcd 段合并被 ODT 包含）
 
@@ -234,3 +239,35 @@ Template/
 
 **已验证接口语义说明**：Treap 的 erase 删除所有同值节点；YFastTrie 的 predecessor/successor
 为严格前驱/后继（0 表示不存在，值域应从 1 起）；Splay 示例用法为 build(0, n+1) 含双哨兵。
+
+## ACL 对齐记录（2026-08 第三轮）
+
+以 AtCoder Library（v1.5）的 12 个公开模块为清单逐项核对，补齐缺失部分：
+
+| ACL 模块 | 本库对应 | 本轮动作 |
+|---|---|---|
+| `lazy_segtree` | `SegmentTree_Semigroup.cpp` | **改为全程非递归**（动态开点保留：分割节点 + 双边界路径迭代分解，
+  路径栈逆序回拉），并补齐 ACL 接口：`get/all_prod/max_right/min_left` 与 `init(n, a)` O(n) 向量建树 |
+| `lazy_segtree`（静态形态） | `SegmentTree_ACL.cpp`（新增） | ACL 逐函数移植（set/get/prod/all_prod/apply/max_right/min_left）；
+  静态满树不要求 `mapping(f,e())==e()`，支持区间仿射+区间和等依赖段长的作用——与动态版互补 |
+| `twosat` | `Graph/TwoSat.cpp`（新增） | 蕴含图 + **迭代 Tarjan**（深图不爆栈），接口对齐 add_clause/satisfiable/answer |
+| `z_algorithm` | `String/ZAlgorithm.cpp`（新增） | ACL 移植（z[0]=n 约定），string 与泛型容器双版本 |
+| `math::crt` | `Math/CRT.cpp`（新增） | 非互质模数合并，无解返回 {0,0}；附 exgcd/inv_gcd 可复用 |
+| `math::floor_sum` | `Math/FloorSum.cpp`（新增） | 类欧几里得辗转，支持负 a/b，内部无符号乘法对齐 ACL |
+| `convolution` | `Math/NTT.cpp` / `Poly_fstdlib.cpp` | 已覆盖（固定模 / 任意模 MTT），未动 |
+| `maxflow` / `mincostflow` | `Graph/Dinic.cpp` / `MCMF.cpp` | 已覆盖，未动 |
+| `scc` | `Graph/TarjanSCC.cpp` | 已覆盖，未动 |
+| `modint` | `Math/ModInt*.cpp` 三种 | 已覆盖（pow_mod/inv_mod 即其内建运算），未动 |
+| `suffix_array`（+lcp_array） | `String/SuffixArray.cpp`（含 height） | 已覆盖，未动 |
+| `segtree`（单点改普通版） | 退化用 `SegmentTree_ACL.cpp`（恒等作用）或 `SegmentTree_IterativeLazy.cpp` | 不单独收录（沿用本库裁剪原则） |
+| `dsu` / `fenwicktree` / `sparse_table` | `Trash/`（DSU / FenwickTree / SparseTable） | 维持既定裁剪（保留备查），未动 |
+
+验证：新增/重写模板经 `g++ -std=c++14 -O2` 与 ASan/UBSan 随机对拍——
+半群线段树（非交换矩阵共轭作用，dense 40 组 + 1e9 值域稀疏 8 组，与旧递归版全量对拍一致）、
+`SegmentTree_ACL`（区间仿射+和 / 非交换共轭 ×30 组）、TwoSat（300 组 vs 2^n 暴力 + 50 万链深栈测试）、
+ZAlgorithm（400 组 vs O(n²)）、CRT（2000 组 vs 逐点枚举，含负余数/非互质）、
+floor_sum（3000 组 vs 逐项下取整 + 大数恒等式 500 组）。全部文件（109 个）`-std=c++14 -O2` 编译通过，
+六个文件的尾部示例取消注释后编译运行输出与注释一致。
+
+`max_right/min_left` 说明：与 ACL 相同的"规范块贪心"语义——整块满足即越过、失配块内二分下探，
+适合判定条件随区间扩大单调失效的 g；非递归半群版沿叶子路径向上的规范块实现，动态未建子树按 e() 计。
