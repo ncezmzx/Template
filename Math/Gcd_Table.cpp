@@ -6,7 +6,7 @@ int G[1 << K][1 << K];
 
 void init_gcd() {
   for (int i = 0; i < (1 << K); ++i)
-    for (int j = 0; j < (1 << K); ++j) G[i][j] = std::gcd(i, j);
+    for (int j = 0; j < (1 << K); ++j) G[i][j] = __gcd(i, j);
 }
 
 int gcd_tab(int a, int b) {

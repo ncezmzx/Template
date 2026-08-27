@@ -1,14 +1,14 @@
 #include <bits/stdc++.h>
-#include <span>
 using namespace std;
 
+struct trip { int a, b, c; };
 constexpr struct ACK_PRECALCER {
   constexpr static int A = 3, H = 30;
-  int Ack[A][H];
-  tuple<int, int, int> pos[H][A];
-  span<tuple<int, int, int>> pth[H];
+  int Ack[A][H] = {};
+  trip pos[H][A] = {};
+  int cnt[H] = {};
   constexpr ACK_PRECALCER() {
-    iota(Ack[0], Ack[0] + H, 1);
+    for (int t = 0; t < H; ++t) Ack[0][t] = t + 1;   // 手写 iota（C++14 无 constexpr iota）
     for (int i = 1; i < A; ++i)
       for (int j = 0; j < H; ++j)
         for (int T = j + 1, &x = Ack[i][j] = j; T && x < H; --T)
@@ -19,20 +19,18 @@ constexpr struct ACK_PRECALCER {
         while (Ack[x][i] > j) --x;
         int k = i - 1, c = -1;
         while (Ack[x][i] <= j) i = Ack[x][i], ++c;
-        pos[j][t++] = {k, x, c};
+        pos[j][t++] = trip{k, x, c};
       }
-      pth[j] = span(pos[j], t);
+      cnt[j] = t;   // 原 span 改为 (pos, cnt) 二元组，C++14 可用
     }
   }
 } Ack;
-template <class S, auto op, auto e>
-  requires is_convertible_v<decltype(op), function<S(S, S)>> &&
-           is_convertible_v<decltype(e), function<S()>>
+template <class S, S (*op)(S, S), S (*e)()>
 class uttree {
   constexpr static int A = ACK_PRECALCER::A, B = (A + 1) << 1;
   typedef pair<S, S> S_p;
   static S_p op_p(S_p x, S_p y) {
-    return {op(x.first, y.first), op(y.second, x.second)};
+    return S_p(op(x.first, y.first), op(y.second, x.second));
   }
   vector<S> val, pre, suf;
   vector<array<vector<S_p>, A>> tog;
@@ -60,16 +58,21 @@ class uttree {
                 c ? op_p(tog[x][i][0], tog[x >> (Ack.Ack[i][h] - h)][i][c - 1])
                   : i ? op_p(tog[x][i - 1][0],
                              tog[x >> (Ack.Ack[i - 1][h] - h)][i - 1][h - 1])
-                      : x & 1 ? pair{e(), zkw[x ^ 1]}
-                              : pair{zkw[x ^ 1], e()});
+                      : x & 1 ? S_p(e(), zkw[x ^ 1])
+                              : S_p(zkw[x ^ 1], e()));
   }
   S query(int l, int r) const {
     if (l / B >= --r / B)
       return accumulate(val.data() + l, val.data() + r + 1, e(), op);
     S L = suf[l], R = pre[r];
-    if (int M = tog.size() >> 1; (l = l / B | M) + 1 < (r = r / B | M))
-      for (auto [j, x, y] : Ack.pth[__lg(l ^ r) + 1])
+    int M = (int)tog.size() >> 1;
+    if ((l = l / B | M) + 1 < (r = r / B | M)) {
+      int h = __lg(l ^ r) + 1;
+      for (int t = 0; t < Ack.cnt[h]; ++t) {
+        int j = Ack.pos[h][t].a, x = Ack.pos[h][t].b, y = Ack.pos[h][t].c;
         L = op(L, tog[l >> j][x][y].first), R = op(tog[r >> j][x][y].second, R);
+      }
+    }
     return op(L, R);
   }
   uttree() {}
@@ -87,9 +90,10 @@ class uttree {
  *       对"高度"用阿克曼函数递推跳表（ACK_PRECALCER 编译期预处理，
  *       只算 c = 1 的阿克曼值并截断上界），查询时按 pth 贪心拆分前缀，
  *       拼出区间答案（本质是带反阿克曼加速的倍增）
- * 来源：洛谷文章《线段树，阿克曼，分块》(luogu_blog_2_线段树阿克曼分块.md)，代码原样保留
- * 注意：需要 C++20（requires / constexpr iota / std::span）；
- *       op/e 为普通函数指针风格（auto 模板参数）；下标 0-indexed，
+ * 来源：洛谷文章《线段树，阿克曼，分块》(luogu_blog_2_线段树阿克曼分块.md)；
+ *       已改写为 C++14 兼容（span/requires/auto 模板参 → 数组+函数指针）
+ * 注意：C++14 及以上可编译（__lg/__int128 为 GNU 扩展，g++ 下可用）；
+ *       op/e 以普通函数指针传入模板；下标 0-indexed，
  *       query(l, r) 为**半开区间 [l, r)**（右端点不包含，与文章代码一致）
  *       —— 查询 [l, r] 闭区间请调用 query(l, r + 1)；
  *       只支持静态查询（build 后不可修改）

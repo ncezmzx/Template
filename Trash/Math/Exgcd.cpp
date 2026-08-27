@@ -16,7 +16,7 @@ tuple<int, int, int> exgcd(int a, int b, int c) {
 }
 // 干净封装：返回 {x, y, g}，满足 a*x + b*y = g = gcd(a, b)
 tuple<int, int, int> exgcd(int a, int b) {
-  return exgcd(a, b, std::gcd(a, b));
+  return exgcd(a, b, __gcd(a, b));
 }
 #ifdef DEMO
 signed main() {

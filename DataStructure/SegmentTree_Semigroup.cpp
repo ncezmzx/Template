@@ -32,8 +32,16 @@ struct semigroup_segtree {
     pool[u].tag = composition(f, pool[u].tag);
   }
   void push(int u) {
-    if (!pool[u].lc) pool[u].lc = new_node();
-    if (!pool[u].rc) pool[u].rc = new_node();
+    // 注意：new_node() 会扩容 pool，必须先取返回值再写成员，
+    // 否则 pool[u].lc = new_node() 的求值顺序（C++14 未指定）会写进已释放的旧块（UAF）
+    if (!pool[u].lc) {
+      int c = new_node();
+      pool[u].lc = c;
+    }
+    if (!pool[u].rc) {
+      int c = new_node();
+      pool[u].rc = c;
+    }
     if (pool[u].tag != id()) {
       apply(pool[u].lc, pool[u].tag);
       apply(pool[u].rc, pool[u].tag);
