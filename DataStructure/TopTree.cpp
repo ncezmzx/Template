@@ -27,7 +27,7 @@ void dfs2(int x, int tp) {
 
 int ch[N][2], f[N], Lp[N], Rp[N];
 int smx[N], rake[N], ck[N];
-int chroot[N];
+int crt[N];
 
 void pull(int x) {
   smx[x] = max(val[x], max(ch[x][0] ? smx[ch[x][0]] : -INF, ch[x][1] ? smx[ch[x][1]] : -INF));
@@ -58,10 +58,10 @@ void toptree_build() {
   for (int h : heads) {
     for (int x = h; x; x = son[x])
       for (int y : es[x])
-        if (y != fa[x] && y != son[x]) rake[x] = max(rake[x], ck[chroot[y]]);
+        if (y != fa[x] && y != son[x]) rake[x] = max(rake[x], ck[crt[y]]);
     int len = 0;
     for (int x = h; x; x = son[x]) ++len;
-    chroot[h] = build_chain(dfn[h], dfn[h] + len - 1);
+    crt[h] = build_chain(dfn[h], dfn[h] + len - 1);
   }
 }
 
@@ -84,17 +84,17 @@ int path_query(int u, int v) {
   int res = -INF;
   while (top[u] != top[v]) {
     if (dep[top[u]] < dep[top[v]]) swap(u, v);
-    res = max(res, pt_query(chroot[top[u]], dfn[top[u]], dfn[u]));
+    res = max(res, pt_query(crt[top[u]], dfn[top[u]], dfn[u]));
     u = fa[top[u]];
   }
   if (dep[u] > dep[v]) swap(u, v);
-  res = max(res, pt_query(chroot[top[u]], dfn[u], dfn[v]));
+  res = max(res, pt_query(crt[top[u]], dfn[u], dfn[v]));
   return res;
 }
 
 int subtree_query(int x) {
   int h = top[x];
-  return ck_query(chroot[h], dfn[x], dfn[tail[h]]);
+  return ck_query(crt[h], dfn[x], dfn[tail[h]]);
 }
 
 void point_set(int x, int v) {
@@ -105,7 +105,7 @@ void point_set(int x, int v) {
     if (!p) break;
     int nr = -INF;
     for (int y : es[p])
-      if (y != fa[p] && y != son[p]) nr = max(nr, ck[chroot[y]]);
+      if (y != fa[p] && y != son[p]) nr = max(nr, ck[crt[y]]);
     if (nr == rake[p]) break;
     rake[p] = nr;
     x = p;

@@ -32,8 +32,16 @@ struct semigroup_segtree {
     pool[u].tag = composition(f, pool[u].tag);
   }
   void push(int u) {
-    if (!pool[u].lc) pool[u].lc = new_node();
-    if (!pool[u].rc) pool[u].rc = new_node();
+    // 注意：new_node() 会扩容 pool，必须先取返回值再写成员，
+    // 否则 pool[u].lc = new_node() 的求值顺序（C++14 未指定）会写进已释放的旧块（UAF）
+    if (!pool[u].lc) {
+      int c = new_node();
+      pool[u].lc = c;
+    }
+    if (!pool[u].rc) {
+      int c = new_node();
+      pool[u].rc = c;
+    }
     if (pool[u].tag != id()) {
       apply(pool[u].lc, pool[u].tag);
       apply(pool[u].rc, pool[u].tag);
@@ -127,3 +135,4 @@ struct semigroup_segtree {
  *       即整段操作对"隐式空段"必须是空操作；区间加+区间和的例子不满足该条件
  *       （空段的段长信息不存在），如需区间加请把段长并入 info（op/mapping
  *       自行处理），或用本示例的赋值类语义
+ */

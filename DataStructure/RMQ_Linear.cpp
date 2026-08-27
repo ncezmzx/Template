@@ -35,8 +35,8 @@ void euler_dfs(int x, int d) {
 constexpr int B = 16;
 short f[1 << (B - 1)][B][B];
 char done[1 << (B - 1)];
-int bmask[N / B + 5], mnv[N / B + 5], mnp[N / B + 5];
-int stp[20][N / B + 5], lg2[N / B + 5];
+int bmask[(N << 1) / B + 5], mnv[(N << 1) / B + 5], mnp[(N << 1) / B + 5];   // 欧拉序长 2n，块数上界 2N/B
+int stp[20][(N << 1) / B + 5], lg2[(N << 1) / B + 5];
 
 void pm1_build(int m) {
   int bcnt = (m + B - 1) / B;

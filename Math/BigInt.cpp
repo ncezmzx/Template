@@ -15,12 +15,31 @@ struct bigint {
     if (t >> 32) a.push_back(u32(t >> 32));
     trim();
   }
+  // 一次完成 (*this) = (*this) * 10^k + v（k<=9, v < 10^9），十进制转换的核心原语
+  void mul_add_small(int k, u64 v) {
+    static constexpr u64 pw10[10] = {1, 10, 100, 1000, 10000, 100000,
+                                     1000000, 10000000, 100000000, 1000000000};
+    u64 m = pw10[k], carry = v;
+    for (int i = 0; i < (int)a.size(); ++i) {
+      u64 cur = (u64)a[i] * m + carry;
+      a[i] = u32(cur), carry = cur >> 32;
+    }
+    while (carry) a.push_back(u32(carry)), carry >>= 32;
+    trim();
+  }
   explicit bigint(const string& s) {
     int i = 0;
     bool n = false;
     if (i < (int)s.size() && (s[i] == '-' || s[i] == '+')) n = s[i++] == '-';
     a.assign(1, 0);
-    for (; i < (int)s.size(); ++i) *this = *this * 10 + (s[i] - '0');
+    // 按 9 位十进制一段读入，段数比逐位读缩小 9 倍（乘加次数 O(n/9)）
+    while (i < (int)s.size()) {
+      int take = min(9, (int)s.size() - i);
+      u64 v = 0;
+      for (int t = 0; t < take; ++t) v = v * 10 + (u64)(s[i + t] - '0');
+      i += take;
+      mul_add_small(take, v);
+    }
     if (n && !is_zero()) neg = true;
   }
 

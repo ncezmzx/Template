@@ -3,32 +3,34 @@ using namespace std;
 #define int long long
 
 constexpr int N = 1e5 + 9, M = 1e6 + 9, INF = 0x3f3f3f3f3f3f3f3f;
-int hd[N], nxt[M], to[M], cap[M], tot = 1, cur[N], dep[N];
+int hd[N], nxt[M], to[M], cap[M], tot = 1, cur[N], dep[N], q[N], nv = 2;
 
 void add(int x, int y, int c) {
   nxt[++tot] = hd[x], hd[x] = tot, to[tot] = y, cap[tot] = c;
   nxt[++tot] = hd[y], hd[y] = tot, to[tot] = x, cap[tot] = 0;
+  if (x >= nv) nv = x + 1;
+  if (y >= nv) nv = y + 1;   // 记录实际点数，收缩每阶段的 memset/memcpy 范围
 }
 
 bool bfs(int s, int t) {
-  memset(dep, -1, sizeof dep);
-  queue<int> q;
-  q.push(s), dep[s] = 0;
-  while (!q.empty()) {
-    int x = q.front();
-    q.pop();
+  memset(dep, -1, nv * sizeof(int));
+  int qh = 0, qt = 0;        // 扁平数组队列，免掉 std::queue 的链表开销
+  q[qt++] = s, dep[s] = 0;
+  while (qh < qt) {
+    int x = q[qh++], dx = dep[x] + 1;
     for (int i = hd[x]; i; i = nxt[i])
-      if (cap[i] && dep[to[i]] == -1) dep[to[i]] = dep[x] + 1, q.push(to[i]);
+      if (cap[i] && dep[to[i]] == -1) dep[to[i]] = dx, q[qt++] = to[i];
   }
   return dep[t] != -1;
 }
 
 int dfs(int x, int t, int w) {
   if (x == t) return w;
-  int flow = 0;
+  int flow = 0, dx = dep[x] + 1;
   for (int& i = cur[x]; i && w; i = nxt[i]) {
-    if (cap[i] && dep[to[i]] == dep[x] + 1) {
-      int k = dfs(to[i], t, min(w, cap[i]));
+    int v = to[i];
+    if (cap[i] && dep[v] == dx) {
+      int k = dfs(v, t, min(w, cap[i]));
       flow += k, w -= k, cap[i] -= k, cap[i ^ 1] += k;
     }
   }
@@ -38,7 +40,7 @@ int dfs(int x, int t, int w) {
 int maxflow(int s, int t) {
   int r = 0;
   while (bfs(s, t)) {
-    memcpy(cur, hd, sizeof hd);
+    memcpy(cur, hd, nv * sizeof(int));
     r += dfs(s, t, INF);
   }
   return r;

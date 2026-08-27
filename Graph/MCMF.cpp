@@ -5,19 +5,22 @@ using namespace std;
 constexpr int N = 5e3 + 9, M = 5e4 + 9, inf = 0x3f3f3f3f3f3f3f3f;
 struct mcmf {
   int hd[N], nxt[M * 2], to[M * 2], cap[M * 2], cst[M * 2], tot = 1, dst[N], cur[N], vst[N];
+  int q[N + 2], nv = 2;   // 环形队列（容量 N+2，防源点重复入队时占满）+ 实际点数
   void add(int x, int y, int z, int c) {
     nxt[++tot] = hd[x], hd[x] = tot, to[tot] = y, cap[tot] = z, cst[tot] = c;
     nxt[++tot] = hd[y], hd[y] = tot, to[tot] = x, cap[tot] = 0, cst[tot] = -c;
+    if (x >= nv) nv = x + 1;
+    if (y >= nv) nv = y + 1;
   }
   pair<int, int> dfs(int x, int t, int w) {
     if (x == t) return {w, 0};
     vst[x] = 1;
-    int flow = 0, cost = 0;
+    int flow = 0, cost = 0, dx = dst[x];
     for (int i = cur[x]; i && w; i = nxt[i]) {
       cur[x] = i;
       if (vst[to[i]]) continue;
       int cp = min(cap[i], w);
-      if (cp > 0 && dst[x] + cst[i] == dst[to[i]]) {
+      if (cp > 0 && dx + cst[i] == dst[to[i]]) {
         auto [f, cs] = dfs(to[i], t, cp);
         flow += f, w -= f, cost += f * cst[i] + cs;
         cap[i] -= f, cap[i ^ 1] += f;
@@ -30,17 +33,25 @@ struct mcmf {
   pair<int, int> calc(int s, int t) {
     int flow = 0, cost = 0;
     while (true) {
-      memset(dst, 0x3f, sizeof dst);
-      memcpy(cur, hd, sizeof cur);
-      queue<int> q;
-      q.push(s), dst[s] = 0;
-      while (!q.empty()) {
-        int x = q.front();
-        q.pop(), vst[x] = false;
+      memset(dst, 0x3f, nv * sizeof(int));
+      memcpy(cur, hd, nv * sizeof(int));
+      int qh = 0, qt = 0;   // 环形数组队列：vst 保证同时在队元素 <= N+1
+      q[qt] = s, dst[s] = 0;
+      if (++qt > N + 1) qt = 0;
+      while (qh != qt) {
+        int x = q[qh];
+        if (++qh > N + 1) qh = 0;
+        vst[x] = false;
+        int dx = dst[x];
         for (int i = hd[x]; i; i = nxt[i]) {
-          if (cap[i] > 0 && dst[x] + cst[i] < dst[to[i]]) {
-            dst[to[i]] = dst[x] + cst[i];
-            if (!vst[to[i]]) vst[to[i]] = true, q.push(to[i]);
+          int nd = dx + cst[i];
+          if (cap[i] > 0 && nd < dst[to[i]]) {
+            dst[to[i]] = nd;
+            if (!vst[to[i]]) {
+              vst[to[i]] = true;
+              q[qt] = to[i];
+              if (++qt > N + 1) qt = 0;
+            }
           }
         }
       }

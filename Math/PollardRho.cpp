@@ -42,8 +42,19 @@ int pollard_rho(int n) {
     int x = rng() % (n - 1) + 1, y = x, d = 1;
     auto f = [&](int v) { return (mul_mod(v, v, n) + c) % n; };
     while (d == 1) {
-      x = f(x), y = f(f(y));
-      d = std::gcd(x > y ? x - y : y - x, n);
+      // 批量 Floyd：|x-y| 连乘 128 步模 n 后只做一次 gcd，摊薄逐步 gcd 的除法开销
+      int q = 1;
+      for (int i = 0; i < 128 && d == 1; ++i) {
+        x = f(x), y = f(f(y));
+        if (x == y) {
+          d = __gcd(q, n);          // 指针相遇：用部分积抢救一次
+          if (d == 1) d = n;           // 无效，换 c 重来
+          break;
+        }
+        q = mul_mod(q, x > y ? x - y : y - x, n);
+        if (!(i & 31)) d = __gcd(q, n);
+      }
+      if (d == 1) d = __gcd(q, n);
     }
     if (d != n) return d;
   }
@@ -65,7 +76,7 @@ void factorize(int n, vector<int>& fac) {
  * 原理：伪随机函数 f(x) = (x^2 + c) mod n 在模 n 下进入循环，用 Floyd
  *       判圈法取差与 n 求 gcd，命中非平凡因子；失败（d == n）时更换随机种子重试
  * 注意：#define int long long 使 int 为 64 位；mul_mod 用 __int128 防溢出；
- *       依赖 Gcd_Binary.cpp 或 std::gcd（此处直接用 std::gcd）
+ *       依赖 Gcd_Binary.cpp 或手写 gcd（此处用 __gcd 扩展，兼容 C++14）
  * 用法：factorize(n, fac) 后 fac 内含 n 的所有质因子（含重复、无序）
  * ============================================================
  * 使用示例（编译时取消注释）：

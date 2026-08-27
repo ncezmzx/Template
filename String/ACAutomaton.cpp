@@ -3,7 +3,7 @@ using namespace std;
 #define int long long
 
 constexpr int N = 1e6 + 9;
-int ch[N][26], fail[N], ed[N], cnt[N], tot;
+int ch[N][26], fail[N], ed[N], cnt[N], tot, inq[N], q[N], hd, tl;
 
 void ac_insert(const string& s) {
   int u = 0;
@@ -16,14 +16,13 @@ void ac_insert(const string& s) {
 }
 
 void ac_build() {
-  queue<int> q;
+  hd = tl = 0;   // 复用下方 ac_count 的全局队列数组，免掉 std::queue 的链表开销
   for (int i = 0; i < 26; ++i)
-    if (ch[0][i]) q.push(ch[0][i]);
-  while (!q.empty()) {
-    int u = q.front();
-    q.pop();
+    if (ch[0][i]) q[++tl] = ch[0][i];
+  while (hd < tl) {
+    int u = q[++hd];
     for (int i = 0; i < 26; ++i) {
-      if (ch[u][i]) fail[ch[u][i]] = ch[fail[u]][i], q.push(ch[u][i]);
+      if (ch[u][i]) fail[ch[u][i]] = ch[fail[u]][i], q[++tl] = ch[u][i];
       else ch[u][i] = ch[fail[u]][i];
     }
   }
@@ -41,7 +40,6 @@ int ac_query(const string& s) {
   return res;
 }
 
-int inq[N], q[N], hd, tl;
 void ac_count(const string& t) {
   int u = 0;
   for (char c : t) ++cnt[u = ch[u][c - 'a']];

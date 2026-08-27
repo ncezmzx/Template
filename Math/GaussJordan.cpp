@@ -25,8 +25,11 @@ int gauss(int n) {
     for (int i = 0; i < n; ++i)
       if (i != r && a[i][c]) {
         int t = a[i][c];
-        for (int j = c; j <= n; ++j)
-          a[i][j] = (a[i][j] - t * a[r][j] % md + md) % md;
+        for (int j = c; j <= n; ++j) {
+          // 一次取模 + 条件减替代两次取模（t*a[r][j] < 2^60 安全）
+          int v = a[i][j] - (int)(t * a[r][j] % md);
+          a[i][j] = v < 0 ? v + md : v;
+        }
       }
     ++r;
   }

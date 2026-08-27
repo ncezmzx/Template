@@ -14,9 +14,13 @@ void fwt_or(int a[], int n, bool inv) {
   for (int len = 1; len < n; len <<= 1)
     for (int i = 0; i < n; i += len << 1)
       for (int j = 0; j < len; ++j) {
-        int u = a[i + j], v = a[i + j + len];
-        if (!inv) a[i + j + len] = (v + u) % md;
-        else a[i + j + len] = (v - u + md) % md;
+        if (!inv) {
+          int v = a[i + j + len] + a[i + j];
+          a[i + j + len] = v >= md ? v - md : v;   // 加法后条件减，省去除法取模
+        } else {
+          int v = a[i + j + len] - a[i + j];
+          a[i + j + len] = v < 0 ? v + md : v;
+        }
       }
 }
 
@@ -24,9 +28,13 @@ void fwt_and(int a[], int n, bool inv) {
   for (int len = 1; len < n; len <<= 1)
     for (int i = 0; i < n; i += len << 1)
       for (int j = 0; j < len; ++j) {
-        int u = a[i + j], v = a[i + j + len];
-        if (!inv) a[i + j] = (u + v) % md;
-        else a[i + j] = (u - v + md) % md;
+        if (!inv) {
+          int v = a[i + j] + a[i + j + len];
+          a[i + j] = v >= md ? v - md : v;
+        } else {
+          int v = a[i + j] - a[i + j + len];
+          a[i + j] = v < 0 ? v + md : v;
+        }
       }
 }
 
@@ -35,8 +43,9 @@ void fwt_xor(int a[], int n, bool inv) {
     for (int i = 0; i < n; i += len << 1)
       for (int j = 0; j < len; ++j) {
         int u = a[i + j], v = a[i + j + len];
-        a[i + j] = (u + v) % md;
-        a[i + j + len] = (u - v + md) % md;
+        int s = u + v, d = u - v;
+        a[i + j] = s >= md ? s - md : s;
+        a[i + j + len] = d < 0 ? d + md : d;
       }
   if (inv) {
     int iv = qpow(n, md - 2);

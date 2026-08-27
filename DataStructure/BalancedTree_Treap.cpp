@@ -82,6 +82,7 @@ void dfs(int x) {
  * 注意：与 BalancedTree_Splay.cpp、BalancedTree_WBST_*.cpp 为同算法（平衡树）
  *       的不同实现，按需选用；多组数据需重置 tot、rt
  * 用法：rt = merge(a, b)；insert(rt, v)；erase(rt, v)；kth(rt, k)
+ *       （erase 删除**所有**等于 v 的节点，set 语义；multiset 需自行 split 摘一个）
  * ============================================================
  * 使用示例（编译时取消注释；序列区间反转）：
  * signed main() {

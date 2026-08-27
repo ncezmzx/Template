@@ -3,23 +3,22 @@ using namespace std;
 #define int long long
 
 constexpr int N = 1e5 + 9;
-int n, m, nl, nr, dis[N], match[N], vis[N];
+int n, m, nl, nr, dis[N], match[N], vis[N], vstamp, q[N];
 vector<int> g[N];
 
 bool bfs() {
-  queue<int> q;
   bool f = false;
+  int qh = 0, qt = 0;   // 扁平数组队列：只入队左侧点，nl 容量足够
   for (int i = 1; i <= nl; ++i)
-    if (!match[i]) dis[i] = 0, q.push(i);
+    if (!match[i]) dis[i] = 0, q[qt++] = i;
     else dis[i] = -1;
   dis[0] = -1;
-  while (!q.empty()) {
-    int u = q.front();
-    q.pop();
+  while (qh < qt) {
+    int u = q[qh++], du = dis[u] + 1;
     for (int v : g[u]) {
       if (dis[match[v]] == -1) {
-        dis[match[v]] = dis[u] + 1;
-        if (match[v]) q.push(match[v]);
+        dis[match[v]] = du;
+        if (match[v]) q[qt++] = match[v];
         else f = true;
       }
     }
@@ -28,10 +27,11 @@ bool bfs() {
 }
 
 bool dfs(int u) {
+  int du = dis[u] + 1;   // 层号提出，避免每条邻边重算
   for (int v : g[u]) {
-    if (match[v] && dis[match[v]] != dis[u] + 1) continue;  // 层级检查先于 vis
-    if (vis[v]) continue;
-    vis[v] = 1;
+    if (match[v] && dis[match[v]] != du) continue;  // 层级检查先于 vis
+    if (vis[v] == vstamp) continue;
+    vis[v] = vstamp;
     if (!match[v] || dfs(match[v])) {
       match[u] = v, match[v] = u;
       return true;
@@ -44,7 +44,7 @@ bool dfs(int u) {
 int hopcroft_karp() {
   int ans = 0;
   while (bfs()) {
-    memset(vis, 0, sizeof vis);
+    ++vstamp;   // 时间戳代替每阶段 memset(vis)
     for (int i = 1; i <= nl; ++i)
       if (!match[i] && dfs(i)) ++ans;
   }

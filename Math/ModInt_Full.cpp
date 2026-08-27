@@ -7,15 +7,18 @@ template <uint32_t m> struct modint {
   using u128 = __uint128_t;
   static constexpr u32 mod = m;
 
-  static constexpr u32 im = [] {
+  // C++14 无 constexpr lambda，改用 constexpr 成员函数预计算
+  static constexpr u32 calc_im() {
     u32 x = 1;
     for (int i = 0; i < 5; ++i) x *= 2 - mod * x;
     return u32(0) - x;
-  }();
-  static constexpr u32 r2 = [] {
+  }
+  static constexpr u32 calc_r2() {
     u64 x = (u64(-1) % mod + 1) % mod;
     return u32(x);
-  }();
+  }
+  static constexpr u32 im = calc_im();
+  static constexpr u32 r2 = calc_r2();
 
   u32 v;
 

@@ -26,7 +26,7 @@ void tarjan (int u) {
 void dfs (int u, int f) {
   dep[u] = dep[f] + 1;
   fa[u][0] = f;
-  for (int i = 1; i < 20; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];
+  for (int i = 1; fa[u][i - 1]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];  // 越顶即止（默认 0）
   for (int v : e[u]) {
     if (v == f) continue;
     dfs (v, u);

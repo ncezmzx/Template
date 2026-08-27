@@ -18,8 +18,16 @@ void dfs(int x, int ff) {
     if (y ^ ff) dfs(y, x);
 }
 int get(int x, int y) { return dfn[x] < dfn[y] ? x : y; }
+int lca_built = -1;   // mi 稀疏表惰性构建（原实现缺此步，d>=1 层全 0 导致 dist 错）
+void build_mi() {
+  for (int k = 1; k < 20; ++k)
+    for (int i = 1; i + (1 << k) - 1 <= idx; ++i)
+      mi[k][i] = get(mi[k - 1][i], mi[k - 1][i + (1 << (k - 1))]);
+  lca_built = idx;
+}
 int lca(int x, int y) {
   if (x == y) return x;
+  if (lca_built != idx) build_mi();
   if ((x = dfn[x]) > (y = dfn[y])) swap(x, y);
   int d = __lg(y - ++x + 1);
   return get(mi[d][x], mi[d][y - (1 << d) + 1]);

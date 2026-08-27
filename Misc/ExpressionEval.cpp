@@ -52,6 +52,7 @@ struct expr_eval {
   }
 
   long long parse_pri() {
+    if (pos >= (int)s.size()) return 0;   // 防御残缺输入：避免读越界（合法输入不会走到）
     if (s[pos] == '(') {
       ++pos;
       long long res = parse_expr();
