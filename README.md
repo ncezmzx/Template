@@ -24,11 +24,11 @@ Template/
 └── Trash/           被移除的常见/基础/重复模板（保留备查）
 ```
 
-全库共 112 个模板（DataStructure 46 / Graph 20 / String 8 / Math 26 / Misc 9 / Geometry 3）+ 本 README。
+全库共 121 个模板（DataStructure 48 / Graph 22 / String 8 / Math 29 / Misc 11 / Geometry 3）+ 本 README。
 
 ## 索引
 
-### DataStructure/（46 个，含 Heaps/ 16 个）
+### DataStructure/（48 个，含 Heaps/ 16 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -47,6 +47,8 @@ Template/
 | `SegmentTree_ACL.cpp` | 懒标记线段树·ACL 式（静态满树，泛型 op/mapping，非递归；接口与 atcoder::lazy_segtree 逐函数对齐，支持依赖段长的作用如区间仿射+和，含 max_right/min_left） |
 | `SegmentTree_LiChao.cpp` | 李超线段树（线段/直线插入，区间最小查询，O(log)） |
 | `PersistentSegmentTree.cpp` | 主席树（静态区间第 k 小 / 区间 rank，前缀版本化） |
+| `PersistentDSU.cpp` | 可持久化并查集（线段树存 fa/siz + 按大小合并，历史版本查询，无路径压缩） |
+| `PersistentTreap.cpp` | 可持久化平衡树（fhq-Treap 全持久化，历史版本 ins/erase/kth/rnk/前驱/后继） |
 | `SegmentTree_Merge.cpp` | 线段树合并（动态开点权值树，均摊 O(log V)，子树统计） |
 | `Trie_Binary.cpp` | 可持久化 01-Trie（版本区间异或最值 / rank，免离散化） |
 | `DSU_Weighted_Rollback.cpp` | 带权并查集（相对关系维护）+ 可撤销并查集（线段树分治用） |
@@ -93,7 +95,7 @@ Template/
 > RankPairing_B、Thin、Slim、BinaryExt 存在文章原版的固有缺陷（减键/删除路径错误），
 > 标注为参考实现**；全局数组大小（N、M）按题调整。
 
-### Graph/（20 个）
+### Graph/（22 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -117,6 +119,8 @@ Template/
 | `GeneralMatching.cpp` | 一般图最大匹配（带花树，O(n³)，对照 tourist 实现校准） |
 | `DirectedMST.cpp` | 最小树形图（朱刘算法，O(nm)，缩环 do-while 修正版） |
 | `MatrixTree.cpp` | Matrix-Tree 定理（无向生成树 / 有向外向树计数，mod 998244353） |
+| `StoerWagner.cpp` | Stoer-Wagner 全局最小割（无向正权图，不指定源汇，O(nm + n²log n)） |
+| `SteinerTree.cpp` | 最小斯坦纳树（连通 k 个关键点的最小边权和，子集 DP + Dijkstra） |
 
 ### String/（8 个）
 
@@ -131,7 +135,7 @@ Template/
 | `Lyndon.cpp` | Lyndon 分解（Duval）+ 最小表示（循环同构最小起点） |
 | `ACAutomaton.cpp` | AC 自动机（多模式串匹配，Trie + fail + 拓扑计数） |
 
-### Math/（26 个）
+### Math/（29 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -161,8 +165,11 @@ Template/
 | `DuSieve.cpp` | 杜教筛（Σφ、Σμ 前缀和，O(n^{2/3})） |
 | `LinearRecurrence.cpp` | Berlekamp-Massey + Kitamasa（线性递推第 k 项，O(d²log k)） |
 | `Simpson.cpp` | 自适应辛普森积分（Richardson 外推） |
+| `SubsetConvolution.cpp` | 子集卷积（h[S]=Σ_{T⊆S} f[T]g[S\T]，popcount 分层 + OR 的 zeta/Möbius，O(n²2^n)） |
+| `Pell.cpp` | Pell 方程 x²-Dy²=1 基本解（√D 连分数周期 + 收敛分数） |
+| `NimProduct.cpp` | Nim 积（nimber 乘法，最大费马 2 幂分治，64 位） |
 
-### Misc/（9 个）
+### Misc/（11 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -175,6 +182,8 @@ Template/
 | `ExpressionEval.cpp` | 表达式求值（递归下降，+ - * / % ^ 括号 一元负号 变量） |
 | `MoAlgorithm.cpp` | 莫队算法（普通 + 带修改，区间不同数示例，奇偶块优化） |
 | `CDQDivide.cpp` | CDQ 分治（三维偏序可比对计数，O(n log² n)） |
+| `ParallelBinarySearch.cpp` | 整体二分（离线静态区间第 k 小，值域二分 + BIT 分流） |
+| `RollbackMo.cpp` | 回滚莫队（不删除莫队，区间相同数最远距离，右端永久 + 左端回滚） |
 
 ### Geometry/（3 个）
 
@@ -352,4 +361,49 @@ prim、K 短路（A*）、匈牙利算法（已有 HopcroftKarp/KM）、Kosaraju
 - 另修复旧文件 `LCT_Monoid` 示例中的 `'\\n'` 双反斜杠笔误
 
 全库 135 个文件 `g++ -std=c++14 -O2` 编译通过；26 个新模板的尾部示例取消注释后
+编译运行输出与注释一致。
+
+## 对照 OI-Wiki 补全记录（2026-08 第五轮）
+
+以 [OI-Wiki](https://oi-wiki.org/) 的算法目录为清单，选取"实现复杂 / 边界易错"且本库缺失的
+9 个模板补入：全局最小割（Stoer-Wagner）、最小斯坦纳树、可持久化并查集、可持久化平衡树
+（fhq-Treap）、子集卷积、Pell 方程、Nim 积、整体二分、回滚莫队。
+
+**补全清单**：
+- 图论 2：Stoer-Wagner 全局最小割、最小斯坦纳树（子集 DP + Dijkstra）
+- 数据结构 2：可持久化并查集（线段树存 fa/siz + 按大小合并）、可持久化 fhq-Treap
+- 数学 3：子集卷积（popcount 分层 + OR 的 zeta/Möbius）、Pell 方程基本解（连分数）、
+  Nim 积（最大费马 2 幂分治，64 位 nimber）
+- 杂项 2：整体二分（区间第 k 小离线）、回滚莫队（不删除莫队）
+
+**易错点说明（均已在模板中正确处理）**：
+- Stoer-Wagner：cut-of-phase 的 s/t 取"倒数第二/最后加入"的点；合并时边权
+  `edge[s][j] += edge[j][t]` 需双向叠加；图不连通提前返回 0
+- 斯坦纳树：dp 以 INF 初始化、关键点 `dp[key][1<<i]=0`；必须先子树合并再 Dijkstra 松弛，
+  顺序不可颠倒
+- 可持久化并查集：**不能路径压缩**（会破坏历史版本共享的结构），只能按大小合并保证
+  O(log) 树高；find 沿持久化线段树逐层点查
+- 可持久化 Treap：split/merge 沿途"写时复制"，历史根永不被改；erase 仅删一个同值节点
+- 子集卷积：必须按 popcount 分层再卷积，直接 FWT 会漏掉"恰好不相交"的限制；每层逆变换后
+  取回 `H[popcount(S)][S]`
+- Pell 方程：√D 连分数周期以 `a == 2a0` 判定；周期奇偶决定取第 L-1 还是 2L-1 个收敛分数；
+  中间乘积需 `__int128`，D 过大导致基本解超出 long long（如 D=277、D=1021）需换高精度
+- Nim 积：按 mex 定义或按"最低 2 幂位"拆分会指数级递归（单个 64 位平方可达 ~3e5 次调用）；
+  须按最大费马 2 幂 F(k)=2^{2^k} 分治（m⊗m = 3m/2、m⊗z = m·z），递归深度 ≤ 5
+- 整体二分：BIT 只统计值域 [L, mid] 的位置并每层回滚；k 要减去左半贡献；值域需离散化
+- 回滚莫队：同块内 r 只增不减（禁用奇偶优化）；左指针的临时加入必须**逆序**回滚 first[]；
+  询问完全落在块内时暴力 O(√n)
+
+**验证**（9 个新模板全部通过 ASan/UBSan 随机对拍）：
+- Stoer-Wagner 3000 组 vs 枚举源汇 Dinic 最小割（含不连通图）
+- 斯坦纳树 3000 组 vs 枚举非关键点子集 Prim（先造生成树保证连通）
+- 可持久化并查集 300 轮随机合并/询问 + 全版本 find 对拍 vs 逐版本拷贝
+- 可持久化 Treap 60 轮 × 2000 步随机 ins/erase/kth/rnk/前驱/后继 vs `vector<multiset>`
+- 子集卷积 200 组 vs O(4^n) 枚举子集
+- Pell 254 个非平方 D（≤270）：回代 x²-Dy²=1 + 暴力最小性；另交叉验证 D=2/3/5/13/61
+- Nim 积：≤31 全表 vs mex 定义 + 5000 组 64 位域公理（交换/结合/分配/单位元）+ 1000 组求逆
+- 整体二分 300 组 vs 排序取第 k 小（含负值与重复值）
+- 回滚莫队 300 组 vs O(n²) 暴力
+
+全库 144 个文件（含 Trash/）`g++ -std=c++14 -O2` 编译通过；9 个新模板的尾部示例取消注释后
 编译运行输出与注释一致。
