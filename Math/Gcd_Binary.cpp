@@ -16,17 +16,22 @@ int gcd_bin(int a, int b) {
 
 /*
  * ============================================================
- * 名称：二进制 GCD（Binary GCD，__builtin_ctz 加速）
- * 复杂度：O(log max(a,b)) 上界，实际均摊极快（常数远小于欧几里得取模版），
- *         多数情况下接近 O(1)，故也称 O(1) 级 gcd
- * 用途：替代 std::gcd / 欧几里得算法的取模，在需要大量 gcd 计算时（如
- *       枚举约数、区间 gcd 分块、Pollard-Rho 内部）显著提速；
- *       仅依赖位运算，无除法取模，对 64 位整数友好
- * 原理：先剥离公共因子 2；两奇数相减必为偶数，右移去掉因子 2 后规模减半，
- *       如此往复直至两数相等；最后乘回公共的 2 的幂
- * 用法：gcd_bin(a, b)；a、b 为非负 64 位整数；0 特判已包含
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: binary GCD (__builtin_ctz accelerated)
+ * Complexity: O(log max(a,b)) upper bound, amortized extremely fast in
+ *             practice (constants far below Euclid's modulo), near O(1)
+ * Usage: replaces std::gcd / Euclidean modulo when gcd is called in bulk
+ *        (divisor enumeration, range-gcd blocking, inside Pollard-Rho);
+ *        bit operations only, no division, 64-bit friendly
+ * Principle: strip the common power of two first; the difference of two odd
+ *        numbers is even, so right-shifting removes factors of two and halves
+ *        the scale until the numbers are equal; multiply the common power of
+ *        two back at the end
+ * Usage pattern: gcd_bin(a, b); a, b non-negative 64-bit integers; the zero
+ *        cases are handled
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   int a, b;
  *   cin >> a >> b;

@@ -6,14 +6,16 @@ string s, t;
 bitset<N> a[26];
 /*
  * ============================================================
- * 名称：bitset 技巧 —— 通配符字符串匹配（26 个 bitset 按字符建位 + 逐位与 + 左移）
- * 复杂度：O(|S| * |T| / 64)（每次 ans &= a[c] 与 ans <<= 1 均为 O(|T|/64)）
- * 用途：模式串 t 含 '*'（可匹配任意一个字符）时求所有匹配起点；用 bitset 并行维护
- *       "每个位置是否仍可能"的布尔匹配，为每个字符 c 建 bitset a[c]，每读入 s 的
- *       一个字符就 ans &= a[c] 并左移一位。demo 输入仅限小写字母与 '*'。
- * 来源：all.cpp 行 33335-33356（原样保留；注释已统一移至文件尾部）
+ * Name: bitset trick — wildcard string matching (26 per-character bitsets + AND + shift)
+ * Complexity: O(|S| * |T| / 64) (each ans &= a[c] and ans <<= 1 costs O(|T|/64))
+ * Usage: all match starts when the pattern t contains '*' (matching any one
+ *        character); bitsets maintain "is each position still possible" in
+ *        parallel: one bitset a[c] per character c; for each character of s,
+ *        ans &= a[c] then shift left by one. The demo input is lowercase
+ *        letters and '*' only.
+ * Source: all.cpp lines 33335-33356 (kept verbatim, comments translated)
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   cin.tie(nullptr)->sync_with_stdio(false);
  *   cin >> s >> t;

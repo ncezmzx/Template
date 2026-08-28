@@ -135,7 +135,7 @@ struct yfast {
       id = (int)blk.size();
       blk.emplace_back();
     }
-    rep_link(minv);      // 先算前驱后继（此时 minv 尚未插入 trie）
+    rep_link(minv);      // link predecessor/successor first (minv is not in the trie yet)
     trie_insert(minv);
     min2id[minv] = id;
     return id;
@@ -150,7 +150,7 @@ struct yfast {
     trie_delete(old_min);
     rep_unlink(old_min);
     min2id.erase(old_min);
-    rep_link(new_min);   // 先链后插（new_min 不在 trie 中时 pred_succ 走最长前缀分支）
+    rep_link(new_min);   // link before inserting (with new_min absent, pred_succ takes the longest-prefix branch)
     trie_insert(new_min);
     min2id[new_min] = id;
   }
@@ -265,33 +265,38 @@ struct yfast {
 
 /*
  * ============================================================
- * 名称：y-fast trie（x-fast trie + 分块），来源：洛谷 o99sh6m1（简述，自行实现）
- * 复杂度：find/前驱/后继/最大/最小 O(log ω)（ω = 64）；插入/删除均摊 O(log ω)
- * 原理：
- *   1) x-fast trie：64 位前缀字典树，每层一张哈希表（前缀 → 节点），节点存子树
- *      最小/最大值；配合"代表值有序双向链表"，用最长前缀二分 + 兄弟子树最值
- *      得到与 x 排名差不超过 1 的键（乌姆尼克迭代法的等价实现，O(log ω) 次
- *      哈希查询）
- *   2) y-fast trie：元素按大小分块（块内有序 vector 二分，目标块长 B = 64），
- *      块间用 x-fast trie 维护各块最小值（代表元素）；插入导致块超 2B 则一分为
- *      二，删除导致块小于 B/2 则与相邻块合并（摊还 O(1)）
- * 用途：64 位整数集合的动态操作（查找/前驱/后继/最大最小/插入/删除），常数
- *       小于红黑树实现（std::set 为 O(log n) 且缓存不友好）；适合操作量极大的
- *       场景（如 OI 中 1e6 级操作）
- * 注意：约定 0 不存入集合（空时前驱/后继/最大/最小返回 0）；块大小阈值 B 可按
- *       数据规模调整（越大分块开销越小、块内二分越慢）
+ * Name: y-fast trie (x-fast trie + blocking); source: Luogu o99sh6m1 (sketch, self-implemented)
+ * Complexity: find/predecessor/successor/max/min O(log omega) (omega = 64);
+ *             insert/delete amortized O(log omega)
+ * Principle:
+ *   1) x-fast trie: a 64-bit prefix trie with one hash table per level
+ *      (prefix -> node); nodes store subtree min/max; combined with an
+ *      ordered doubly-linked list of representatives, a longest-prefix
+ *      binary search + sibling-subtree extrema yields a key whose rank
+ *      differs from x's by at most 1 (equivalent to the van Emde Boas-style
+ *      iteration, O(log omega) hash lookups)
+ *   2) y-fast trie: elements are grouped into blocks (sorted vector + binary
+ *      search inside, target block size B = 64); an x-fast trie maintains
+ *      the blocks' minima (representatives); a block exceeding 2B splits in
+ *      two, a block below B/2 merges with a neighbor (amortized O(1))
+ * Usage: dynamic set of 64-bit integers (find/pred/succ/min/max/insert/
+ *        delete), smaller constants than std::set (O(log n) and cache-
+ *        unfriendly); suited to very heavy workloads (~1e6 operations in OI)
+ * Notes: 0 is reserved as "not stored" (predecessor/successor/max/min return
+ *        0 when empty); tune the block threshold B per data scale (larger B =
+ *        less blocking overhead, slower in-block binary search)
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   yfast st;
- *   for (u64 x : {5ull, 3ull, 9ull, 1ull, 7ull}) st.insert(x);
+ *   for (yfast::u64 x : {5ull, 3ull, 9ull, 1ull, 7ull}) st.insert(x);
  *   cout << st.minimum() << ' ' << st.maximum() << '\n';       // 1 9
  *   cout << st.find(7) << ' ' << st.find(4) << '\n';           // 1 0
  *   cout << st.predecessor(6) << ' ' << st.successor(6) << '\n';  // 5 7
  *   st.erase(5);
  *   cout << st.predecessor(6) << ' ' << st.successor(4) << '\n';  // 3 7
- *   for (u64 x : {3ull, 1ull, 9ull, 7ull}) st.erase(x);
- *   cout << st.minimum() << '\n';                              // 0（空）
+ *   for (yfast::u64 x : {3ull, 1ull, 9ull, 7ull}) st.erase(x);
+ *   cout << st.minimum() << '\n';                              // 0 (empty)
  * }
  * ============================================================
  */

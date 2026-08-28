@@ -67,17 +67,21 @@ struct modint {
 using mint = modint<md>;
 /*
  * ============================================================
- * 名称：快速模数封装（Montgomery modint，固定模数）
- * 复杂度：四则运算 O(1)（每次乘法一次 Montgomery reduce），qpow O(log b)
- * 用途：模质数意义下的四则运算通用封装，替代普通 % 运算，速度更快；除法自动走逆元（要求模数为质数）。
- * 来源：all.cpp 行 5615-5678（原样保留；注释已统一移至文件尾部）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: fast modular wrapper (Montgomery modint, fixed modulus)
+ * Complexity: arithmetic O(1) (one Montgomery reduction per multiply); qpow O(log b)
+ * Usage: general-purpose arithmetic modulo a prime, replacing plain % with
+ *        faster operations; division goes through the inverse automatically
+ *        (modulus must be prime).
+ * Source: all.cpp lines 5615-5678 (kept verbatim, comments translated)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   mint a = 123456789, b = 987654321;
  *   cout << a + b << ' ' << a - b << ' ' << a * b << '\n';
  *   cout << qpow(a, 10) << '\n';
- *   cout << a / b << '\n';  // 除法走逆元（模质数）
+ *   cout << a / b << '\n';  // division via modular inverse (prime modulus)
  * }
  * ============================================================
  */

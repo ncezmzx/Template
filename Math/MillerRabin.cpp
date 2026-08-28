@@ -31,12 +31,15 @@ bool MillerRabin(int n) {
 }
 /*
  * ============================================================
- * 名称：Miller-Rabin 素性测试（确定性基）
- * 复杂度：O(k log^3 n)，k = 7 个基
- * 用途：判断 int64 范围内的数是否为素数（确定性），常配合 Pollard-Rho 做因数分解。
- * 来源：all.cpp 行 33194-33223（原样保留；注释已统一移至文件尾部）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: Miller-Rabin primality test (deterministic bases)
+ * Complexity: O(k log^3 n), k = 7 bases
+ * Usage: deterministic primality for the full int64 range; typically paired
+ *        with Pollard-Rho for factorization.
+ * Source: all.cpp lines 33194-33223 (kept verbatim)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   int tt;
  *   cin >> tt;

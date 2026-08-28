@@ -3,7 +3,7 @@ using namespace std;
 using u64 = unsigned long long;
 using i64 = long long;
 
-// Σ_{i=1..n} i^m 的闭式（m <= 3；T 需支持模意义乘除，如 modint / __int128）
+// closed form of sum_{i=1..n} i^m (m <= 3; T needs modular mul/div, e.g. modint / __int128)
 template <class T>
 T power_sum(i64 n, int m) {
   assert(m >= 0 && m <= 4);
@@ -92,7 +92,7 @@ class Min25 {
     }
   }
   T get(i64 n, int k) {
-    if (k > pcnt || n < prime[k] || n <= 1) {   // k > pcnt 先判，防 prime[k] 越界读
+    if (k > pcnt || n < prime[k] || n <= 1) {   // test k > pcnt first (avoids OOB prime[k])
       return 0;
     }
     int id = idx(n);
@@ -139,18 +139,23 @@ class Min25 {
 
 /*
  * ============================================================
- * 名称：Min25 筛（积性函数前缀和，f(p) 为素数处多项式）
- * 复杂度：O(n^{3/4} / log n) 级；空间 O(sqrt n)
- * 用途：求 Σ_{i=1..n} f(i)，f 为积性函数且 f(p) 是 p 的次数 < M 的
- *       多项式（系数数组 a：f(p) = Σ_m a[m]·p^m）；f(p^c) 由回调 f(p, c) 给出
- * 依赖：power_sum（Σ i^m 闭式，m <= 4；T 需支持模意义乘除，如 modint）
- * 来源：用户提供代码；已修 get() 中 k > pcnt 时 prime[k] 的越界读，
- *       并补齐缺失的 power_sum 依赖
- * 注意：T 需支持默认构造（零元）、int 构造、+ - * / 与复合赋值；
- *       一个对象只能调用一次 operator()（内部状态按单次求解建立）
  * ============================================================
- * 使用示例（编译时取消注释；Σ_{i=1..n} φ(i)，n = 10 时答案 32）：
- * #include <Math/ModInt.cpp>   // T 用 Montgomery modint
+ * Name: Min25 sieve (prefix sums of multiplicative functions, f(p) polynomial)
+ * Complexity: ~O(n^{3/4} / log n); space O(sqrt n)
+ * Usage: sum_{i=1..n} f(i) for multiplicative f whose values on primes are a
+ *        polynomial in p of degree < M (coefficient array a: f(p) =
+ *        sum_m a[m]*p^m); f(p^c) comes from the callback f(p, c)
+ * Depends: power_sum (closed form of sum i^m, m <= 4; T must support modular
+ *        multiplication/division, e.g. modint)
+ * Source: user-provided code; fixed the OOB prime[k] read in get() when
+ *         k > pcnt and added the missing power_sum dependency
+ * Notes: T needs default construction (zero), int construction, + - * / and
+ *        compound assignment; each object may call operator() only once
+ *        (internal state is built for a single solve)
+ * ============================================================
+ * Example (uncomment to compile; sum_{i=1..n} phi(i), answer 32 at n = 10):
+
+ * #include <Math/ModInt.cpp>   // T = Montgomery modint
  * signed main() {
  *   using T = mint;
  *   // f(p) = p - 1 → a = {-1, +1}；f(p^c) = p^c - p^(c-1)
@@ -160,7 +165,7 @@ class Min25 {
  *     for (int i = 0; i < c - 1; ++i) pw1 *= p;
  *     return pw - pw1;
  *   };
- *   Min25<T, 2> min25({T(-1), T(1)}, fpc);
+ *   Min25<T, 2, decltype(fpc)> min25({T(-1), T(1)}, fpc);
  *   long long n = 10;
  *   cout << raw(min25(n)) << '\n';   // 32
  * }

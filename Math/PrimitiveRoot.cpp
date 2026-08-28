@@ -12,7 +12,7 @@ int pw(int x, int n, int p) {
   return r;
 }
 
-// 分解 n（返回素因子，试除法，n <= 1e12 可行）
+// factor n (trial division; fine up to n <= 1e12), returns distinct prime factors
 vector<int> factorize(int n) {
   vector<int> fs;
   for (int i = 2; i * i <= n; ++i)
@@ -24,7 +24,7 @@ vector<int> factorize(int n) {
   return fs;
 }
 
-// 最小原根（p 为素数；g 是原根 iff 对 p-1 的每个素因子 q，g^{(p-1)/q} != 1 (mod p)）
+// smallest primitive root (p prime; g is one iff g^{(p-1)/q} != 1 for every prime q | p-1)
 int min_primitive_root(int p) {
   if (p == 2) return 1;
   vector<int> fs = factorize(p - 1);
@@ -32,7 +32,7 @@ int min_primitive_root(int p) {
     if (all_of(fs.begin(), fs.end(), [&](int q) { return pw(g, (p - 1) / q, p) != 1; })) return g;
 }
 
-// 所有原根 = g^k（gcd(k, p-1) = 1），共 phi(p-1) 个
+// all primitive roots are g^k with gcd(k, p-1) = 1; there are phi(p-1) of them
 vector<int> primitive_roots(int p) {
   vector<int> res;
   if (p == 2) return {1};
@@ -45,19 +45,23 @@ vector<int> primitive_roots(int p) {
 
 /*
  * ============================================================
- * 名称：原根（最小原根 / 全体原根）
- * 复杂度：试除分解 p-1 为 O(√p)；枚举判定 O(√p + ω(p)·log p)
- * 用途：min_primitive_root(p) 求 p（素数）的最小原根 g；
- *       primitive_roots(p) 列出全部 phi(p-1) 个原根；
- *       原根用途：NTT 模数的 g、离散对数（指标）等
- * 原理：g 是模 p 原根 iff g 的阶为 p-1，iff 对 p-1 的每个素因子 q，
- *       g^{(p-1)/q} != 1 (mod p)；最小原根普遍很小（< 300 量级）
- * 注意：p 需为素数（p = 2 返回 1）；p-1 分解用试除，p <= 1e12 可行
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: primitive roots (smallest / all)
+ * Complexity: trial-division factorization of p-1 is O(sqrt p); enumeration O(sqrt p + omega(p)*log p)
+ * Usage: min_primitive_root(p) = smallest primitive root g of the prime p;
+ *        primitive_roots(p) lists all phi(p-1) of them; typical uses: the
+ *        NTT modulus generator g, discrete logarithms (indices), etc.
+ * Principle: g is a primitive root mod p iff its order is p-1, iff for every
+ *        prime factor q of p-1, g^{(p-1)/q} != 1 (mod p); the smallest
+ *        primitive root is usually tiny (< ~300)
+ * Notes: p must be prime (p = 2 returns 1); p-1 is factored by trial
+ *        division, fine up to p <= 1e12
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   cout << min_primitive_root(998244353) << '\n';  // 3
- *   cout << min_primitive_root(7) << '\n';          // 3（3,5 也是原根）
- *   cout << primitive_roots(7).size() << '\n';      // 2（3 与 5）
+ *   cout << min_primitive_root(7) << '\n';          // 3 (5 is the other primitive root)
+ *   cout << primitive_roots(7).size() << '\n';      // 2 (3 and 5)
  * }
  */

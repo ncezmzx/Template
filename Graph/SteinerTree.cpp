@@ -2,11 +2,10 @@
 using namespace std;
 #define int long long
 
-// 最小斯坦纳树：连通 k 个关键点的最小边权和（无向正权连通图）
+// minimum Steiner tree: min total weight connecting k terminals (undirected, positive weights)
 constexpr int INF = 0x3f3f3f3f3f3f3f3fLL;
 
-// edges：{u, v, w}（1-indexed）；keys：k 个关键点（1-indexed）
-// 返回连通全部关键点的最小边权和（不可达返回 INF）
+// edges = {u, v, w} (1-indexed), keys = k terminals; returns the min cost (INF if unreachable)
 int steiner_tree(int n, const vector<array<int, 3>>& edges, const vector<int>& keys) {
   int k = keys.size(), m = 1 << k;
   vector<vector<pair<int, int>>> g(n + 1);
@@ -14,13 +13,13 @@ int steiner_tree(int n, const vector<array<int, 3>>& edges, const vector<int>& k
   vector<vector<int>> dp(n + 1, vector<int>(m, INF));
   for (int i = 0; i < k; ++i) dp[keys[i]][1 << i] = 0;
   for (int s = 1; s < m; ++s) {
-    for (int i = 1; i <= n; ++i)  // 子树合并：枚举 s 的真子集
+    for (int i = 1; i <= n; ++i)  // subset merge over proper subsets of s
       for (int sub = s & (s - 1); sub; sub = s & (sub - 1))
         dp[i][s] = min(dp[i][s], dp[i][sub] + dp[i][s ^ sub]);
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
     for (int i = 1; i <= n; ++i)
       if (dp[i][s] < INF) q.push({dp[i][s], i});
-    while (!q.empty()) {  // Dijkstra 松弛：跨边扩展同一连通状态
+    while (!q.empty()) {  // Dijkstra relaxation across edges for this state
       int d = q.top().first, u = q.top().second;
       q.pop();
       if (d != dp[u][s]) continue;
@@ -34,21 +33,26 @@ int steiner_tree(int n, const vector<array<int, 3>>& edges, const vector<int>& k
 
 /*
  * ============================================================
- * 名称：最小斯坦纳树（Steiner Tree）
- * 复杂度：O(3^k · n + 2^k · (m + n) log n)
- * 用途：给定无向正权连通图与 k 个关键点，求连通全部关键点的
- *       最小边权和（可借助非关键点"中转"，k 通常 ≤ 10）
- * 接口：steiner_tree(n, {{u, v, w}, ...}, {key1, ..., keyk})
- *       返回最小边权和（不可达返回 INF）
- * 原理：dp[i][S] = 以 i 为根、连通 S 内关键点的最小边权和。
- *       转移 1（子树合并）：dp[i][S] = min(dp[i][T] + dp[i][S^T])；
- *       转移 2（边松弛）：dp[v][S] = min(dp[v][S], dp[u][S] + w(u,v))，
- *       用 Dijkstra 对每个 S 一次性松弛。
- * 注意：边权 0x3f3f3f3f3f3f3f3f 视为"无穷大"哨兵；重边/自环自行去重；
- *       点权版（如 WC2008 游览计划）合并时减去重复计的点权即可
- * 来源：OI-Wiki《斯坦纳树》（https://oi-wiki.org/graph/steiner-tree/）
  * ============================================================
- * 使用示例（编译时取消注释；洛谷 P6192）：
+ * Name: minimum Steiner tree
+ * Complexity: O(3^k * n + 2^k * (m + n) log n)
+ * Usage: given an undirected positive-weight connected graph and k terminals,
+ *        find the minimum total edge weight connecting all terminals (may
+ *        route through non-terminals; k usually <= 10), free function
+ *        steiner_tree(n, {{u, v, w}, ...}, {key1, ..., keyk}) returning the
+ *        minimum cost (INF if unreachable)
+ * Principle: dp[i][S] = min cost of a tree rooted at i connecting the
+ *        terminals in S. Transition 1 (subset merge): dp[i][S] =
+ *        min(dp[i][T] + dp[i][S^T]); transition 2 (edge relaxation):
+ *        dp[v][S] = min(dp[v][S], dp[u][S] + w(u,v)), run as one Dijkstra
+ *        pass per S
+ * Notes: 0x3f3f3f3f3f3f3f3f is the "infinity" sentinel; dedupe multi-edges/
+ *        self-loops yourself; for vertex-weighted versions (e.g. WC2008 tour
+ *        planning) subtract double-counted vertex weights during merges
+ * Source: OI-Wiki "Steiner tree" (https://oi-wiki.org/graph/steiner-tree/)
+ * ============================================================
+ * Example (uncomment to compile; Luogu P6192):
+
  * signed main() {
  *   int n, m, k;
  *   cin >> n >> m >> k;

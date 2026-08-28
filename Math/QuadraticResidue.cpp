@@ -12,25 +12,25 @@ int pw(int x, int n, int p) {
   return r;
 }
 
-// Cipolla：解 x² ≡ a (mod p)，p 为奇素数；返回较小根，无解返回 -1；期望 O(log p)
-struct cpx {  // F_p 上的"复数" x + y√w
+// Cipolla: solves x^2 = a (mod p), p an odd prime; returns the smaller root, -1 if none
+struct cpx {  // "complex" number x + y*sqrt(w) over F_p
   int x, y;
 };
-int W;  // √w 的平方（w = b² - a 非二次剩余）
+int W;  // square of sqrt(w) (w = b^2 - a, a non-residue)
 cpx cmul(const cpx& a, const cpx& b, int p) {
   return {(a.x * b.x + a.y * b.y % p * W) % p, (a.x * b.y + a.y * b.x) % p};
 }
 int sqrt_mod(int a, int p) {
   a %= p;
   if (a == 0) return 0;
-  if (pw(a, (p - 1) / 2, p) != 1) return -1;  // Euler 准则判二次剩余
+  if (pw(a, (p - 1) / 2, p) != 1) return -1;  // Euler criterion
   int b;
-  for (b = 1;; ++b) {  // 找 w = b² - a 为非二次剩余（期望 2 次）
+  for (b = 1;; ++b) {  // find b with w = b^2 - a a non-residue (expected 2 tries)
     W = ((b * b - a) % p + p) % p;
     if (W && pw(W, (p - 1) / 2, p) == p - 1) break;
   }
   cpx r{1, 0}, c{b, 1};
-  for (int e = (p + 1) / 2; e; e >>= 1) {  // (b + √w)^{(p+1)/2}，虚部必为 0
+  for (int e = (p + 1) / 2; e; e >>= 1) {  // (b + sqrt(w))^{(p+1)/2}; imaginary part is 0
     if (e & 1) r = cmul(r, c, p);
     c = cmul(c, c, p);
   }
@@ -39,21 +39,24 @@ int sqrt_mod(int a, int p) {
 
 /*
  * ============================================================
- * 名称：二次剩余（Cipolla 开平方 mod p）
- * 复杂度：期望 O(log²p)（找 b 期望 2 次尝试）
- * 用途：sqrt_mod(a, p) 求 x 使 x² ≡ a (mod p)（p 奇素数），
- *       返回两根中较小者；a 非二次剩余返回 -1；a ≡ 0 返回 0
- * 原理：Euler 准则 a^{(p-1)/2} ≡ 1 判定可开方；随机/递增取 b 使
- *       w = b² - a 为非二次剩余，则在 F_p(√w)（p² 阶域）中
- *       (b + √w)^p = b - √w（Frobenius），故 (b+√w)^{p+1} = b² - w = a，
- *       其 (p+1)/2 次幂即为所求根（虚部为 0）
- * 注意：仅适用于奇素数 p（p = 2 时 a mod 2 即根）；
- *       两根为 x 与 p - x；0 的根仅 0
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: quadratic residues (Cipolla square root mod p)
+ * Complexity: expected O(log^2 p) (finding b takes ~2 tries)
+ * Usage: sqrt_mod(a, p) finds x with x^2 = a (mod p) (p an odd prime),
+ *        returning the smaller root; -1 when a is a non-residue; a = 0 -> 0
+ * Principle: Euler's criterion a^{(p-1)/2} = 1 decides solvability; pick b
+ *        (increasing here) with w = b^2 - a a non-residue, then in
+ *        F_p(sqrt w) (the field of size p^2), (b + sqrt w)^p = b - sqrt w
+ *        (Frobenius), so (b+sqrt w)^{p+1} = b^2 - w = a and its (p+1)/2-th
+ *        power is the root (imaginary part 0)
+ * Notes: odd primes only (for p = 2 the root is a mod 2); the two roots are
+ *        x and p - x; the only root of 0 is 0
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
- *   cout << sqrt_mod(2, 7) << '\n';          // 3（3² = 9 ≡ 2，另一根 4）
- *   cout << sqrt_mod(3, 7) << '\n';          // -1（3 非二次剩余 mod 7）
+ *   cout << sqrt_mod(2, 7) << '\n';          // 3 (3^2 = 9 = 2 mod 7; the other root is 4)
+ *   cout << sqrt_mod(3, 7) << '\n';          // -1 (3 is a non-residue mod 7)
  *   cout << sqrt_mod(4, 998244353) << '\n';  // 2
  * }
  */

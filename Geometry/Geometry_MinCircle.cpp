@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 最小圆覆盖（增量法，期望 O(n)）
+// minimum enclosing circle (randomized incremental, expected O(n))
 struct P {
   double x, y;
 };
@@ -14,7 +14,7 @@ struct C {
   double r;
 };
 C circle2(P a, P b) { return {(P){(a.x + b.x) / 2, (a.y + b.y) / 2}, dist(a, b) / 2}; }
-P circumcenter(P a, P b, P c) {  // 三角形外接圆圆心（三点不共线）
+P circumcenter(P a, P b, P c) {  // circumcenter of a triangle (non-collinear)
   double a1 = b.x - a.x, b1 = b.y - a.y, a2 = c.x - a.x, b2 = c.y - a.y;
   double d1 = a1 * a1 + b1 * b1, d2 = a2 * a2 + b2 * b2, d = 2 * (a1 * b2 - a2 * b1);
   return {(P){a.x + (d1 * b2 - d2 * b1) / d, a.y + (a1 * d2 - a2 * d1) / d}};
@@ -25,7 +25,7 @@ C circle3(P a, P b, P c) {
 }
 bool outside(P p, const C& c) { return dist2(p, c.c) > c.r * c.r + 1e-7; }
 
-C min_circle(vector<P> p) {  // 随机增量：期望 O(n)
+C min_circle(vector<P> p) {  // randomized incremental: expected O(n)
   int n = p.size();
   if (n == 0) return {{0, 0}, -1};
   shuffle(p.begin(), p.end(), mt19937(0x5f5f));
@@ -45,17 +45,19 @@ C min_circle(vector<P> p) {  // 随机增量：期望 O(n)
 
 /*
  * ============================================================
- * 名称：最小圆覆盖（随机增量法）
- * 复杂度：期望 O(n)（随机打乱后三层增量为调和级数级）
- * 用途：覆盖平面上 n 个点的最小圆（圆心半径）；
- *       附 circle2/circle3（两点/三点定圆）可单独复用
- * 原理：增量构造——固定前 i-1 个点的最小圆，若 p[i] 在圆外则
- *       p[i] 必在新的圆边界上；同理固定两层，三点定圆。
- *       打乱后期望三层循环均为 O(当前规模) 的几何衰减
- * 注意：eps 判定（1e-7）按坐标量级调整；三点共线时 circle3
- *       不被调用到（外层 outside 保证）；n = 0 返回 r = -1
+ * Name: minimum enclosing circle (randomized incremental)
+ * Complexity: expected O(n) (after shuffling, the three nested incremental loops are harmonic-series-sized)
+ * Usage: the smallest circle covering n plane points (center + radius);
+ *        circle2/circle3 (circle through 2/3 points) are reusable separately
+ * Principle: incremental — keep the min circle of the first i-1 points; if
+ *        p[i] lies outside, p[i] must sit on the new circle's boundary; same
+ *        argument two levels down, three points determine a circle. After
+ *        shuffling each expected loop cost decays geometrically
+ * Notes: tune the eps test (1e-7) to the coordinate scale; collinear triples
+ *        never reach circle3 (the outer outside checks prevent it); n = 0
+ *        returns r = -1
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   vector<P> p{{0, 0}, {0, 2}, {2, 0}, {2, 2}};
  *   C c = min_circle(p);
@@ -63,6 +65,6 @@ C min_circle(vector<P> p) {  // 随机增量：期望 O(n)
  *   cout << c.c.x << ' ' << c.c.y << ' ' << c.r << '\n';  // 1.000000 1.000000 1.414214
  *   p.push_back({10, 10});
  *   c = min_circle(p);
- *   cout << c.c.x << ' ' << c.c.y << ' ' << c.r << '\n';  // 5.000000 5.000000 7.071068（(0,0) 与 (10,10) 为直径）
+ *   cout << c.c.x << ' ' << c.c.y << ' ' << c.r << '\n';  // 5.000000 5.000000 7.071068 (diameter (0,0)-(10,10))
  * }
  */

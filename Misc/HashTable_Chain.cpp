@@ -35,18 +35,22 @@ struct Hash {
 };
 /*
  * ============================================================
- * 名称：随机权值异或哈希（多重集合哈希） + 引用计数哈希表
- * 复杂度：给每个不同值分配随机权值 O(1)；前缀异或 O(1)/步；Hash 表插入/查询期望 O(1)
- * 用途：统计"每个元素出现次数均为偶数"的子数组个数 / 判断两个多重集合是否相等：
- *       给每个不同值一个随机 u64 权值 w[x]，区间 [l,r] 的多重集 xor 哈希 =
- *       w[a[l]]^...^w[a[r]]；全部元素出现偶数次 ⇔ 该异或为 0（随机权值避免撞车）；
- *       树同构 / 子树哈希同理（给每个子树随机权值向上合并）。
- * 说明：HashTable_PBDS.cpp 与 HashTable_Chain.cpp 是"哈希表"这一算法的两种
- *       实现：前者用 __gnu_pbds::gp_hash_table + splitmix64（抗卡），后者是
- *       手写链式引用计数哈希表（槽位池回收）。按需选用。
- * 来源：all.cpp 行 37044、37048、37050-37078、37101（原样保留；注释已统一移至文件尾部）
+ * Name: random-weight xor hashing (multiset hashing) + reference-counting hash table
+ * Complexity: assigning a random weight to each distinct value O(1); prefix xor
+ *             O(1)/step; hash-table insert/lookup expected O(1)
+ * Usage: count subarrays where "every element appears an even number of
+ *        times" / decide whether two multisets are equal: assign each
+ *        distinct value a random u64 weight w[x]; the multiset xor hash of
+ *        [l,r] is w[a[l]]^...^w[a[r]]; all counts even <=> that xor is 0
+ *        (random weights avoid collisions); tree isomorphism / subtree
+ *        hashing work the same way (random weights merged upward).
+ * Notes: HashTable_PBDS.cpp and HashTable_Chain.cpp are two implementations
+ *        of "hash tables": the former uses __gnu_pbds::gp_hash_table +
+ *        splitmix64 (anti-hack), the latter a hand-written chained
+ *        reference-counting table (slot-pool recycling). Pick as needed.
+ * Source: all.cpp lines 37044, 37048, 37050-37078, 37101 (kept verbatim, comments translated)
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * int main() {
  *   int n;
  *   cin >> n;

@@ -141,31 +141,35 @@ struct segbeats {
 
 /*
  * ============================================================
- * 名称：Segment Tree Beats（势能线段树 / 吉老师线段树）
- * 复杂度：区间加/查询 O(log n)；区间 chmin/chmax 均摊 O((n + q) log n)
- *         （每次 chmin 只让节点"不同取值的种数"减少，势能分析保证总代价）
- * 用途：支持 区间加 add、区间取 min（a[i] = min(a[i], v)）、区间取 max
- *       （a[i] = max(a[i], v)）、区间和/最大值/最小值查询；
- *       典型题：洛谷 P6242（含历史最值时需另加 his 字段与对应 pushdown 逻辑，
- *       本模板为不含历史最值的核心骨架）
- * 原理：每个节点维护 mx/mx2（最大、严格次大）与 mn/mn2（最小、严格次小）
- *       及出现次数 cmx/cmn；chmin 时若整段最大值 > v 且次大值 < v，则可
- *       只改最大值（O(1) 打标记）；否则递归。tag 为区间加懒标记，
- *       pushdown 时把父节点的 mx/mn 作为 chmin/chmax 提示下传
- * 注意：INF 需大于值域；值全相等时 mx2 = -INF、mn2 = INF（哨兵）；
- *       chmin 的整段条件为 mx2 < v（严格小于，保证次大值不越界）
- * 用法：build(1, 1, n)；之后 st.add / st.chmin / st.chmax / st.qsum / st.qmax / st.qmin
+ * Name: Segment Tree Beats
+ * Complexity: range add / queries O(log n); range chmin/chmax amortized
+ *             O((n + q) log n) (each chmin only decreases a node's "number
+ *             of distinct values"; potential analysis bounds the total)
+ * Usage: range add, range chmin (a[i] = min(a[i], v)), range chmax
+ *        (a[i] = max(a[i], v)), range sum / max / min queries, wrapped as
+ *        segbeats; typical problem: Luogu P6242 (historic extrema need
+ *        extra his fields and pushdown logic; this template is the core
+ *        skeleton without them)
+ * Principle: each node keeps mx/mx2 (max, strict second max) and mn/mn2
+ *        (min, strict second min) with counts cmx/cmn; chmin over a segment
+ *        whose max > v but second max < v only changes the maxima (O(1)
+ *        tagging); otherwise recurse. tag is the range-add lazy tag;
+ *        pushdown passes the parent's mx/mn down as chmin/chmax hints
+ * Notes: INF must exceed the value range; all-equal segments have mx2 = -INF,
+ *        mn2 = INF (sentinels); the whole-segment chmin condition is
+ *        mx2 < v (strict, so the second max never leaks past v)
+ * Usage pattern: build(1, 1, n); then st.add / st.chmin / st.chmax / st.qsum / st.qmax / st.qmin
  * ============================================================
- * 使用示例（编译时取消注释；初值 a = {3, 1, 4, 1, 5}）：
+ * Example (uncomment to compile; initial a = {3, 1, 4, 1, 5}):
  * signed main() {
  *   n = 5, a[1] = 3, a[2] = 1, a[3] = 4, a[4] = 1, a[5] = 5;
  *   st.build(1, 1, n);
- *   st.chmin(1, 1, n, 1, 5, 3);            // 全体取 min 3 → {3,1,3,1,3}
+ *   st.chmin(1, 1, n, 1, 5, 3);            // chmin 3 everywhere -> {3,1,3,1,3}
  *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 11
  *   cout << st.qmax(1, 1, n, 1, 5) << ' ' << st.qmin(1, 1, n, 1, 5) << '\n'; // 3 1
- *   st.chmax(1, 1, n, 1, 5, 2);            // 全体取 max 2 → {3,2,3,2,3}
+ *   st.chmax(1, 1, n, 1, 5, 2);            // chmax 2 everywhere -> {3,2,3,2,3}
  *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 13
- *   st.chmin(1, 1, n, 2, 4, 2);            // [2,4] 取 min 2 → {3,2,2,2,3}
+ *   st.chmin(1, 1, n, 2, 4, 2);            // chmin 2 on [2,4] -> {3,2,2,2,3}
  *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 12
  * }
  * ============================================================

@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// [l, r]
+// offline static range monoid products (cat-tree divide, topbit bucketing);
+// queries are inclusive [l, r]
 template <typename Mono, typename F>
 void monoid_product(const std::vector<Mono> &vec,
                     const std::vector<std::pair<int, int>> &query, F f) {
@@ -34,26 +35,29 @@ void monoid_product(const std::vector<Mono> &vec,
 
 /*
  * ============================================================
- * 名称：离线静态区间半群乘积（猫树分治 / 按 topbit 分桶）
- * 复杂度：O((n + q) log n) 总耗时，单查询 O(1)；空间 O(n + q)
- * 用途：静态数组、离线批量回答区间可结合乘积（和 / 最值 / gcd / 矩阵等）。
- *       查询 (l, r) 为闭区间且 l < r（l == r 直接取 vec[l]，不进回调）；
- *       回调 f(dp[l], dp[r], id) 中答案 = dp[l] * dp[r]
- * 原理：设 k = topbit(l ^ r)，mid = r 的前 n-k 位 → l < mid <= r；
- *       dp 从 mid 向两侧前缀/后缀积，答案 = dp[l] * dp[r]；
- *       mid 只取 2 的幂，共 O(log n) 层，每层一次 O(n) 扫描
- * 来源：用户提供代码（结构化绑定改写为 .first/.second 以纯 C++14 编译）
+ * Name: offline static range monoid products (cat-tree divide / topbit bucketing)
+ * Complexity: O((n + q) log n) total, O(1) per query; space O(n + q)
+ * Usage: static array, batch-answered associative range products (sum / max /
+ *        gcd / matrices, ...). Queries are inclusive (l, r); l == r is
+ *        answered with vec[l] directly; otherwise the callback receives the
+ *        product: f(id, product), answer = dp[l] * dp[r]
+ * Principle: with k = topbit(l ^ r) and mid = r's top n-k bits, l < mid <= r;
+ *        dp stores prefix/suffix products outward from mid; mid only takes
+ *        powers of two, giving O(log n) levels, one O(n) scan each
+ * Source: user-provided code (structured bindings rewritten as .first/.second
+ *         for pure C++14)
  * ============================================================
- * 使用示例（编译时取消注释；区间最小值）：
+ * Example (uncomment to compile; range minimum):
  * struct Mono { long long v; };
  * Mono operator*(Mono a, Mono b) { return Mono{min(a.v, b.v)}; }
  * signed main() {
  *   vector<Mono> a{{5}, {2}, {7}, {1}, {9}, {4}};
  *   vector<pair<int,int>> qs{{0, 3}, {1, 4}, {2, 5}, {0, 5}};
  *   long long ans[4];
- *   monoid_product(a, qs, [&](Mono L, Mono R, int id) {
- *     ans[id] = (L * R).v;
+ *   monoid_product(a, qs, [&](int id, Mono res) {
+ *     ans[id] = res.v;
  *   });
+ *   for (int i = 0; i < 4; ++i) cout << ans[i] << " \n"[i == 3];
  *   // ans = {1, 1, 4, 1}
  * }
  * ============================================================

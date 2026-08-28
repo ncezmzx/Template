@@ -38,20 +38,24 @@ void dfs2(int x, int ff, bool keep) {
 
 /*
  * ============================================================
- * 名称：树上启发式合并（DSU on tree，子树统计）
- * 复杂度：O(n log n)
- * 用途：静态树上的子树查询，例如：
- *       1) 每棵子树内出现次数最多的颜色编号和（本模板实现，CF 600E 原题）
- *       2) 子树内不同颜色数 / 第 k 小值 / 与深度相关的统计等
- *       核心思路：重儿子信息保留，轻儿子暴力重算，总复杂度 O(n log n)
- * 原理：第一遍 dfs 求重儿子；第二遍 dfs2 先处理所有轻儿子（不保留），
- *       再处理重儿子（保留），最后把轻儿子子树暴力 add 回来，得到当前子树
- *       的完整统计；add(x, ff, -1) 清空整棵子树
- * 注意：add 里的统计逻辑（mx/sum）按题目改写；cnt[] 下标为颜色编号；
- *       mx/sum 在清空时需复位（已在 !keep 分支处理）
- * 用法：dfs(1, 0); dfs2(1, 0, true); ans[x] 即 x 子树答案
+ * Name: DSU on tree (small-to-large subtree statistics)
+ * Complexity: O(n log n)
+ * Usage: subtree queries on a static tree, e.g.:
+ *        1) sum of the most frequent color ids in each subtree (implemented
+ *           here; CF 600E original problem);
+ *        2) distinct colors in a subtree / k-th smallest / depth-related
+ *           statistics, etc.
+ *        Core idea: keep the heavy child's information, brute-force recompute
+ *        the light children — O(n log n) total
+ * Principle: first dfs finds heavy children; dfs2 processes all light
+ *        children first (do not keep), then the heavy child (keep), then
+ *        brute-force adds the light subtrees back, giving the complete
+ *        statistic for the current subtree; add(x, ff, -1) clears a subtree
+ * Notes: the statistics inside add (mx/sum) are problem-specific; cnt[] is
+ *        indexed by color id; mx/sum reset on clear (handled in the !keep branch)
+ * Usage pattern: dfs(1, 0); dfs2(1, 0, true); ans[x] is x's subtree answer
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   cin >> n;
  *   for (int i = 1; i <= n; ++i) cin >> col[i];

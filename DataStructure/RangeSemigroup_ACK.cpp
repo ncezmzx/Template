@@ -8,7 +8,7 @@ constexpr struct ACK_PRECALCER {
   trip pos[H][A] = {};
   int cnt[H] = {};
   constexpr ACK_PRECALCER() {
-    for (int t = 0; t < H; ++t) Ack[0][t] = t + 1;   // 手写 iota（C++14 无 constexpr iota）
+    for (int t = 0; t < H; ++t) Ack[0][t] = t + 1;   // hand-written iota (no constexpr iota in C++14)
     for (int i = 1; i < A; ++i)
       for (int j = 0; j < H; ++j)
         for (int T = j + 1, &x = Ack[i][j] = j; T && x < H; --T)
@@ -21,7 +21,7 @@ constexpr struct ACK_PRECALCER {
         while (Ack[x][i] <= j) i = Ack[x][i], ++c;
         pos[j][t++] = trip{k, x, c};
       }
-      cnt[j] = t;   // 原 span 改为 (pos, cnt) 二元组，C++14 可用
+      cnt[j] = t;   // the original span becomes a (pos, cnt) pair, usable in C++14
     }
   }
 } Ack;
@@ -81,24 +81,30 @@ class uttree {
 
 /*
  * ============================================================
- * 名称：静态区间半群查询（阿克曼函数分块 + 跳跃表，uttree）
- * 复杂度：预处理 O(n)，单次查询 O(α(n))（α 为反阿克曼函数，实际 ≤ 4）
- * 用途：静态数组上的区间可结合查询（op 需满足结合律，如和/最值/gcd/xor），
- *       在线回答；预处理 O(n) 比 ST 表 O(n log n)、猫树 O(n log n) 更省，
- *       查询 O(α(n)) 近似 O(1)
- * 原理：底层按 B = 2(A+1) = 8 分块做前缀/后缀和；块间建 zkw 线段树；
- *       对"高度"用阿克曼函数递推跳表（ACK_PRECALCER 编译期预处理，
- *       只算 c = 1 的阿克曼值并截断上界），查询时按 pth 贪心拆分前缀，
- *       拼出区间答案（本质是带反阿克曼加速的倍增）
- * 来源：洛谷文章《线段树，阿克曼，分块》(luogu_blog_2_线段树阿克曼分块.md)；
- *       已改写为 C++14 兼容（span/requires/auto 模板参 → 数组+函数指针）
- * 注意：C++14 及以上可编译（__lg/__int128 为 GNU 扩展，g++ 下可用）；
- *       op/e 以普通函数指针传入模板；下标 0-indexed，
- *       query(l, r) 为**半开区间 [l, r)**（右端点不包含，与文章代码一致）
- *       —— 查询 [l, r] 闭区间请调用 query(l, r + 1)；
- *       只支持静态查询（build 后不可修改）
+ * Name: static range semigroup queries (Ackermann-function blocking + jump table, uttree)
+ * Complexity: preprocessing O(n); O(alpha(n)) per query (alpha = inverse
+ *             Ackermann, <= 4 in practice)
+ * Usage: associative range queries on a static array (op associative: sum/
+ *        max/gcd/xor, ...), answered online; preprocessing O(n) beats the ST
+ *        table O(n log n) and the cat tree O(n log n); queries O(alpha(n)),
+ *        essentially O(1)
+ * Principle: the bottom layer blocks by B = 2(A+1) = 8 with prefix/suffix
+ *        sums; a zkw segment tree spans the blocks; a jump table over
+ *        "heights" uses Ackermann recurrences (ACK_PRECALCER preprocesses at
+ *        compile time, computing only c = 1 Ackermann values and capping the
+ *        top); queries greedily split the prefix by pth and assemble the
+ *        range answer (essentially doubling accelerated by inverse Ackermann)
+ * Source: Luogu article "Segment trees, Ackermann, blocking"
+ *         (Luogu blog 2: segment trees, Ackermann, blocking); rewritten for C++14
+ *         (span/requires/auto template params -> arrays + function pointers)
+ * Notes: compiles under C++14+ (__lg/__int128 are GNU extensions, fine on
+ *        g++); op/e enter the template as plain function pointers; indices
+ *        are 0-indexed and query(l, r) is the HALF-OPEN range [l, r) (the
+ *        right end excluded, matching the article's code) — for the closed
+ *        range [l, r] call query(l, r + 1); static queries only (no updates
+ *        after build)
  * ============================================================
- * 使用示例（编译时取消注释；区间和）：
+ * Example (uncomment to compile; range sums):
  * long long op(long long a, long long b) { return a + b; }
  * long long e() { return 0; }
  * signed main() {

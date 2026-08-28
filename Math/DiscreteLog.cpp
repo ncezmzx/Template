@@ -18,13 +18,13 @@ int exgcd(int a, int b, int& x, int& y) {
   y -= a / b * x;
   return g;
 }
-int inv_mod(int a, int m) {  // 需 gcd(a, m) = 1
+int inv_mod(int a, int m) {  // requires gcd(a, m) = 1
   int x, y;
   exgcd(a, m, x, y);
   return (x % m + m) % m;
 }
 
-// BSGS：最小 x >= 0 使 a^x ≡ b (mod m)，需 gcd(a, m) = 1；无解返回 -1；O(√m)
+// BSGS: smallest x >= 0 with a^x = b (mod m), requires gcd(a, m) = 1; -1 if none; O(sqrt m)
 int bsgs(int a, int b, int m) {
   if (m == 1) return 0;
   a %= m, b %= m;
@@ -32,13 +32,13 @@ int bsgs(int a, int b, int m) {
   unordered_map<int, int> mp;
   mp.reserve(2 * k);
   int cur = 1;
-  for (int j = 0; j < k; ++j) {  // baby：a^j（存最小 j，保证解最小）
+  for (int j = 0; j < k; ++j) {  // baby steps: a^j (keep smallest j)
     if (!mp.count(cur)) mp[cur] = j;
     cur = cur * a % m;
   }
   int ainvk = pw(inv_mod(a, m), k, m);  // a^{-k}
   cur = b;
-  for (int i = 0; i <= k; ++i) {  // giant：b·a^{-ik}，命中 a^j → x = ik + j
+  for (int i = 0; i <= k; ++i) {  // giant steps: b*a^{-ik}; hit a^j -> x = ik + j
     auto it = mp.find(cur);
     if (it != mp.end()) return i * k + it->second;
     cur = cur * ainvk % m;
@@ -46,10 +46,10 @@ int bsgs(int a, int b, int m) {
   return -1;
 }
 
-// exBSGS：任意 gcd(a, m)；无解返回 -1
-// 每轮 a^x ≡ b (mod m) 且 g = gcd(a, m) > 1 时要求 g | b，
-// 两边除 g：(a/g)·a^{x-1} ≡ b/g (mod m/g)；累计 d = ∏(a/g)，
-// 循环结束（gcd(a, m) = 1）后解 a^t ≡ b·d^{-1}，x = t + cnt
+// exBSGS: arbitrary gcd(a, m); -1 if unsolvable
+// each round with g = gcd(a, m) > 1 needs g | b; divide both sides by g:
+// (a/g)*a^{x-1} = b/g (mod m/g); accumulate d = prod(a/g);
+// when gcd(a, m) = 1, solve a^t = b*d^{-1}, x = t + cnt
 int exbsgs(int a, int b, int m) {
   if (m == 1) return 0;
   a %= m, b %= m;
@@ -60,7 +60,7 @@ int exbsgs(int a, int b, int m) {
     ++cnt;
     b /= g, m /= g;
     d = d * (a / g) % m;
-    if (d == b) return cnt;  // a^{cnt} ≡ b (mod 原 m)
+    if (d == b) return cnt;  // a^{cnt} = b (mod original m)
   }
   int r = bsgs(a, b * inv_mod(d, m) % m, m);
   return r < 0 ? -1 : r + cnt;
@@ -68,21 +68,24 @@ int exbsgs(int a, int b, int m) {
 
 /*
  * ============================================================
- * 名称：BSGS / exBSGS（离散对数）
- * 复杂度：BSGS O(√m)；exBSGS O(√m + log²m)
- * 用途：求最小 x ≥ 0 使 a^x ≡ b (mod m)：
- *       bsgs(a, b, m) 要求 gcd(a, m) = 1；
- *       exbsgs(a, b, m) 无限制（逐步剥 gcd 后归约到 BSGS）
- * 原理：x = i·k + j（k = ⌈√m⌉）：b·a^{-ik} = a^j——baby 步把 a^j
- *       （存最小 j）放入哈希表，giant 步枚举 i 乘 a^{-k} 首个命中
- *       即最小解；exBSGS 每轮把两边除以 g = gcd(a, m)（要求 g | b），
- *       方程变为 (a/g)·a^{x-1} ≡ b/g (mod m/g)，系数累积进 d，
- *       d == b 时 x = cnt 提前命中；结束后 a 与 m 互素，解
- *       a^t ≡ b·d^{-1} (mod m) 得 x = t + cnt
- * 注意：m = 1 或 b ≡ 1 返回 0；解的上界 < m（阶 ≤ m）；
- *       与 Math/CRT.cpp 的 exgcd 重复（本文件自包含）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: BSGS / exBSGS (discrete logarithm)
+ * Complexity: BSGS O(sqrt m); exBSGS O(sqrt m + log^2 m)
+ * Usage: smallest x >= 0 with a^x = b (mod m):
+ *        bsgs(a, b, m) requires gcd(a, m) = 1;
+ *        exbsgs(a, b, m) is unrestricted (peels off gcds, reduces to BSGS)
+ * Principle: x = i*k + j (k = ceil(sqrt m)): b*a^{-ik} = a^j — baby steps
+ *        store a^j (keeping the smallest j) in a hash table, giant steps
+ *        multiply b by a^{-k} per i; the first hit is the minimal solution;
+ *        exBSGS divides both sides by g = gcd(a, m) each round (needs g | b),
+ *        turning the equation into (a/g)*a^{x-1} = b/g (mod m/g), accumulating
+ *        the factor into d; d == b gives x = cnt early; afterwards a and m
+ *        are coprime, solve a^t = b*d^{-1} (mod m) and x = t + cnt
+ * Notes: m = 1 or b = 1 returns 0; the solution is < m (order <= m);
+ *        duplicates Math/CRT.cpp's exgcd (this file is self-contained)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   cout << bsgs(3, 1, 7) << '\n';      // 0（3^0 = 1）
  *   cout << bsgs(3, 6, 7) << '\n';      // 3（3^3 = 27 ≡ 6）

@@ -676,25 +676,30 @@ public:
 
 /*
  * ============================================================
- * 名称：fstdlib 多项式库（poly 固定模 NTT 版 + m_poly 任意模 MTT 版）
- * 复杂度：乘 / inv / log / exp 均 O(n log n)（NTT 或三模/复数 MTT）
- * 用途：998244353 域用 poly；任意模（含 1e9+7）用 m_poly；
- *       支持 + - * / 标量、inv、log、exp、sqrt（sqrt 的 modulo_sqrt 为
- *       占位实现恒返 1，需自行补二次剩余后才可用）
- * 对比：与 NTT.cpp（Barrett 蝶形 + 预计算单位根 + 线性逆元表）相比：
- *       本库功能更全（任意模 MTT、双类型），固定模部分较 NTT.cpp 慢
- *       （每轮 dft 现算单位根表、逐元素 % 取模）；
- *       固定模性能敏感场景用 NTT.cpp，任意模/快速集成用本文件
- * 来源：fstdlib（feist），原样收录；C++14 可编译（自带 C++11 门控）；
- *       MTT 精度适用规模约 n <= 1e5（原作者注）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: fstdlib polynomial library (poly: fixed-modulus NTT; m_poly: arbitrary-modulus MTT)
+ * Complexity: multiply / inv / log / exp all O(n log n) (NTT or 3-mod/complex MTT)
+ * Usage: use poly over 998244353; use m_poly for arbitrary moduli (incl. 1e9+7);
+ *        supports + - * / scalars, inv, log, exp, sqrt (modulo_sqrt in sqrt
+ *        is a placeholder returning 1 — implement quadratic residues first)
+ * Comparison: against NTT.cpp (Barrett butterflies + precomputed roots +
+ *        linear inverse table): this library is more feature-complete
+ *        (arbitrary-modulus MTT, two types) but slower for the fixed modulus
+ *        (roots recomputed per dft round, per-element % reduction); use
+ *        NTT.cpp for fixed-modulus performance, this file for arbitrary
+ *        moduli / quick integration
+ * Source: fstdlib (feist), included verbatim; compiles under C++14 (has its
+ *         own C++11 gate); MTT precision is good up to ~n <= 1e5 (author's note)
+ * ============================================================
+ * Example (uncomment to compile):
+
+ * #include <iostream>
  * signed main() {
  *   fstdlib::poly a{std::vector<int>{1, 2, 3}}, b{std::vector<int>{4, 5}};
- *   fstdlib::poly c = a * b;                       // 固定模 998244353
+ *   fstdlib::poly c = a * b;                       // fixed modulus 998244353
  *   for (int i = 0; i < c.size(); ++i) std::cout << c[i] << " \n"[i + 1 == c.size()];
  *   fstdlib::m_poly x{std::vector<int>{1, 1}, 1000000007};
- *   fstdlib::m_poly y = x * x;                     // 任意模 MTT
+ *   fstdlib::m_poly y = x * x;                     // arbitrary-modulus MTT
  *   for (int i = 0; i < y.size(); ++i) std::cout << y[i] << " \n"[i + 1 == y.size()];
  *   // exp / log：
  *   fstdlib::poly e{std::vector<int>{0, 1, 2}};    // exp(x + 2x^2)

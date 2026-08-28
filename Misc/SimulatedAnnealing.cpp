@@ -26,18 +26,21 @@ void anneal(double& x, double& y) {
 
 /*
  * ============================================================
- * 名称：模拟退火（Simulated Annealing，通用模板）
- * 复杂度：O(迭代次数 * 评估代价)；迭代次数 ≈ ln(T0/T_end)/ln(1/降温率)
- * 用途：无解析解/难优化的连续或离散最优化问题（如几何最值、乱序贪心
- *       调参）；本模板为连续二维示例，改 target 与扰动方式即可套用
- * 原理：从当前解随机扰动得到候选；若更优则接受，否则以
- *       exp(-ΔE / T) 概率接受（Metropolis 准则，允许跳出局部最优）；
- *       温度 T 按几何级数降温，最终收敛
- * 注意：参数（初温 T0、降温率、扰动幅度 = T）需要按问题调；
- *       建议多次运行 anneal 取最优（随机性）；目标函数为 min 形式，
- *       求 max 取负；离散问题把扰动改为随机交换/翻转
+ * Name: simulated annealing (generic template)
+ * Complexity: O(iterations * evaluation cost); iterations ~ ln(T0/T_end)/ln(1/cooling rate)
+ * Usage: continuous or discrete optimization without analytic solutions
+ *        (geometric extrema, shuffled-greedy tuning, ...); this template is a
+ *        continuous 2D example — swap target and the perturbation to adapt
+ * Principle: perturb the current solution into a candidate; accept if better,
+ *        otherwise accept with probability exp(-dE / T) (Metropolis rule,
+ *        allows escaping local optima); the temperature T cools geometrically
+ *        until convergence
+ * Notes: tune the parameters (initial T0, cooling rate, perturbation scale =
+ *        T) per problem; run anneal several times and keep the best
+ *        (randomness); the objective is minimization — negate for maxima;
+ *        for discrete problems use random swaps/flips as the perturbation
  * ============================================================
- * 使用示例（编译时取消注释；求 (x-3)^2+(y+2)^2+1 的最小值点）：
+ * Example (uncomment to compile; minimize (x-3)^2+(y+2)^2+1):
  * signed main() {
  *   fx = fy = 0;
  *   double best = 1e18, bx = 0, by = 0;

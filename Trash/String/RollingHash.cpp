@@ -1,17 +1,7 @@
-// ============================================================
-// 名称: 随机种子滚动哈希 / 可拼接哈希 (mod 2^61-1)
-// 复杂度: O(n) 预处理, O(1) 子串查询 / 拼接
-// 用途: 子串哈希比较、树/图上拼接两个哈希 (Hash(x·y) = Hash(x)*pw[|y|] + Hash(y))
-// 使用示例: 见下方 #ifdef DEMO 的 main (字符串 1-indexed)
-// 来源: all.cpp 行 51593-51638 (hash_t: 模板构造函数, 可直接用 char 构造)
-//       all.cpp 行 51640-51649 (pw / hsh / query 前缀哈希)
-// 拼接技巧 (来源 all.cpp 51674/51683 的滚动方式): 哈希是线性函数,
-// 已知 Hash(a) 与 Hash(b) (b 长 len), 拼接串 a·b 的哈希为 Hash(a)*pw[len] + Hash(b);
-// 若子串来自同一前缀哈希数组, 也可直接 query 拼出的区间。
-// ============================================================
 #include <bits/stdc++.h>
 using namespace std;
 
+// random-seeded rolling / concatenable hash (mod 2^61-1)
 mt19937_64 rng(random_device{}());
 using u64 = unsigned long long;
 using i128 = __int128;
@@ -59,28 +49,50 @@ struct hash_t {
   }
 };
 const hash_t seed = uniform_int_distribution<u64>(hash_t::hmod >> 2, hash_t::hmod >> 1)(rng);
-constexpr int N = 1e5 + 9;
-hash_t hsh[N], pw[N];   // hsh 前缀哈希, pw 幂
-hash_t query(int l, int r) {
-  return hsh[r] - hsh[l - 1] * pw[r - l + 1];
-}
+template <size_t N>
+struct rolling_hash {
+  hash_t hsh[N], pw[N];  // prefix hashes and powers
+  void init(const string& s) {  // s is 1-indexed (prepend a placeholder)
+    int m = (int)s.size() - 1;
+    pw[0] = 1;
+    for (int i = 1; i <= m; ++i) pw[i] = pw[i - 1] * seed;
+    for (int j = 1; j <= m; ++j) hsh[j] = hsh[j - 1] * seed + s[j];
+  }
+  hash_t query(int l, int r) const {  // substring hash, 1-indexed inclusive
+    return hsh[r] - hsh[l - 1] * pw[r - l + 1];
+  }
+};
 
-#ifdef DEMO
-signed main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  string s;
-  cin >> s;
-  s = ' ' + s;                       // 1-indexed
-  pw[0] = 1;
-  for (int i = 1; i < N; ++i) pw[i] = pw[i - 1] * seed;
-  int m = s.size() - 1;
-  for (int j = 1; j <= m; ++j) hsh[j] = hsh[j - 1] * seed + s[j];  // 滚动前缀哈希
-  // 子串哈希 (1-indexed 闭区间)
-  auto h1 = query(1, 3), h2 = query(4, m);
-  cout << (h1 == h2) << '\n';        // 两个子串是否相等
-  // 拼接: Hash(s[1..3] · s[4..m]) = h1 * pw[m - 3] + h2, 应等于 query(1, m)
-  hash_t cat = h1 * pw[m - 3] + h2;
-  cout << (cat == query(1, m)) << '\n';
-  return 0;
-}
-#endif
+/*
+ * ============================================================
+ * Name: random-seeded rolling hash / concatenable hash (mod 2^61-1)
+ * Complexity: O(n) preprocessing, O(1) substring query / concatenation
+ * Usage: substring hash comparison and hash concatenation on trees/graphs
+ *        (Hash(x*y) = Hash(x)*pw[|y|] + Hash(y)), wrapped as rolling_hash<N>:
+ *        init(' ' + str), query(l, r); hash_t is linear, so given Hash(a) and
+ *        Hash(b) with |b| = len, the concatenation a*b hashes to
+ *        Hash(a)*pw[len] + Hash(b)
+ * Source: all.cpp lines 51593-51638 (hash_t: templated constructor, chars
+ *         construct directly); all.cpp lines 51640-51649 (pw / hsh / query
+ *         prefix hashes, now inside rolling_hash<N>); the concatenation trick
+ *         from all.cpp 51674/51683
+ * ============================================================
+ * Example (uncomment to compile):
+ * static rolling_hash<100009> rh;
+ * signed main() {
+ *   cin.tie(nullptr)->sync_with_stdio(false);
+ *   string s;
+ *   cin >> s;
+ *   s = ' ' + s;                       // 1-indexed
+ *   rh.init(s);
+ *   int m = (int)s.size() - 1;
+ *   // substring hashes (1-indexed inclusive)
+ *   auto h1 = rh.query(1, 3), h2 = rh.query(4, m);
+ *   cout << (h1 == h2) << '\n';        // are the two substrings equal
+ *   // concatenation: Hash(s[1..3] * s[4..m]) = h1 * pw[m - 3] + h2 == query(1, m)
+ *   hash_t cat = h1 * rh.pw[m - 3] + h2;
+ *   cout << (cat == rh.query(1, m)) << '\n';
+ *   return 0;
+ * }
+ * ============================================================
+ */

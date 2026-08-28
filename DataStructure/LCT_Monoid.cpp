@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 泛型半群 Link-Cut-Tree：dp[x] = dp[ls] * val[x] * dp[rs]，Mono 需可逆（flip）
-// Mono 需求：默认构造为幺元；operator*；flip()（整段反转时交换左右累积）
+// generic-monoid Link-Cut Tree: dp[x] = dp[ls] * val[x] * dp[rs]; Mono must be reversible (flip)
+// Mono requirements: default constructor = identity; operator*; flip() (swap left/right aggregates on reversal)
 template <typename Mono, int N>
 class LinkCutTree {
 #define ls son[x][0]
@@ -19,7 +19,7 @@ class LinkCutTree {
     if (tag[x]) {
       tag[x] = 0;
       std::swap(ls, rs);
-      if (ls) tag[ls] ^= 1, dp[ls].flip();   // 空儿子不动哨兵（原稿会翻转 tag[0]）
+      if (ls) tag[ls] ^= 1, dp[ls].flip();   // leave null children alone (the original flipped tag[0])
       if (rs) tag[rs] ^= 1, dp[rs].flip();
     }
   }
@@ -50,7 +50,7 @@ class LinkCutTree {
   }
 
  public:
-  void init(int x, const Mono &v) {   // 单点初值（x 的 dp/val 置 v）
+  void init(int x, const Mono &v) {   // initial value of one vertex (dp/val of x = v)
     val[x] = v, dp[x] = v, tag[x] = 0, son[x][0] = son[x][1] = fa[x] = 0;
   }
   void link(int x, int y) { fa[make_root(x)] = y; }
@@ -62,7 +62,7 @@ class LinkCutTree {
   Mono query(int u, int v) { return make_root(u), dp[access(v)]; }
   int find(int x) {
     x = access(x);
-    for (push_down(x); ls; x = ls, push_down(x));   // 先下放标记再下移（原稿顺序颠倒会走错方向）
+    for (push_down(x); ls; x = ls, push_down(x));   // push tags before descending (the original order went the wrong way)
     splay(x);
     return x;
   }
@@ -72,24 +72,28 @@ class LinkCutTree {
 
 /*
  * ============================================================
- * 名称：Link-Cut-Tree（泛型半群版，路径乘积 + 反转）
- * 复杂度：均摊 O(log n) 每操作
- * 用途：动态森林上 link / cut / find（连通分量代表）、
- *       set（单点改）/ query（路径乘积 u..v）
- * 对比：与 LCT.cpp（int 最大值特化、数组版）相比：
- *       本版支持任意可逆半群（和 / 最值 / gcd / 可交换矩阵乘等），
- *       代价是 Mono 需提供 flip() 与幺元默认构造；功能更齐，
- *       速度两者同阶（均摊 splay），特化版略快（无泛型乘法间接层）
- * 来源：用户提供代码；已修两处问题：
- *       1) push_down 在空儿子上翻转 tag[0]/dp[0]（哨兵污染）→ 加空判；
- *       2) find 的循环先下移后下放标记（有反转标记时走错方向）→ 改正顺序
+ * Name: Link-Cut Tree (generic monoid version: path products + reversal)
+ * Complexity: amortized O(log n) per operation
+ * Usage: link / cut / find (component representative) / set (point update) /
+ *        query (path product u..v) on a dynamic forest
+ * Comparison: against LCT.cpp (int-max specialization, array form): this
+ *        version supports any invertible monoid (sums / extrema / gcd /
+ *        commutative matrix products, ...) at the cost of Mono providing
+ *        flip() and a default identity constructor; more features, same
+ *        amortized-splay speed class (the specialized version is slightly
+ *        faster — no generic-multiply indirection)
+ * Source: user-provided code; two bugs fixed:
+ *        1) push_down flipped tag[0]/dp[0] on null children (sentinel
+ *           pollution) -> null checks added;
+ *        2) find's loop descended before pushing tags (wrong direction under
+ *           reverse tags) -> order corrected
  * ============================================================
- * 使用示例（编译时取消注释；路径最大值，与 LCT.cpp 等价语义）：
+ * Example (uncomment to compile):
  * struct MxMonoid {
- *   long long v = -0x3f3f3f3f3f3f3f3f;   // 默认构造 = 幺元
+ *   long long v = -0x3f3f3f3f3f3f3f3f;   // default constructor = identity
  *   MxMonoid() = default;
  *   MxMonoid(long long x) : v(x) {}
- *   void flip() {}   // max 可交换：反转不影响累积；不可交换半群需交换内部累积
+ *   void flip() {}   // max commutes: reversal does not change the aggregate; non-commutative monoids must swap internal aggregates
  * };
  * MxMonoid operator*(MxMonoid a, MxMonoid b) { return MxMonoid(max(a.v, b.v)); }
  * signed main() {

@@ -7,7 +7,7 @@ template <uint32_t m> struct modint {
   using u128 = __uint128_t;
   static constexpr u32 mod = m;
 
-  // C++14 无 constexpr lambda，改用 constexpr 成员函数预计算
+  // C++14 has no constexpr lambdas; use constexpr member functions instead
   static constexpr u32 calc_im() {
     u32 x = 1;
     for (int i = 0; i < 5; ++i) x *= 2 - mod * x;
@@ -96,22 +96,22 @@ template <uint32_t m> struct modint {
     return r;
   }
   modint inv() const {
-    // MOD 为素数时费马小定理；否则需扩展欧几里得（此处按素数处理）
+    // Fermat for prime MOD (extended gcd would be needed otherwise)
     return pow(mod - 2);
   }
   modint sqrt() const {
     if (*this == 0) return 0;
-    if (pow((mod - 1) >> 1) != 1) return 0;      // 非二次剩余
+    if (pow((mod - 1) >> 1) != 1) return 0;      // not a quadratic residue
     if (mod % 4 == 3) return pow((mod + 1) >> 2);
     u32 q = mod - 1, s = 0;
     while (!(q & 1)) q >>= 1, ++s;
     modint z = 2;
-    while (z.pow((mod - 1) >> 1) == 1) z += 1;   // 找非二次剩余
+    while (z.pow((mod - 1) >> 1) == 1) z += 1;   // find a non-residue z
     modint c = z.pow(q), x = pow((q + 1) >> 1), t = pow(q);
     for (u32 mm = s; mm > 1;) {
       modint tt = t;
       u32 i = 0;
-      while (tt != 1) tt *= tt, ++i;             // 最小 i：t^(2^i) == 1
+      while (tt != 1) tt *= tt, ++i;             // least i with t^(2^i) == 1
       modint b = c;
       for (u32 j = 0; j < mm - i - 1; ++j) b *= b;  // b = c^(2^(mm-i-1))
       x *= b, t *= b * b, c = b * b, mm = i;
@@ -130,26 +130,32 @@ template <uint32_t m> struct modint {
 
 /*
  * ============================================================
- * 名称：完整 modint（蒙哥马利约简，固定模数）
- * 复杂度：四则运算 O(1)（乘法为蒙哥马利约简，无除法/取模指令），pow O(log b)
- * 用途：模素数意义下的完整整数运算：+ - * /（模逆）% 一元负 自增自减
- *       比较 输入输出 幂 逆元 二次剩余开方（Tonelli-Shanks）
- * 原理：内部以蒙哥马利形式存储（值 * R mod m，R = 2^32），乘法用 REDC
- *       约简（__int128 精确计算，避免溢出）；im 为 -m^{-1} mod 2^32
- *       （编译期牛顿迭代），r2 = R^2 mod m
- * 注意：MOD 需为奇素数（inv 用费马小定理，sqrt 用 Tonelli-Shanks）；
- *       除数为 0 时 inv(0) = 0，结果未定义；
- *       operator% 为整数语义（对 val() 取模）；与 Barrett 版
- *       （DynamicModInt.cpp）相比：本版固定模数更快（无运行期约简对象）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: full modint (Montgomery reduction, fixed modulus)
+ * Complexity: arithmetic O(1) (multiplication is Montgomery reduction, no
+ *             division/modulo instructions); pow O(log b)
+ * Usage: complete integer arithmetic modulo a prime: + - * / (modular
+ *        inverse) % unary minus, increment/decrement, comparisons, stream
+ *        IO, powers, inverses, modular square roots (Tonelli-Shanks)
+ * Principle: values stored in Montgomery form (value * R mod m,
+ *        R = 2^32); multiplication uses REDC (__int128 exact, no overflow);
+ *        im = -m^{-1} mod 2^32 (compile-time Newton iteration),
+ *        r2 = R^2 mod m
+ * Notes: MOD must be an odd prime (inv via Fermat, sqrt via Tonelli-Shanks);
+ *        inv(0) = 0, dividing by zero is undefined; operator% has integer
+ *        semantics (modulo val()); compared with the Barrett version
+ *        (DynamicModInt.cpp): this fixed-modulus version is faster (no
+ *        runtime reduction object)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * using mint = modint<998244353>;
  * signed main() {
  *   mint a, b;
  *   cin >> a >> b;
  *   cout << a + b << ' ' << a * b << ' ' << a / b << ' ' << a.pow(10) << '\n';
  *   cout << a.inv() * a << '\n';          // 1
- *   cout << mint(2).sqrt() << '\n';       // 模 998244353 下 sqrt(2)
+ *   cout << mint(2).sqrt() << '\n';       // sqrt(2) modulo 998244353
  *   mint x = 5;
  *   cout << ++x << ' ' << x-- << '\n';    // 6 6
  * }

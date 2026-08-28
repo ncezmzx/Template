@@ -16,7 +16,7 @@ void fwt_or(int a[], int n, bool inv) {
       for (int j = 0; j < len; ++j) {
         if (!inv) {
           int v = a[i + j + len] + a[i + j];
-          a[i + j + len] = v >= md ? v - md : v;   // 加法后条件减，省去除法取模
+          a[i + j + len] = v >= md ? v - md : v;   // conditional subtract avoids %
         } else {
           int v = a[i + j + len] - a[i + j];
           a[i + j + len] = v < 0 ? v + md : v;
@@ -55,17 +55,20 @@ void fwt_xor(int a[], int n, bool inv) {
 
 /*
  * ============================================================
- * 名称：快速沃尔什变换（FWT：子集卷积 or / and / xor）
- * 复杂度：O(n log n)，n 为 2 的幂（数组长度）
- * 用途：三种位运算卷积：c[k] = sum_{i|j=k} a[i]*b[j]（or）、
- *       c[k] = sum_{i&j=k} ...（and）、c[k] = sum_{i^j=k} ...（xor）
- * 用法：a、b 补零到长度 n（2 的幂）；
- *       fwt_or(a, n, 0), fwt_or(b, n, 0); for 逐位乘; fwt_or(a, n, 1) → a 即卷积
- *       and / xor 同理；xor 的逆变换自带除以 n
- * 说明：与 NTT.cpp 互补：NTT 做加法卷积，FWT 做位运算卷积；
- *       模数可换，逆变换需要 2 的逆元（xor 用 qpow(n) 处理）
  * ============================================================
- * 使用示例（编译时取消注释；求 xor 卷积 c = a ⊗ b）：
+ * Name: fast Walsh-Hadamard transform (FWT: or / and / xor subset convolutions)
+ * Complexity: O(n log n), n a power of two (array length)
+ * Usage: three bitwise convolutions: c[k] = sum_{i|j=k} a[i]*b[j] (or),
+ *        c[k] = sum_{i&j=k} ... (and), c[k] = sum_{i^j=k} ... (xor)
+ * Usage pattern: pad a, b to length n (power of two);
+ *        fwt_or(a, n, 0), fwt_or(b, n, 0); pointwise multiply; fwt_or(a, n, 1) -> a is the convolution;
+ *        and / xor analogous; the xor inverse transform divides by n itself
+ * Notes: complements NTT.cpp: NTT for additive convolution, FWT for bitwise;
+ *        the modulus is swappable — the inverse needs the inverse of 2
+ *        (xor handles it via qpow(n))
+ * ============================================================
+ * Example (uncomment to compile; xor convolution c = a (x) b):
+
  * signed main() {
  *   int n = 1 << 3, a[8] = {1, 2, 0, 0, 0, 0, 0, 0}, b[8] = {3, 4, 0, 0, 0, 0, 0, 0};
  *   fwt_xor(a, n, 0), fwt_xor(b, n, 0);

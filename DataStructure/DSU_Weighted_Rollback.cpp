@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 带权并查集：维护 d[x] = x 到根的累计边权（可加群，如 mod 加法/异或）
+// weighted DSU: d[x] = accumulated edge weight from x to its root (additive group, e.g. mod addition / xor)
 constexpr int N = 2e5 + 9;
 struct wdsu {
   int p[N];
@@ -9,26 +9,26 @@ struct wdsu {
   void init(int n) {
     for (int i = 0; i <= n; ++i) p[i] = i, d[i] = 0;
   }
-  int find(int x) {  // 路径压缩并累计权
+  int find(int x) {  // path compression accumulating weights
     if (p[x] == x) return x;
     int r = find(p[x]);
     d[x] += d[p[x]], p[x] = r;
     return r;
   }
-  // 合并约束 y = x + w（x --w--> y）：返回是否与已有约束相容
+  // merge constraint y = x + w (x --w--> y); returns compatibility with existing constraints
   bool merge(int x, int y, long long w) {
     int rx = find(x), ry = find(y);
     if (rx == ry) return d[y] - d[x] == w;
-    p[rx] = ry, d[rx] = d[y] - d[x] - w;  // val[rx]-val[ry]（由 val[y]-val[x]=w 推出）
+    p[rx] = ry, d[rx] = d[y] - d[x] - w;  // val[rx]-val[ry], derived from val[y]-val[x]=w
     return true;
   }
-  long long rel(int x, int y) { return d[y] - d[x]; }  // val[y] - val[x]（需已同根：先 find）
+  long long rel(int x, int y) { return d[y] - d[x]; }  // val[y] - val[x] (must share a root: find first)
 };
 
-// 可撤销并查集：按秩合并不路径压缩，rollback 到历史大小
+// rollback DSU: union by rank without path compression; rollback to a historical size
 struct rdsu {
   int p[N], rk[N];
-  vector<pair<int, int>> hist;  // (被挂的根, 秩是否增加)
+  vector<pair<int, int>> hist;  // (attached root, did the rank increase)
   void init(int n) {
     for (int i = 0; i <= n; ++i) p[i] = i, rk[i] = 0;
     hist.clear();
@@ -37,7 +37,7 @@ struct rdsu {
     while (p[x] != x) x = p[x];
     return x;
   }
-  bool merge(int a, int b) {  // 返回是否发生合并（已连通则不入栈）
+  bool merge(int a, int b) {  // true if merged (already-connected pushes a no-op record)
     int ra = find(a), rb = find(b);
     if (ra == rb) return hist.push_back({-1, 0}), false;
     if (rk[ra] < rk[rb]) swap(ra, rb);
@@ -45,12 +45,12 @@ struct rdsu {
     rk[ra] += (rk[ra] == rk[rb]);
     return true;
   }
-  void rollback(size_t target) {  // 撤销到 hist.size() == target
+  void rollback(size_t target) {  // undo until hist.size() == target
     while (hist.size() > target) {
       auto pr = hist.back();
       hist.pop_back();
       if (pr.first < 0) continue;
-      if (pr.second) rk[p[pr.first]]--;  // 秩回退
+      if (pr.second) rk[p[pr.first]]--;  // restore rank
       p[pr.first] = pr.first;
     }
   }
@@ -58,29 +58,31 @@ struct rdsu {
 
 /*
  * ============================================================
- * 名称：带权并查集 / 可撤销并查集
- * 复杂度：wdsu.merge/find 均摊 O(α)；rdsu.find O(log n)（无路径
- *       压缩），merge/rollback O(1)
- * 用途：wdsu：维护带相对关系的合并（食物链/奇偶性/差分约束式
- *       关系 y = x + w，权为可加群：模加法、异或等）；
- *       rdsu：离线删边/线段树分治/整体二分中需要回滚的连通性
- * 接口：wdsu：merge(x, y, w)（y = x + w，返回是否相容）、
- *       rel(x, y)（同根时 val[y] - val[x]）；
- *       rdsu：merge(a, b)、rollback(hist.size() 快照)
- * 原理：wdsu 路径压缩时把沿途权值累加到根；合并时由
- *       d[rx] = w + d[y] - d[x] 推出新根链上的权；
- *       rdsu 按秩合并保证树高 O(log n)，撤销按栈逆操作
- * 注意：wdsu 的权群需满足可加可减（异或群时把 + 换 ^、- 换 ^）；
- *       rdsu 不能路径压缩（会破坏可撤销性）
+ * Name: weighted DSU / rollback DSU
+ * Complexity: wdsu.merge/find amortized O(alpha); rdsu.find O(log n) (no path
+ *             compression), merge/rollback O(1)
+ * Usage: wdsu: merges carrying relative relations (food chains / parity /
+ *        difference-constraint style y = x + w; weights from any additive
+ *        group: modular addition, xor, ...);
+ *        rdsu: connectivity with rollback for offline edge deletion,
+ *        segment-tree divide & conquer, parallel binary search
+ * Interface: wdsu: merge(x, y, w) (constraint y = x + w; returns
+ *        compatibility), rel(x, y) (val[y] - val[x] once same root);
+ *        rdsu: merge(a, b), rollback(snapshot of hist.size())
+ * Principle: wdsu path compression accumulates weights up to the root; on
+ *        merge, the new root link weight follows d[rx] = w + d[y] - d[x];
+ *        rdsu unions by rank (height O(log n)) and undoes via the stack
+ * Notes: wdsu's weight group must support + and - (for xor groups replace +
+ *        and - with ^); rdsu must not path-compress (it would break rollback)
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   wdsu w;
  *   w.init(5);
  *   w.merge(1, 2, 5), w.merge(2, 3, -2);   // val2 = val1+5, val3 = val2-2
- *   w.find(1), w.find(3);                  // rel 前先 find 压缩路径（d 才是到根全距）
+ *   w.find(1), w.find(3);                  // find first so paths compress (d is then the full distance to the root)
  *   cout << w.rel(1, 3) << '\n';           // 3（val3 - val1 = 5-2）
- *   cout << w.merge(1, 3, 3) << w.merge(1, 3, 4) << '\n';  // 1 0（相容 / 矛盾）
+ *   cout << w.merge(1, 3, 3) << w.merge(1, 3, 4) << '\n';  // 1 0 (compatible / contradictory)
  *   rdsu r;
  *   r.init(5);
  *   size_t snap = r.hist.size();

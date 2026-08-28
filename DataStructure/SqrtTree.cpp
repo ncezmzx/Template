@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
+
+// Sqrt Tree: static associative range queries in O(log log n), generic monoid
 template<class S, S (*op)(S, S), S (*e)(), size_t N = 200000>
 struct SqrtTree {
   int n, bsz, bn, tsz;
@@ -7,7 +9,7 @@ struct SqrtTree {
   S suf[static_cast<int>(sqrt(N)) + 9][static_cast<int>(sqrt(N)) + 9];
   S t[(static_cast<int>(sqrt(N)) + 9) << 2], a[N];
 
-  void sqt_build(int _n, const S *arr) {
+  void sqt_build(int _n, const S *arr) {  // arr is 1-indexed, length _n
     n = _n, bsz = sqrt(n) + 1, bn = (n + bsz - 1) / bsz;
     for (int i = 1; i <= n; ++i) a[i] = arr[i];
     for (int b = 1; b <= bn; ++b) {
@@ -27,7 +29,7 @@ struct SqrtTree {
     for (int i = tsz - 1; i >= 1; --i) t[i] = op(t[i << 1], t[i << 1 | 1]);
   }
 
-  S tquery(int p, int l, int r, int x, int y) {
+  S tquery(int p, int l, int r, int x, int y) {  // segment tree over whole blocks
     if (x <= l && r <= y) return t[p];
     int m = (l + r) >> 1;
     S res = e();
@@ -36,7 +38,7 @@ struct SqrtTree {
     return res;
   }
 
-  S sqt_query(int l, int r) {
+  S sqt_query(int l, int r) {  // associative aggregate over a[l..r]
     int bl = (l - 1) / bsz + 1, br = (r - 1) / bsz + 1;
     if (bl == br) {
       S res = e();
@@ -51,26 +53,33 @@ struct SqrtTree {
 
 /*
  * ============================================================
- * 名称：Sqrt Tree（静态区间最值/可结合查询）
- * 复杂度：预处理 O(n log log n)（块前缀后缀和 + 块间递归线段树），查询 O(log log n)
- * 用途：静态数组区间可结合查询（min/max/gcd/sum 等，qop 定义结合律运算），
- *       查询常数小于线段树（log log n 且无递归跳转）；本实现为"分块前缀/
- *       后缀和 + 块间线段树"的两层版（块间再分块可到 O(1)，见 OI-wiki）
- * 原理：分块（块长 ~√n）：每块预处理块内前缀/后缀聚合；块间聚合用线段树
- *       维护（块数 ~√n）；区间查询 = 左块后缀 + 中间整块线段树 + 右块前缀
- * 注意：qop 需满足结合律；qe() 为幺元；本文件为静态版（无修改），
- *       支持修改需按块重建（块长 √n 时单次修改 O(√n) 重建整块）
+ * Name: Sqrt Tree (static associative range queries), generic monoid
+ * Complexity: preprocessing O(n log log n) (block prefix/suffix aggregates +
+ *             inter-block segment tree); query O(log log n)
+ * Usage: static associative range queries (min/max/gcd/sum etc. via the
+ *        op/e template parameters), wrapped as SqrtTree<S, op, e, N>:
+ *        fill a 1-indexed array, sqt_build(n, arr), then sqt_query(l, r);
+ *        smaller constants than a segment tree (log log n, no recursion on
+ *        the hot path); this is the two-level form (block prefix/suffix +
+ *        inter-block segment tree; recursive blocking reaches O(1), see
+ *        OI-wiki)
+ * Principle: blocks of size ~sqrt(n): each block precomputes prefix/suffix
+ *        aggregates; a segment tree maintains the whole-block aggregates
+ *        (~sqrt(n) blocks); a query = left block suffix + middle whole
+ *        blocks via the tree + right block prefix
+ * Notes: op must be associative; e() is the identity; static only (no
+ *        updates; an update needs rebuilding a whole block in O(sqrt n))
  * ============================================================
- * 使用示例（编译时取消注释；区间最小值）：
- * constexpr int N = 2e5 + 9;
- * int a[N];
+ * Example (uncomment to compile; range minimum):
  * int op(int x, int y) { return min(x, y); }
  * int e() { return 0x3f3f3f3f; }
- * SqrtTree<int, op, e, N> s;
+ * static SqrtTree<int, op, e, 200009> s;
+ * static int a[200009];
  * signed main() {
+ *   int n;
  *   cin >> n;
  *   for (int i = 1; i <= n; ++i) cin >> a[i];
- *   s.sqt_build();
+ *   s.sqt_build(n, a);
  *   int q;
  *   cin >> q;
  *   while (q--) {
