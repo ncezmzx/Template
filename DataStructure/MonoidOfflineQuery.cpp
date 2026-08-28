@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 离线静态区间半群乘积（猫树分治）：所有查询按最高分层位分桶，
-// 每层一次双向扩展 O(n)，总 O((n + q) log n)，单次查询 O(1) 回调
+// [l, r]
 template <typename Mono, typename F>
 void monoid_product(const std::vector<Mono> &vec,
                     const std::vector<std::pair<int, int>> &query, F f) {
@@ -11,6 +10,7 @@ void monoid_product(const std::vector<Mono> &vec,
   for (int id = 0; id < (int)query.size(); ++id) {
     int l = query[id].first, r = query[id].second;
     if (l == r) {
+      f(id, vec[l]);
       continue;
     }
     int k = 31 - __builtin_clz(l ^ r);   // topbit
@@ -20,22 +20,14 @@ void monoid_product(const std::vector<Mono> &vec,
   std::vector<Mono> dp(n);
   for (int mid = 1; mid < n; ++mid) {
     int min = mid, max = mid;
-    for (int id : buk[mid]) {
-      int l = query[id].first, r = query[id].second;
-      min = std::min(min, l);
-      max = std::max(max, r);
-    }
+    for (int id : buk[mid]) min = std::min(min, query[id].first), max = std::max(max, query[id].second);
     dp[mid - 1] = vec[mid - 1];
-    for (int i = mid - 2; i >= min; --i) {
-      dp[i] = vec[i] * dp[i + 1];
-    }
+    for (int i = mid - 2; i >= min; --i) dp[i] = vec[i] * dp[i + 1];
     dp[mid] = vec[mid];
-    for (int i = mid + 1; i <= max; ++i) {
-      dp[i] = dp[i - 1] * vec[i];
-    }
+    for (int i = mid + 1; i <= max; ++i) dp[i] = dp[i - 1] * vec[i];
     for (int id : buk[mid]) {
       int l = query[id].first, r = query[id].second;
-      f(dp[l], dp[r], id);   // 答案 = dp[l] * dp[r]（查询半开 [l, r) 时为 dp[l..mid)·dp[mid..r)）
+      f(id, dp[l] * dp[r]);
     }
   }
 }
