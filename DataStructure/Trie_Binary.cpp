@@ -1,70 +1,73 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 可持久化 01-Trie：按插入顺序版本化，支持"版本区间"内的异或最值 / <= x 计数
-// 套路：区间 [l,r] 异或和最大 = max s[r] ^ s[p]（p ∈ [l-1, r-1]，s 为前缀异或）
-constexpr int B = 24;                          // 位宽（值 < 2^24，按需改 30 / 62）
-constexpr int N = 2e5 + 9, SP = N * (B + 2) + 9;
-int tot, cnt_, rt[N], tr_[SP][2], sz[SP];
-
-void init() { tot = 0, cnt_ = 0, rt[0] = 0, tr_[0][0] = tr_[0][1] = 0, sz[0] = 0; }
-int insert(int x) {  // 追加一个数 x（0 <= x < 2^B），返回新版本号
-  int pre = rt[cnt_], u = ++tot;
-  rt[++cnt_] = u;
-  tr_[u][0] = tr_[pre][0], tr_[u][1] = tr_[pre][1], sz[u] = sz[pre] + 1;
-  for (int cur = u, i = B - 1; i >= 0; --i) {
-    int b = x >> i & 1, nxt = ++tot;
-    pre = tr_[pre][b];
-    tr_[nxt][0] = tr_[pre][0], tr_[nxt][1] = tr_[pre][1], sz[nxt] = sz[pre] + 1;
-    tr_[cur][b] = nxt, cur = nxt;
+// persistent 01-Trie: versioned by insertion order; xor extrema / rank over a
+// version range. Trick: max xor-subarray in [l,r] = max s[r] ^ s[p] with
+// p in [l-1, r-1], s = prefix xor
+template <size_t N, size_t SP>
+struct persistent_binary_trie {
+  static constexpr int B = 24;  // bit width (values < 2^B; change to 30 / 62 as needed)
+  int tot, cnt_, rt[N], tr_[SP][2], sz[SP];
+  void init() { tot = 0, cnt_ = 0, rt[0] = 0, tr_[0][0] = tr_[0][1] = 0, sz[0] = 0; }
+  int insert(int x) {  // append x (0 <= x < 2^B), returns the new version id
+    int pre = rt[cnt_], u = ++tot;
+    rt[++cnt_] = u;
+    tr_[u][0] = tr_[pre][0], tr_[u][1] = tr_[pre][1], sz[u] = sz[pre] + 1;
+    for (int cur = u, i = B - 1; i >= 0; --i) {
+      int b = x >> i & 1, nxt = ++tot;
+      pre = tr_[pre][b];
+      tr_[nxt][0] = tr_[pre][0], tr_[nxt][1] = tr_[pre][1], sz[nxt] = sz[pre] + 1;
+      tr_[cur][b] = nxt, cur = nxt;
+    }
+    return cnt_;
   }
-  return cnt_;
-}
-// 第 l..r 个已插入数（版本闭区间）中选 y，最大化 x ^ y（区间需非空）
-int qmax(int l, int r, int x) {
-  int u = rt[r], v = rt[l - 1], res = 0;
-  for (int i = B - 1; i >= 0; --i) {
-    int b = (x >> i & 1) ^ 1;  // 期望走与 x 相反的位
-    if (sz[tr_[u][b]] - sz[tr_[v][b]] > 0) res |= 1 << i;
-    else b ^= 1;
-    u = tr_[u][b], v = tr_[v][b];
+  // pick y among insertions l..r maximizing x ^ y (range must be non-empty)
+  int qmax(int l, int r, int x) {
+    int u = rt[r], v = rt[l - 1], res = 0;
+    for (int i = B - 1; i >= 0; --i) {
+      int b = (x >> i & 1) ^ 1;  // prefer the bit opposite to x
+      if (sz[tr_[u][b]] - sz[tr_[v][b]] > 0) res |= 1 << i;
+      else b ^= 1;
+      u = tr_[u][b], v = tr_[v][b];
+    }
+    return res;
   }
-  return res;
-}
-// 第 l..r 个数中值 <= x 的个数
-int count_le(int l, int r, int x) {
-  int u = rt[r], v = rt[l - 1], res = 0;
-  for (int i = B - 1; i >= 0; --i) {
-    int b = x >> i & 1;
-    if (b) res += sz[tr_[u][0]] - sz[tr_[v][0]];  // 此位取 0 的（同前缀下）全部 < x
-    if (sz[tr_[u][b]] - sz[tr_[v][b]] == 0) return res;  // 目标分支为空
-    u = tr_[u][b], v = tr_[v][b];
+  // count of values <= x among insertions l..r
+  int count_le(int l, int r, int x) {
+    int u = rt[r], v = rt[l - 1], res = 0;
+    for (int i = B - 1; i >= 0; --i) {
+      int b = x >> i & 1;
+      if (b) res += sz[tr_[u][0]] - sz[tr_[v][0]];  // everything with 0 here is < x
+      if (sz[tr_[u][b]] - sz[tr_[v][b]] == 0) return res;  // target branch empty
+      u = tr_[u][b], v = tr_[v][b];
+    }
+    return res + sz[u] - sz[v];  // leaf: values equal to x
   }
-  return res + sz[u] - sz[v];  // 叶子：恰好等于 x 的
-}
+};
 
 /*
  * ============================================================
- * 名称：可持久化 01-Trie（版本区间异或最值 / rank）
- * 复杂度：insert O(B)；qmax / count_le O(B)；空间 O(nB)
- * 用途：维护多重集的版本历史，按"第 l..r 次插入"做版本区间查询：
- *       区间异或和最大（前缀异或 + qmax）、区间内 <= x 计数、
- *       最大异或和带修改（两棵配合）等
- * 接口：init()；insert(x) 追加版本；qmax(l, r, x)（max x^y）；
- *       count_le(l, r, x)（<= x 个数）
- * 原理：每个版本克隆插入路径（B+1 个新节点），其余共享；
- *       版本 r 与 l-1 相减即第 l..r 个插入的数组成的集合；
- *       qmax 贪心走与期望位相反且非空的分支
- * 注意：B 需覆盖最高位（值 < 2^B）；qmax 区间不能为空；
- *       与主席树互补：值域为 2 的幂时本模板免离散化
+ * Name: persistent 01-Trie (xor extrema / rank over a version range)
+ * Complexity: insert O(B); qmax / count_le O(B); space O(nB)
+ * Usage: maintain a version history of a multiset, query by "insertions l..r",
+ *        wrapped as persistent_binary_trie<N, SP>: max range xor (prefix xor +
+ *        qmax), count of values <= x in range, etc.; init(); insert(x) appends
+ *        a version; qmax(l, r, x) (max x^y); count_le(l, r, x)
+ * Principle: each version clones the insertion path (B+1 new nodes), sharing
+ *        the rest; version r minus l-1 gives the set of insertions l..r;
+ *        qmax greedily follows the non-empty branch opposite to x's bit
+ * Notes: B must cover the highest bit (values < 2^B); qmax range non-empty;
+ *        complements the persistent segment tree: no compression needed when
+ *        the domain is a power of two
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
+ * static persistent_binary_trie<200009, 5200009> pbt;
  * signed main() {
- *   init();
- *   insert(5), insert(2), insert(8), insert(6);  // 版本 1..4
- *   cout << qmax(2, 4, 9) << '\n';    // 15（9^6 = 15，集合 {2,8,6}）
- *   cout << qmax(1, 2, 1) << '\n';    // 4（{5,2} 中 1^5=4 最大）
- *   cout << count_le(2, 4, 6) << '\n';  // 2（{2,8,6} 中 <= 6 的）
- *   cout << count_le(1, 4, 7) << '\n';  // 3（{5,2,8,6} 中 <= 7 的）
+ *   pbt.init();
+ *   pbt.insert(5), pbt.insert(2), pbt.insert(8), pbt.insert(6);  // versions 1..4
+ *   cout << pbt.qmax(2, 4, 9) << '\n';    // 15 (9^6 = 15, set {2,8,6})
+ *   cout << pbt.qmax(1, 2, 1) << '\n';    // 4 (in {5,2}, 1^5=4 is maximal)
+ *   cout << pbt.count_le(2, 4, 6) << '\n';  // 2 (values <= 6 in {2,8,6})
+ *   cout << pbt.count_le(1, 4, 7) << '\n';  // 3 (values <= 7 in {5,2,8,6})
  * }
  */

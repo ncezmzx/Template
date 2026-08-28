@@ -12,7 +12,7 @@ struct matrix {
 };
 matrix operator*(const matrix &lhs, const matrix &rhs) {
   matrix ret(lhs.n, rhs.m);
-  // Floyd 式 i-k-j 转移 + 行指针缓存：顺序访存，免去 operator[] 的逐元素寻址
+  // Floyd-style i-k-j loop + cached row pointers: sequential access, no per-element operator[]
   for (int i = 0; i < lhs.n; ++i) {
     const int *lk = lhs.vec.data() + i * lhs.m;
     int *ri = ret.vec.data() + i * rhs.m;
@@ -33,17 +33,20 @@ matrix qpow(matrix a, int b) {
 }
 /*
  * ============================================================
- * 名称：max-plus 矩阵快速幂（广义 (max, +) 矩阵）
- * 复杂度：乘法 O(n^3)，快速幂 O(n^3 log b)
- * 用途：Floyd 式（max,+）路径问题——恰走 k 步的最大权路径、最长路计数等。
- *       注意：qpow 要求 b >= 1（实现为先取 ret = a 再 --b）。
- * 来源：all.cpp 行 11324-11348（原样保留；注释已统一移至文件尾部）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: max-plus matrix fast exponentiation (generalized (max, +) matrices)
+ * Complexity: multiplication O(n^3), fast power O(n^3 log b)
+ * Usage: Floyd-style (max,+) path problems — maximum-weight paths of exactly
+ *        k steps, longest-path counting, etc.
+ *        Note: qpow requires b >= 1 (implemented as ret = a first, then --b).
+ * Source: all.cpp lines 11324-11348 (kept verbatim, comments translated)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   matrix a(2, 2);
  *   a[0][0] = 1; a[0][1] = 2; a[1][0] = 3; a[1][1] = 4;
- *   matrix b = qpow(a, 2);  // (max,+) 平方：max_k a[i][k] + a[k][j]
+ *   matrix b = qpow(a, 2);  // (max,+) square: max_k a[i][k] + a[k][j]
  *   cout << b[0][0] << ' ' << b[0][1] << ' ' << b[1][0] << ' ' << b[1][1] << '\n';
  * }
  * ============================================================

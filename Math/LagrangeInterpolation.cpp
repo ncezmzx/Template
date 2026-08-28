@@ -24,12 +24,12 @@ int lagrange(const vector<int>& x, const vector<int>& y, int k) {
   return res;
 }
 
-constexpr int N = 2e6 + 9;
-int fac[N], ifac[N];
+// O(n) version for nodes x = 1..n (prefix/suffix products + factorial inverses)
 int lagrange_1n(const vector<int>& y, int k) {
   int n = (int)y.size() - 1;
   if (k >= 1 && k <= n) return y[k];
   if (n == 0) return 0;
+  vector<int> fac(n + 1), ifac(n + 1);
   fac[0] = ifac[0] = 1;
   for (int i = 1; i <= n; ++i) fac[i] = fac[i - 1] * i % md;
   ifac[n] = qpow(fac[n], md - 2);
@@ -51,24 +51,30 @@ int lagrange_1n(const vector<int>& y, int k) {
 
 /*
  * ============================================================
- * 名称：拉格朗日插值
- * 复杂度：一般形式 O(n^2)；x 为 1..n 连续点时 O(n)
- * 用途：给定 n+1 个点 (x_i, y_i)（x_i 两两不同），求不超过 n 次的多项式在
- *       任意点 k 处的值：
- *       1) lagrange(x, y, k)：一般横坐标（可不在模意义下等差）
- *       2) lagrange_1n(y, k)：横坐标为 1..n 的 O(n) 版（前缀/后缀积 + 阶乘逆元），
- *          常用于"n 次多项式求 f(k)"（k 可远大于 n，甚至取模意义下的负值）
- * 原理：拉格朗日基多项式 L_i(k) = prod_{j!=i} (k - x_j) / (x_i - x_j)，
- *       答案 = sum y_i * L_i(k)
- * 注意：分母需非零（模素数且 x_i 两两不同）；lagrange_1n 中 y 下标 0..n 与
- *       横坐标 1..n 对应（y[0] 未使用）；k 用 long long 传入再取模
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: Lagrange interpolation
+ * Complexity: general form O(n^2); O(n) for consecutive nodes x = 1..n
+ * Usage: given n+1 points (x_i, y_i) (distinct x_i), evaluate the unique
+ *        polynomial of degree <= n at any point k:
+ *        1) lagrange(x, y, k): general abscissas (need not be an arithmetic
+ *           progression modulo the prime);
+ *        2) lagrange_1n(y, k): O(n) version for abscissas 1..n (prefix/
+ *           suffix products + factorial inverses), typical for "evaluate a
+ *           degree-n polynomial at k" (k may far exceed n, even a modular
+ *           negative)
+ * Principle: Lagrange basis polynomials L_i(k) = prod_{j!=i} (k - x_j) /
+ *        (x_i - x_j); answer = sum y_i * L_i(k)
+ * Notes: denominators must be non-zero (prime modulus + distinct x_i); in
+ *        lagrange_1n, y is indexed 0..n against abscissas 1..n (y[0]
+ *        unused); pass k as long long, reduced internally
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
- *   // 过 (0,1),(1,2),(2,4) 的二次多项式 f(k)=k^2+1
+ *   // the quadratic through (0,1),(1,2),(2,4) is f(k)=k^2+1
  *   cout << lagrange({0, 1, 2}, {1, 2, 4}, 5) << '\n';       // 26
- *   // 1^2+2^2+...+n^2 = n(n+1)(2n+1)/6 是 n 的三次多项式：
- *   // f(1)=1, f(2)=5, f(3)=14, f(4)=30 → 求 f(1e9)
+ *   // 1^2+2^2+...+n^2 = n(n+1)(2n+1)/6 is cubic in n:
+ *   // f(1)=1, f(2)=5, f(3)=14, f(4)=30 -> evaluate f(1e9)
  *   vector<int> y = {0, 1, 5, 14, 30};
  *   cout << lagrange_1n(y, 1000000000) << '\n';
  * }

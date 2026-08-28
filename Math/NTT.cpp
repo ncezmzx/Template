@@ -14,7 +14,7 @@ namespace Poly {
     if (a < 0) a += Mod;
     return a;
   }
-  // Barrett 约减：以乘法替代 64 位除法，蝴蝶操作每次省一条 div
+  // Barrett reduction: replaces 64-bit division with a multiply (saves one div per butterfly)
   static constexpr unsigned long long BIM = ~0ull / Mod + 1;
   inline int mulmod(long long a, long long b) {
     unsigned long long z = (unsigned long long)a * (unsigned)b;
@@ -191,7 +191,7 @@ namespace Poly {
     for (int i = 1; i < n; i++) b[i - 1] = mulmod(a[i], i);
     return b;
   }
-  // 线性逆元表：inte 不再对每个系数做一次 O(log) 快速幂
+  // linear inverse table: inte avoids one O(log) pow per coefficient
   static vector<int> invs{0, 1};
   static int inv_mod(int x) {
     if ((int)invs.size() <= x) {
@@ -244,26 +244,31 @@ namespace Poly {
 using namespace Poly;
 /*
  * ============================================================
- * 名称：NTT + 多项式全家桶（namespace Poly）
- * 复杂度：ntt O(n log n)，卷积 O(n log n)，inv / ln / exp O(n log n)，deri / inte O(n)
- * 用途：模 998244353 下的多项式卷积、求逆、ln、exp、求导、积分、左右移位、去尾零。
- *       注意：inv / ln 要求常数项非零；exp 要求常数项为 0（形式幂级数语义）。
- * 来源：all.cpp 行 39879-40104（原样保留；注释已统一移至文件尾部）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: NTT + polynomial toolkit (namespace Poly)
+ * Complexity: ntt O(n log n), convolution O(n log n), inv / ln / exp O(n log n),
+ *             deri / inte O(n)
+ * Usage: polynomial convolution, inverse, ln, exp, derivative, integral,
+ *        shifts and trailing-zero trim under modulus 998244353.
+ *        Note: inv / ln require a non-zero constant term; exp requires the
+ *        constant term 0 (formal power series semantics).
+ * Source: all.cpp lines 39879-40104 (kept verbatim, comments translated)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   poly a = {1, 2, 3}, b = {4, 5};
  *   poly c = convolution(a, b, 4);  // {4, 13, 22, 15}
  *   for (int x : c) cout << x << ' ';
  *   cout << '\n';
  *   poly f = {0, 1, 1};      // x + x^2
- *   poly g = exp(f, 4);      // exp(x + x^2) 的前 4 项
+ *   poly g = exp(f, 4);      // first 4 terms of exp(x + x^2)
  *   for (int x : g) cout << x << ' ';
  *   cout << '\n';
- *   poly h = ln({1, 1, 0}, 3);  // ln(1 + x) 的前 3 项: 0, 1, md - 1/2
+ *   poly h = ln({1, 1, 0}, 3);  // first 3 terms of ln(1 + x): 0, 1, md - 1/2
  *   for (int x : h) cout << x << ' ';
  *   cout << '\n';
- *   poly d = deri(a), it = inte(d);  // 求导 / 积分
+ *   poly d = deri(a), it = inte(d);  // derivative / integral
  *   for (int x : it) cout << x << ' ';
  *   cout << '\n';
  * }

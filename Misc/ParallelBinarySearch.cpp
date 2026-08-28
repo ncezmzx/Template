@@ -2,8 +2,8 @@
 using namespace std;
 #define int long long
 
-// 整体二分（Parallel Binary Search）：离线静态区间第 k 小
-// 对"答案值域"整体二分，每层用 BIT 数区间内 ≤ mid 的个数分流询问
+// parallel binary search: offline static range k-th smallest
+// binary-search the answer space; each level partitions queries with a BIT count of values <= mid
 constexpr int N = 2e5 + 9;
 int bit[N], n_;
 inline void bit_add(int i, int v) {
@@ -18,7 +18,7 @@ inline int bit_sum(int i) {
 struct Q {
   int l, r, k, id;
 };
-// a[1..n] 原数列；qs = {{l, r, k}, ...}（1-indexed）；返回按输入顺序的第 k 小原值
+// a[1..n] (1-indexed); qs = {{l, r, k}, ...}; returns k-th smallest values in input order
 vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>>& qs) {
   n_ = n;
   memset(bit, 0, (n + 1) * sizeof(int));
@@ -26,7 +26,7 @@ vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>
   sort(vals.begin(), vals.end());
   vals.erase(unique(vals.begin(), vals.end()), vals.end());
   int V = vals.size();
-  vector<vector<int>> pos(V + 1);  // 离散值 i 的所有位置
+  vector<vector<int>> pos(V + 1);  // all positions of compressed value i
   for (int i = 1; i <= n; ++i)
     pos[(int)(lower_bound(vals.begin(), vals.end(), a[i]) - vals.begin()) + 1].push_back(i);
   vector<Q> cur;
@@ -39,15 +39,15 @@ vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>
       return;
     }
     int mid = L + R >> 1;
-    for (int i = L; i <= mid; ++i)  // 加入值域 [L, mid] 的位置
+    for (int i = L; i <= mid; ++i)  // insert positions with values in [L, mid]
       for (int p : pos[i]) bit_add(p, 1);
     vector<Q> lq, rq;
     for (auto& x : q) {
-      int c = bit_sum(x.r) - bit_sum(x.l - 1);  // 区间内值 ≤ mid 的个数
+      int c = bit_sum(x.r) - bit_sum(x.l - 1);  // count of values <= mid in range
       if (c >= x.k) lq.push_back(x);
       else rq.push_back({x.l, x.r, x.k - c, x.id});
     }
-    for (int i = L; i <= mid; ++i)  // 回滚 BIT，保证进入下层时干净
+    for (int i = L; i <= mid; ++i)  // roll back the BIT for the next level
       for (int p : pos[i]) bit_add(p, -1);
     solve(L, mid, lq);
     solve(mid + 1, R, rq);
@@ -58,19 +58,23 @@ vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>
 
 /*
  * ============================================================
- * 名称：整体二分（Parallel Binary Search）
- * 复杂度：O((n + q) log² n)
- * 用途：一类"多组询问、答案单调可二分、可离线"的问题，把所有询问
- *       一起二分答案：经典是静态区间第 k 小（替代树套树/主席树），
- *       也可做"带修第 k 小""二维第 k 小"等（把修改也当作事件二分）
- * 接口：parallel_kth(n, a[1..n], {{l, r, k}, ...}) → 每问区间第 k 小
- * 原理：在答案值域 [L, R] 上递归；每层把值 ≤ mid 的位置加入 BIT，
- *       对每个询问数出 [l, r] 内 ≤ mid 的个数 c：c ≥ k 归左，否则
- *       k -= c 归右；归右前撤销本层 BIT 修改
- * 注意：值需可离散化；k 合法（1 ≤ k ≤ r-l+1）；多测注意重设 bit
- * 来源：OI-Wiki《整体二分》（https://oi-wiki.org/misc/parallel-binsearch/）
+ * Name: parallel binary search
+ * Complexity: O((n + q) log^2 n)
+ * Usage: problems with many queries whose answers are monotone/bisectable and
+ *        offline-able: binary-search all answers together. The classic is the
+ *        static range k-th smallest (replacing tree-of-trees / persistent
+ *        segment trees); also "k-th smallest with updates", "2D k-th
+ *        smallest", etc. (treat updates as events too)
+ * Interface: parallel_kth(n, a[1..n], {{l, r, k}, ...}) -> k-th smallest per query
+ * Principle: recurse over the answer value domain [L, R]; each level inserts
+ *        positions with values <= mid into a BIT; per query count c values
+ *        <= mid inside [l, r]: c >= k goes left, otherwise k -= c goes right;
+ *        roll back this level's BIT before recursing right
+ * Notes: values must be compressible; k must be valid (1 <= k <= r-l+1);
+ *        reset the BIT between test cases
+ * Source: OI-Wiki "Parallel binary search" (https://oi-wiki.org/misc/parallel-binsearch/)
  * ============================================================
- * 使用示例（编译时取消注释；洛谷 P3834）：
+ * Example (uncomment to compile):
  * signed main() {
  *   vector<int> a{0, 1, 5, 2, 4, 3};  // n = 5: {1,5,2,4,3}
  *   auto r = parallel_kth(5, a, {{2, 4, 2}, {1, 5, 1}, {1, 5, 5}});

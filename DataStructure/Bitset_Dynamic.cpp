@@ -94,10 +94,10 @@ struct dynbitset {
   }
 
   dynbitset& operator&=(const dynbitset& o) {
-    int m = min((int)a.size(), (int)o.a.size());   // 分两段消除逐元素边界判断
+    int m = min((int)a.size(), (int)o.a.size());   // two loops remove per-element bound checks
     for (int i = 0; i < m; ++i) a[i] &= o.a[i];
     for (int i = m; i < (int)a.size(); ++i) a[i] = 0;
-    // 与运算不会产生越界位、高位字已清零，无需再 norm()
+    // AND cannot create out-of-range bits and high words are already zero; no norm() needed
     return *this;
   }
   dynbitset& operator|=(const dynbitset& o) {
@@ -174,17 +174,19 @@ struct dynbitset {
 
 /*
  * ============================================================
- * 名称：手写动态 bitset（支持 std::bitset 全部操作 + 动态改变大小）
- * 复杂度：按 64 位字长分组，与、或、异或、移位、计数均为 O(n/64)；单点 O(1)
- * 用途：OI 中 bitset 加速（可达性、子集卷积、字符串匹配、DP 状态压缩）时，
- *       需要动态长度或更大规模（std::bitset 长度必须是编译期常量）的场景
- * 说明：内部按 64 位字存储，低位在低位；find_first/find_next 用 ctz 加速，
- *       适合"枚举集合中所有 1"（总复杂度 O(位数/64 + 1 的个数)）；
- *       移位保留长度（超出部分丢弃、高位补 0）
- * 注意：resize 只改变逻辑长度并清零；不同长度的 bitset 做 & | ^ 时以较长的
- *       为准（短者缺失位视为 0）；to_string 输出高位在前
+ * Name: hand-written dynamic bitset (all std::bitset operations + runtime resizing)
+ * Complexity: 64-bit word granularity; and/or/xor/shift/popcount are O(n/64); single bits O(1)
+ * Usage: bitset acceleration (reachability, subset convolution, string
+ *        matching, DP state compression) when the length must be dynamic or
+ *        larger than a compile-time constant allows (std::bitset needs one)
+ * Notes: stored as 64-bit words, low bits first; find_first/find_next use
+ *        ctz, ideal for enumerating all set bits (total O(#words + #ones));
+ *        shifts preserve the length (overflow dropped, high bits zero);
+ *        resize changes the logical length and clears; mixed-length & | ^
+ *        use the longer length (missing bits read as 0); to_string prints
+ *        most significant first
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   dynbitset a = dynbitset::from_string("10101"), b(10);
  *   b.set(2), b.set(9);

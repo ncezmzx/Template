@@ -15,7 +15,7 @@ struct bigint {
     if (t >> 32) a.push_back(u32(t >> 32));
     trim();
   }
-  // 一次完成 (*this) = (*this) * 10^k + v（k<=9, v < 10^9），十进制转换的核心原语
+  // (*this) = (*this) * 10^k + v in one shot (k<=9, v < 10^9); core parsing primitive
   void mul_add_small(int k, u64 v) {
     static constexpr u64 pw10[10] = {1, 10, 100, 1000, 10000, 100000,
                                      1000000, 10000000, 100000000, 1000000000};
@@ -32,7 +32,7 @@ struct bigint {
     bool n = false;
     if (i < (int)s.size() && (s[i] == '-' || s[i] == '+')) n = s[i++] == '-';
     a.assign(1, 0);
-    // 按 9 位十进制一段读入，段数比逐位读缩小 9 倍（乘加次数 O(n/9)）
+    // parse 9 decimal digits per chunk: 9x fewer multiply-adds than per-digit
     while (i < (int)s.size()) {
       int take = min(9, (int)s.size() - i);
       u64 v = 0;
@@ -284,24 +284,28 @@ struct bigint {
 
 /*
  * ============================================================
- * 名称：高精度整数（BigInt，2^32 基底，二进制存储）
- * 复杂度：加/减 O(n)，乘 O(nm)（学校乘法），除/模 O((n-m)m)（Knuth 算法 D）
- * 用途：超出 64 位范围的整数运算：+ - * / %、比较、自增自减、幂、gcd；
- *       除法为向零取整（C/C++ 语义，余数符号与被除数一致）
- * 原理：小端 uint32 数组存 2^32 基底，符号位单独记录；
- *       除法采用 Knuth《TAOCP》算法 D（归一化 + 试商 + 乘减 + 加回），
- *       支持任意位长；十进制转换用 1e9 分块
- * 注意：与 int/long long 混用时经构造隐式转换；to_string/输入输出为
- *       O(n^2) 级，仅用于 IO；要求除数非零
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: big integer (BigInt, base 2^32, binary storage)
+ * Complexity: add/sub O(n), multiply O(nm) (schoolbook), divide/mod O((n-m)m) (Knuth algorithm D)
+ * Usage: integer arithmetic beyond 64 bits: + - * / %, comparisons,
+ *        increment/decrement, powers, gcd; division truncates toward zero
+ *        (C/C++ semantics, remainder takes the dividend's sign)
+ * Principle: little-endian uint32 array in base 2^32, sign stored
+ *        separately; division follows Knuth's TAOCP algorithm D
+ *        (normalize, trial quotient, multiply-subtract, add-back) for any
+ *        length; decimal conversion works in 1e9 chunks
+ * Notes: mixes with int/long long via implicit construction; to_string and
+ *        stream IO are O(n^2) territory, IO only; the divisor must be non-zero
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   bigint a("-123456789012345678901234567890"), b(987654321);
  *   cout << a + b << '\n';
  *   cout << a * b << '\n';
  *   cout << a / b << '\n';
  *   cout << a % b << '\n';
- *   cout << bigint("-7") / 2 << '\n';       // -3（向零取整）
+ *   cout << bigint("-7") / 2 << '\n';       // -3 (truncation toward zero)
  *   cout << bigint("2").pow(100) << '\n';   // 1267650600228229401496703205376
  * }
  * ============================================================

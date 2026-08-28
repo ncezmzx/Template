@@ -66,17 +66,21 @@ mint qpow(mint a, int b = md - 2) {
 }
 /*
  * ============================================================
- * 名称：动态模数（Barrett reduction modint，运行时模数）
- * 复杂度：四则运算 O(1)（乘法用 Barrett 约简），qpow O(log b)
- * 用途：模数在运行时才确定（如读入）时的模运算；可用 set_mod 在运行期切换模数。
- *       注意：模板构造函数要求整型实参，不要写成 mint(1e9 + 9)（1e9+9 是 double，会编译报错）。
- * 来源：all.cpp 行 9559-9623（原样保留；注释已统一移至文件尾部）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: dynamic modulus (Barrett reduction modint, runtime modulus)
+ * Complexity: arithmetic O(1) (Barrett-reduced multiply); qpow O(log b)
+ * Usage: modular arithmetic when the modulus is only known at runtime (e.g.
+ *        read from input); set_mod switches the modulus on the fly.
+ *        Note: the templated constructor requires integer arguments — do not
+ *        write mint(1e9 + 9) (1e9+9 is a double; compile error).
+ * Source: all.cpp lines 9559-9623 (kept verbatim, comments translated)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
  *   mint a = 3, b = 5;
  *   cout << a + b << ' ' << a * b << ' ' << qpow(a, 10) << '\n';  // 8 15 59049
- *   mint::set_mod(998244353);  // 运行期切换模数
+ *   mint::set_mod(998244353);  // switch modulus at runtime
  *   cout << mint(1000000009LL) + 1 << '\n';  // 1000000009 % 998244353 + 1 = 1755657
  * }
  * ============================================================

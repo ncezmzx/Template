@@ -42,13 +42,13 @@ int pollard_rho(int n) {
     int x = rng() % (n - 1) + 1, y = x, d = 1;
     auto f = [&](int v) { return (mul_mod(v, v, n) + c) % n; };
     while (d == 1) {
-      // 批量 Floyd：|x-y| 连乘 128 步模 n 后只做一次 gcd，摊薄逐步 gcd 的除法开销
+      // batched Floyd: multiply 128 |x-y| differences before one gcd (amortizes divisions)
       int q = 1;
       for (int i = 0; i < 128 && d == 1; ++i) {
         x = f(x), y = f(f(y));
         if (x == y) {
-          d = __gcd(q, n);          // 指针相遇：用部分积抢救一次
-          if (d == 1) d = n;           // 无效，换 c 重来
+          d = __gcd(q, n);          // pointers met: retry with the partial product
+          if (d == 1) d = n;           // useless, restart with a new c
           break;
         }
         q = mul_mod(q, x > y ? x - y : y - x, n);
@@ -69,23 +69,29 @@ void factorize(int n, vector<int>& fac) {
 
 /*
  * ============================================================
- * 名称：Pollard-Rho 大数质因数分解（Floyd 判圈，配套 Miller-Rabin）
- * 复杂度：期望 O(n^{1/4}) 找到一个非平凡因子；整体分解 O(n^{1/4} log n)
- * 用途：对 64 位范围内的大合数分解质因数（如 1e18 级别）；常与
- *       Miller-Rabin（is_prime 已内嵌）配合：先判素，再 Pollard-Rho 拆分
- * 原理：伪随机函数 f(x) = (x^2 + c) mod n 在模 n 下进入循环，用 Floyd
- *       判圈法取差与 n 求 gcd，命中非平凡因子；失败（d == n）时更换随机种子重试
- * 注意：#define int long long 使 int 为 64 位；mul_mod 用 __int128 防溢出；
- *       依赖 Gcd_Binary.cpp 或手写 gcd（此处用 __gcd 扩展，兼容 C++14）
- * 用法：factorize(n, fac) 后 fac 内含 n 的所有质因子（含重复、无序）
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: Pollard-Rho factorization (Floyd cycle detection, pairs with Miller-Rabin)
+ * Complexity: expected O(n^{1/4}) to find a non-trivial factor; full
+ *             factorization O(n^{1/4} log n)
+ * Usage: factor 64-bit composites (e.g. ~1e18); typically combined with
+ *        Miller-Rabin (is_prime embedded): primality first, then split with
+ *        Pollard-Rho
+ * Principle: the pseudo-random map f(x) = (x^2 + c) mod n eventually cycles
+ *        modulo n; Floyd cycle detection takes differences and gcds them
+ *        with n to hit a non-trivial factor; on failure (d == n) retry with
+ *        a new random seed
+ * Notes: #define int long long makes int 64-bit; mul_mod uses __int128
+ *        against overflow; relies on __gcd (GNU extension, C++14-compatible)
+ * Usage pattern: after factorize(n, fac), fac holds all prime factors of n
+ *        (with multiplicity, unordered)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
- *   int n;
- *   cin >> n;
+ *   int n = 1024;                          // try any 64-bit composite
  *   vector<int> fac;
  *   factorize(n, fac);
- *   for (int x : fac) cout << x << ' ';
+ *   for (int x : fac) cout << x << ' ';    // ten 2s
  * }
  * ============================================================
  */

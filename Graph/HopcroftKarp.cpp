@@ -2,76 +2,85 @@
 using namespace std;
 #define int long long
 
-constexpr int N = 1e5 + 9;
-int n, m, nl, nr, dis[N], match[N], vis[N], vstamp, q[N];
-vector<int> g[N];
-
-bool bfs() {
-  bool f = false;
-  int qh = 0, qt = 0;   // 扁平数组队列：只入队左侧点，nl 容量足够
-  for (int i = 1; i <= nl; ++i)
-    if (!match[i]) dis[i] = 0, q[qt++] = i;
-    else dis[i] = -1;
-  dis[0] = -1;
-  while (qh < qt) {
-    int u = q[qh++], du = dis[u] + 1;
-    for (int v : g[u]) {
-      if (dis[match[v]] == -1) {
-        dis[match[v]] = du;
-        if (match[v]) q[qt++] = match[v];
-        else f = true;
+// Hopcroft-Karp maximum bipartite matching, O(E sqrt V)
+template <size_t N>
+struct hopcroft_karp {
+  int nl, nr, vstamp = 0;
+  int dis[N], match[N], vis[N], q[N];
+  vector<int> g[N];  // adjacency of left vertices (right ids must not collide)
+  bool bfs() {  // layer free-left vertices by augmenting-path length
+    bool f = false;
+    int qh = 0, qt = 0;  // flat queue, left vertices only
+    for (int i = 1; i <= nl; ++i)
+      if (!match[i]) dis[i] = 0, q[qt++] = i;
+      else dis[i] = -1;
+    dis[0] = -1;
+    while (qh < qt) {
+      int u = q[qh++], du = dis[u] + 1;
+      for (int v : g[u]) {
+        if (dis[match[v]] == -1) {
+          dis[match[v]] = du;
+          if (match[v]) q[qt++] = match[v];
+          else f = true;
+        }
       }
     }
+    return f;
   }
-  return f;
-}
-
-bool dfs(int u) {
-  int du = dis[u] + 1;   // 层号提出，避免每条邻边重算
-  for (int v : g[u]) {
-    if (match[v] && dis[match[v]] != du) continue;  // 层级检查先于 vis
-    if (vis[v] == vstamp) continue;
-    vis[v] = vstamp;
-    if (!match[v] || dfs(match[v])) {
-      match[u] = v, match[v] = u;
-      return true;
+  bool dfs(int u) {
+    int du = dis[u] + 1;  // hoisted level check
+    for (int v : g[u]) {
+      if (match[v] && dis[match[v]] != du) continue;
+      if (vis[v] == vstamp) continue;
+      vis[v] = vstamp;
+      if (!match[v] || dfs(match[v])) {
+        match[u] = v, match[v] = u;
+        return true;
+      }
     }
+    dis[u] = -1;
+    return false;
   }
-  dis[u] = -1;
-  return false;
-}
-
-int hopcroft_karp() {
-  int ans = 0;
-  while (bfs()) {
-    ++vstamp;   // 时间戳代替每阶段 memset(vis)
-    for (int i = 1; i <= nl; ++i)
-      if (!match[i] && dfs(i)) ++ans;
+  // match[u]=v and match[v]=u after success; clear g/match between cases
+  int solve(int nl_, int nr_) {
+    nl = nl_, nr = nr_;
+    for (int i = 1; i <= nl + nr; ++i) match[i] = 0;
+    int ans = 0;
+    while (bfs()) {
+      ++vstamp;  // timestamps replace per-phase memset(vis)
+      for (int i = 1; i <= nl; ++i)
+        if (!match[i] && dfs(i)) ++ans;
+    }
+    return ans;
   }
-  return ans;
-}
+};
 
 /*
  * ============================================================
- * 名称：Hopcroft–Karp（二分图最大匹配）
- * 复杂度：O(E sqrt(V))
- * 用途：二分图最大匹配（nl 个左部点、nr 个右部点，左部点 1..nl、右部点
- *       1..nr 或映射后使用）；匹配结果存 match[]（match[u]=v 且 match[v]=u）
- * 原理：BFS 按增广路长度分层（dis，dist 表示左部点），DFS 只沿"下一层"
- *       找增广路（多路增广），每轮找到当前长度的所有最短增广路；
- *       轮数 O(sqrt(V))，每轮 O(E)
- * 注意：右部点需与左部点编号不冲突（本模板 match 数组共用，右部点建议
- *       映射到 nl+1..nl+nr 或使用分离编号）；多组数据清空 g/match
+ * Name: Hopcroft-Karp (maximum bipartite matching)
+ * Complexity: O(E sqrt(V))
+ * Usage: maximum bipartite matching, wrapped as hopcroft_karp<N>:
+ *        g[left vertex] holds right-side ids, solve(nl, nr) returns the
+ *        matching size; the result lives in match[] (match[u]=v and
+ *        match[v]=u); left vertices 1..nl, right vertices 1..nr or remapped
+ * Principle: BFS layers free left vertices by augmenting-path length (dis);
+ *        DFS only follows "next layer" edges (multi-path augmentation), so
+ *        each phase finds all shortest augmenting paths; O(sqrt(V)) phases,
+ *        O(E) each
+ * Notes: right ids must not collide with left ids (the match array is
+ *        shared; map right vertices to nl+1..nl+nr or use disjoint ranges);
+ *        clear g/match between test cases
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
+ * static hopcroft_karp<200009> hk;
  * signed main() {
+ *   int nl, nr, m;
  *   cin >> nl >> nr >> m;
  *   for (int i = 1, u, v; i <= m; ++i) {
  *     cin >> u >> v;
- *     g[u].push_back(v + nl);   // 右部点映射到 nl+1..nl+nr
+ *     hk.g[u].push_back(v + nl);   // map right vertices to nl+1..nl+nr
  *   }
- *   nr += nl;
- *   cout << hopcroft_karp() << '\n';
+ *   cout << hk.solve(nl, nl + nr) << '\n';
  * }
  * ============================================================
  */

@@ -16,7 +16,7 @@ struct wavelet {
     zc.assign(LOG, 0);
     vector<int> cur = v, nxt(n);
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      int* P = pref[lv].data();   // 行指针提出，避免逐元素 vector 寻址
+      int* P = pref[lv].data();   // hoist the row pointer, avoid per-element vector indexing
       int z = 0;
       for (int i = 0; i < n; ++i) {
         int b = (cur[i] >> lv & 1) == 0;
@@ -28,7 +28,7 @@ struct wavelet {
         if (cur[i] >> lv & 1) nxt[p1++] = cur[i];
         else nxt[p0++] = cur[i];
       }
-      cur.swap(nxt);   // 交换代替拷贝
+      cur.swap(nxt);   // swap instead of copy
     }
   }
 
@@ -146,22 +146,25 @@ struct dyn_wavelet {
 
 /*
  * ============================================================
- * 名称：基于二进制分组的动态 Wavelet Matrix（可插入的权值序列）
- * 复杂度：insert 均摊 O(log n * LOG)（二进制分组：小块不断合并重建，
- *         每个元素每轮至多参与 O(log n) 次重建）；kth/rank_lt O(LOG * log n)
- * 用途：动态维护一个多重集合（仅插入，可选 erase）：
- *       insert(x) 插入；kth(k) 全局第 k 小（0-based）；
- *       rank_lt(x) 全局 < x 的个数；count(x) 等于 x 的个数；
- *       每个"块"是一棵静态 Wavelet Matrix（值域 [0, 2^LOG)）
- * 原理：二进制分组（logarithmic method）：维护大小恰为 1,2,4,... 的块，
- *       插入时新建大小为 1 的块并不断与同大小块合并重建（二进制进位），
- *       保证任意时刻块数 O(log n)；查询对所有块并行按位下降（kth）或
- *       累加（rank_lt）
- * 注意：值域需在 [0, 2^LOG)（LOG = 30，负数请加偏移）；
- *       erase 为 O(Σ 块大小) 的简单实现（找到含 x 的块重建），
- *       删除频繁请改用可持久化线段树/平衡树
+ * Name: dynamic Wavelet Matrix via binary grouping (insertable value sequence)
+ * Complexity: insert amortized O(log n * LOG) (binary grouping: small blocks
+ *             keep merging/rebuilding, each element joins at most O(log n)
+ *             rebuilds per round); kth/rank_lt O(LOG * log n)
+ * Usage: dynamically maintain a multiset (insert-only, optional erase):
+ *        insert(x) inserts; kth(k) global k-th smallest (0-based);
+ *        rank_lt(x) global count of values < x; count(x) count of x;
+ *        each "block" is a static Wavelet Matrix (domain [0, 2^LOG))
+ * Principle: logarithmic method: maintain blocks of sizes exactly 1,2,4,...;
+ *        an insert creates a size-1 block and repeatedly merges with an
+ *        equal-sized block (binary carry), keeping O(log n) blocks at all
+ *        times; queries descend bitwise across all blocks in parallel (kth)
+ *        or accumulate (rank_lt)
+ * Notes: values must be in [0, 2^LOG) (LOG = 30; shift negatives); erase is
+ *        a simple O(sum of block sizes) implementation (find the block
+ *        holding x and rebuild it) — for deletion-heavy workloads prefer a
+ *        persistent segment tree / balanced tree
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
  * signed main() {
  *   dyn_wavelet st;
  *   for (int x : {5, 3, 9, 1, 7, 5}) st.insert(x);

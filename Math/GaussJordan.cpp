@@ -10,55 +10,66 @@ int qpow(int a, int b) {
   return r;
 }
 
-constexpr int N = 505;
-int a[N][N];
-
-int gauss(int n) {
-  int r = 0;
-  for (int c = 0; c < n; ++c) {
-    int p = r;
-    while (p < n && !a[p][c]) ++p;
-    if (p == n) continue;
-    for (int j = c; j <= n; ++j) swap(a[p][j], a[r][j]);
-    int inv = qpow(a[r][c], md - 2);
-    for (int j = c; j <= n; ++j) a[r][j] = a[r][j] * inv % md;
-    for (int i = 0; i < n; ++i)
-      if (i != r && a[i][c]) {
-        int t = a[i][c];
-        for (int j = c; j <= n; ++j) {
-          // 一次取模 + 条件减替代两次取模（t*a[r][j] < 2^60 安全）
-          int v = a[i][j] - (int)(t * a[r][j] % md);
-          a[i][j] = v < 0 ? v + md : v;
+// Gauss-Jordan elimination over the prime field Z_md
+template <size_t N>
+struct gauss_jordan {
+  int a[N][N];  // a[i][j] coefficients, a[i][n] constants
+  // returns 1 = unique solution (x[i] in a[i][n]), 2 = infinitely many, 0 = none
+  int solve(int n) {
+    int r = 0;
+    for (int c = 0; c < n; ++c) {
+      int p = r;
+      while (p < n && !a[p][c]) ++p;
+      if (p == n) continue;
+      for (int j = c; j <= n; ++j) swap(a[p][j], a[r][j]);
+      int inv = qpow(a[r][c], md - 2);
+      for (int j = c; j <= n; ++j) a[r][j] = a[r][j] * inv % md;
+      for (int i = 0; i < n; ++i)
+        if (i != r && a[i][c]) {
+          int t = a[i][c];
+          for (int j = c; j <= n; ++j) {
+            // one mod + conditional subtract instead of two mods (t*a[r][j] < 2^60)
+            int v = a[i][j] - (int)(t * a[r][j] % md);
+            a[i][j] = v < 0 ? v + md : v;
+          }
         }
-      }
-    ++r;
+      ++r;
+    }
+    for (int i = r; i < n; ++i)
+      if (a[i][n]) return 0;
+    return r == n ? 1 : 2;
   }
-  for (int i = r; i < n; ++i)
-    if (a[i][n]) return 0;
-  return r == n ? 1 : 2;
-}
+};
 
 /*
  * ============================================================
- * 名称：高斯-约旦消元（模素数域，解线性方程组 / 求秩）
- * 复杂度：O(n^3)
- * 用途：解 n 元线性方程组 Ax = b（a[i][j] 为系数，a[i][n] 为常数项）：
- *       gauss(n) 返回 1（唯一解，解在 a[i][n]）、2（无穷多解）、0（无解）；
- *       全选主元的双精度版本见注释（数值稳定性更好，用于实数方程组）
- * 原理：高斯-约旦：对每一列选一个非零主元行，消去**所有**其他行该列，
- *       得到对角矩阵，解直接读出；比高斯消元少一次回代
- * 注意：模数需为素数（除法用逆元）；无主元列对应自由元（无穷多解情形）；
- *       矩阵求逆：对 [A | I] 做同样消元，左侧变 I 时右侧即 A^{-1}
  * ============================================================
- * 使用示例（编译时取消注释；解 2 元方程组 x+2y=5, 3x+4y=6 → x=-4, y=4.5 mod p）：
+ * Name: Gauss-Jordan elimination (prime field; solve linear systems / rank)
+ * Complexity: O(n^3)
+ * Usage: solve n-variable linear systems Ax = b, wrapped as gauss_jordan<N>:
+ *        a[i][j] coefficients, a[i][n] constants; solve(n) returns 1
+ *        (unique solution, in a[i][n]), 2 (infinitely many), 0 (none); a
+ *        fully-pivoting double-precision version is included in comments
+ *        (better numerical stability for real systems)
+ * Principle: Gauss-Jordan: for each column pick a non-zero pivot row and
+ *        eliminate that column from ALL other rows, reaching a diagonal
+ *        matrix whose entries are the solution; no back-substitution needed
+ * Notes: the modulus must be prime (division via inverses); pivot-less
+ *        columns correspond to free variables (infinite-solution case);
+ *        matrix inverse: run the same elimination on [A | I]; when the left
+ *        side becomes I, the right side is A^{-1}
+ * ============================================================
+ * Example (uncomment to compile; solves x+2y=5, 3x+4y=6 -> x=-4, y=4.5 mod p):
+
+ * static gauss_jordan<505> gj;
  * signed main() {
  *   int n = 2;
- *   a[0][0] = 1, a[0][1] = 2, a[0][2] = 5;
- *   a[1][0] = 3, a[1][1] = 4, a[1][2] = 6;
- *   cout << gauss(n) << '\n';
- *   for (int i = 0; i < n; ++i) cout << a[i][n] << ' ';
+ *   gj.a[0][0] = 1, gj.a[0][1] = 2, gj.a[0][2] = 5;
+ *   gj.a[1][0] = 3, gj.a[1][1] = 4, gj.a[1][2] = 6;
+ *   cout << gj.solve(n) << '\n';
+ *   for (int i = 0; i < n; ++i) cout << gj.a[i][n] << ' ';
  * }
- * // 双精度版（注释）：
+ * // double-precision version (commented out):
  * // const long double eps = 1e-9; long double b[N][N];
  * // int gauss_double(int n) {
  * //   for (int c = 0, r = 0; c < n; ++c) {

@@ -1,23 +1,9 @@
-// ============================================================
-// 名称：随机工具（mt19937 + shuffle + 随机整数）与 splitmix64 快速随机哈希
-// 复杂度：O(1) / 次
-// 用途：随机化算法（模拟退火、随机增量、随机打乱、随机权值哈希）与抗卡哈希；
-//       splitmix64 是著名的高质量快速随机哈希，配合 FIXED_RANDOM 种子可防针对性 hack
-// 使用示例：见 #ifdef DEMO
-// 来源：
-//   - mt19937 rng(random_device{}())：all.cpp 2913（全文件 79 处同款，如 533、4242；
-//     64 位版 mt19937_64 rng(random_device{}()) 见 all.cpp 37048）
-//   - shuffle(v.begin(), v.end(), rng)：all.cpp 15391
-//   - uniform_int_distribution<int>(l, r)(rng)：all.cpp 7320；
-//     封装写法 int rg(int l,int r) 见 all.cpp 21664（double 版 21665）
-//   - splitmix64_hash：all.cpp 41576-41588（原样提取；同款还出现在 41931-41943）
-// ============================================================
 #include <bits/stdc++.h>
 using namespace std;
 
 mt19937 rng(random_device{}());
 
-// 来源：all.cpp 41576-41588（原样提取）
+// splitmix64: high-quality fast random hash (with anti-hack time seed)
 struct splitmix64_hash {
   static uint64_t splitmix64(uint64_t x) {
     x += 0x9e3779b97f4a7c15;
@@ -32,20 +18,40 @@ struct splitmix64_hash {
   }
 };
 
-// 来源：all.cpp 21664（原样提取）—— [l, r] 内均匀随机整数
+// uniform random integer in [l, r]
 int rg(int l, int r) { return uniform_int_distribution<int>(l, r)(rng); }
 
-#ifdef DEMO
-int main() {
-  // 随机整数
-  cout << rg(1, 100) << '\n';
-  // 随机打乱
-  vector<int> v = {1, 2, 3, 4, 5};
-  shuffle(v.begin(), v.end(), rng);
-  for (int x : v) cout << x << ' ';
-  cout << '\n';
-  // splitmix64 随机哈希
-  splitmix64_hash h;
-  cout << h(42) << '\n';
-}
-#endif
+/*
+ * ============================================================
+ * Name: random utilities (mt19937 + shuffle + random integer) and the
+ *       splitmix64 fast random hash
+ * Complexity: O(1) per call
+ * Usage: randomized algorithms (simulated annealing, randomized incremental,
+ *        shuffle, random weights) and anti-hack hashing; splitmix64 with the
+ *        FIXED_RANDOM seed defeats targeted hacks. Kept as free functions /
+ *        small structs: rg(l, r), shuffle(v.begin(), v.end(), rng),
+ *        splitmix64_hash{}(x)
+ * Source:
+ *   - mt19937 rng(random_device{}()): all.cpp 2913 (79 occurrences file-wide,
+ *     e.g. 533, 4242; the 64-bit mt19937_64 variant at all.cpp 37048)
+ *   - shuffle(v.begin(), v.end(), rng): all.cpp 15391
+ *   - uniform_int_distribution<int>(l, r)(rng): all.cpp 7320; wrapper
+ *     int rg(int l,int r) from all.cpp 21664 (double version 21665)
+ *   - splitmix64_hash: all.cpp 41576-41588 (extracted verbatim; same code at
+ *     41931-41943)
+ * ============================================================
+ * Example (uncomment to compile; output is random per run):
+ * int main() {
+ *   // random integer
+ *   cout << rg(1, 100) << '\n';
+ *   // random shuffle
+ *   vector<int> v = {1, 2, 3, 4, 5};
+ *   shuffle(v.begin(), v.end(), rng);
+ *   for (int x : v) cout << x << ' ';
+ *   cout << '\n';
+ *   // splitmix64 random hash
+ *   splitmix64_hash h;
+ *   cout << h(42) << '\n';
+ * }
+ * ============================================================
+ */

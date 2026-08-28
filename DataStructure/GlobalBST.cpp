@@ -2,165 +2,160 @@
 using namespace std;
 #define int long long
 
-constexpr int N = 2e5 + 9;
-constexpr int INF = 0x3f3f3f3f3f3f3f3f;
-int n, m, val[N];
-vector<int> es[N];
-
-int fa[N], dep[N], sz[N], son[N], top[N], dfn[N], id[N], idx, light[N];
-
-void dfs1(int x, int ff) {
-  fa[x] = ff, dep[x] = dep[ff] + 1, sz[x] = 1;
-  for (int y : es[x])
-    if (y != ff) {
-      dfs1(y, x), sz[x] += sz[y];
-      if (sz[y] > sz[son[x]]) {
-        if (son[x]) light[x] += sz[son[x]];
-        son[x] = y;
-      } else light[x] += sz[y];
-    }
-}
-
-void dfs2(int x, int tp) {
-  top[x] = tp, dfn[x] = ++idx, id[idx] = x;
-  if (son[x]) dfs2(son[x], tp);
-  for (int y : es[x])
-    if (y != fa[x] && y != son[x]) dfs2(y, y);
-}
-
-int ls[N], rs[N], f[N], mx[N], tag[N], w[N], Lp[N], Rp[N], root[N], pstk[N];
-
-void up(int x) {
-  Lp[x] = ls[x] ? Lp[ls[x]] : dfn[x];
-  Rp[x] = rs[x] ? Rp[rs[x]] : dfn[x];
-  int lv = ls[x] ? mx[ls[x]] : -INF;
-  int rv = rs[x] ? mx[rs[x]] : -INF;
-  mx[x] = max(val[x], max(lv, rv));
-}
-
-void apply(int x, int d) {
-  if (x) val[x] += d, mx[x] += d, tag[x] += d;
-}
-
-void pushdown(int x) {
-  if (tag[x]) apply(ls[x], tag[x]), apply(rs[x], tag[x]), tag[x] = 0;
-}
-
-int build_chain(int l, int r) {
-  if (l > r) return 0;
-  int tot = 0;
-  for (int i = l; i <= r; ++i) tot += w[id[i]];
-  int acc = 0, mid = l;
-  for (int i = l; i <= r; ++i) {
-    acc += w[id[i]];
-    if (acc * 2 >= tot) {
-      mid = i;
-      break;
-    }
+// Global balanced BST: static-tree path add / path max / point set in O(log n)
+template <size_t N>
+struct global_bst {
+  static constexpr int INF = 0x3f3f3f3f3f3f3f3f;
+  int n, idx;
+  int val[N], fa[N], dep[N], sz[N], son[N], top[N], dfn[N], id[N], light[N];
+  int ls[N], rs[N], f[N], mx[N], tag[N], w[N], Lp[N], Rp[N], root[N], pstk[N];
+  vector<int> es[N];
+  void dfs1(int x, int ff) {
+    fa[x] = ff, dep[x] = dep[ff] + 1, sz[x] = 1;
+    for (int y : es[x])
+      if (y != ff) {
+        dfs1(y, x), sz[x] += sz[y];
+        if (sz[y] > sz[son[x]]) {
+          if (son[x]) light[x] += sz[son[x]];
+          son[x] = y;
+        } else light[x] += sz[y];
+      }
   }
-  int x = id[mid];
-  ls[x] = build_chain(l, mid - 1);
-  rs[x] = build_chain(mid + 1, r);
-  if (ls[x]) f[ls[x]] = x;
-  if (rs[x]) f[rs[x]] = x;
-  up(x);
-  return x;
-}
-
-void gbst_build() {
-  for (int h = 1; h <= n; ++h)
-    if (!fa[h] && top[h] == 0) dfs1(h, 0), dfs2(h, h);
-  for (int h = 1; h <= n; ++h)
-    if (top[h] == h) {
-      int len = 0;
-      for (int x = h; x; x = son[x]) ++len;
-      for (int i = 0; i < len; ++i) w[id[dfn[h] + i]] = light[id[dfn[h] + i]] + 1;
-      root[h] = build_chain(dfn[h], dfn[h] + len - 1);
+  void dfs2(int x, int tp) {
+    top[x] = tp, dfn[x] = ++idx, id[idx] = x;
+    if (son[x]) dfs2(son[x], tp);
+    for (int y : es[x])
+      if (y != fa[x] && y != son[x]) dfs2(y, y);
+  }
+  void up(int x) {
+    Lp[x] = ls[x] ? Lp[ls[x]] : dfn[x];
+    Rp[x] = rs[x] ? Rp[rs[x]] : dfn[x];
+    int lv = ls[x] ? mx[ls[x]] : -INF;
+    int rv = rs[x] ? mx[rs[x]] : -INF;
+    mx[x] = max(val[x], max(lv, rv));
+  }
+  void apply(int x, int d) {
+    if (x) val[x] += d, mx[x] += d, tag[x] += d;
+  }
+  void pushdown(int x) {
+    if (tag[x]) apply(ls[x], tag[x]), apply(rs[x], tag[x]), tag[x] = 0;
+  }
+  int build_chain(int l, int r) {  // weighted-median BST of one heavy chain
+    if (l > r) return 0;
+    int tot = 0;
+    for (int i = l; i <= r; ++i) tot += w[id[i]];
+    int acc = 0, mid = l;
+    for (int i = l; i <= r; ++i) {
+      acc += w[id[i]];
+      if (acc * 2 >= tot) {
+        mid = i;
+        break;
+      }
     }
-}
-
-void range_add(int x, int l, int r, int d) {
-  if (!x || r < Lp[x] || Rp[x] < l) return;
-  if (l <= Lp[x] && Rp[x] <= r) return apply(x, d), void();
-  pushdown(x);
-  if (l <= dfn[x] && dfn[x] <= r) val[x] += d;
-  range_add(ls[x], l, r, d), range_add(rs[x], l, r, d);
-  up(x);
-}
-
-int range_max(int x, int l, int r) {
-  if (!x || r < Lp[x] || Rp[x] < l) return -INF;
-  if (l <= Lp[x] && Rp[x] <= r) return mx[x];
-  pushdown(x);
-  int res = -INF;
-  if (l <= dfn[x] && dfn[x] <= r) res = val[x];
-  return max(res, max(range_max(ls[x], l, r), range_max(rs[x], l, r)));
-}
-
-void path_add(int u, int v, int d) {
-  while (top[u] != top[v]) {
-    if (dep[top[u]] < dep[top[v]]) swap(u, v);
-    range_add(root[top[u]], dfn[top[u]], dfn[u], d);
-    u = fa[top[u]];
+    int x = id[mid];
+    ls[x] = build_chain(l, mid - 1);
+    rs[x] = build_chain(mid + 1, r);
+    if (ls[x]) f[ls[x]] = x;
+    if (rs[x]) f[rs[x]] = x;
+    up(x);
+    return x;
   }
-  if (dep[u] > dep[v]) swap(u, v);
-  range_add(root[top[u]], dfn[u], dfn[v], d);
-}
-
-int path_max(int u, int v) {
-  int res = -INF;
-  while (top[u] != top[v]) {
-    if (dep[top[u]] < dep[top[v]]) swap(u, v);
-    res = max(res, range_max(root[top[u]], dfn[top[u]], dfn[u]));
-    u = fa[top[u]];
+  void build(int n_) {  // HLD + one BST per heavy chain
+    n = n_, idx = 0;
+    for (int h = 1; h <= n; ++h)
+      if (!fa[h] && top[h] == 0) dfs1(h, 0), dfs2(h, h);
+    for (int h = 1; h <= n; ++h)
+      if (top[h] == h) {
+        int len = 0;
+        for (int x = h; x; x = son[x]) ++len;
+        for (int i = 0; i < len; ++i) w[id[dfn[h] + i]] = light[id[dfn[h] + i]] + 1;
+        root[h] = build_chain(dfn[h], dfn[h] + len - 1);
+      }
   }
-  if (dep[u] > dep[v]) swap(u, v);
-  res = max(res, range_max(root[top[u]], dfn[u], dfn[v]));
-  return res;
-}
-
-void point_set(int x, int v) {
-  int tp2 = 0;   // 复用全局栈数组，避免每次调用在栈上开辟 1.6MB 的 tmp[N]
-  for (int y = x; y; y = f[y]) pstk[++tp2] = y;
-  while (tp2) pushdown(pstk[tp2--]);
-  val[x] = v;
-  for (int y = x; y; y = f[y]) up(y);
-}
+  void range_add(int x, int l, int r, int d) {
+    if (!x || r < Lp[x] || Rp[x] < l) return;
+    if (l <= Lp[x] && Rp[x] <= r) return apply(x, d), void();
+    pushdown(x);
+    if (l <= dfn[x] && dfn[x] <= r) val[x] += d;
+    range_add(ls[x], l, r, d), range_add(rs[x], l, r, d);
+    up(x);
+  }
+  int range_max(int x, int l, int r) {
+    if (!x || r < Lp[x] || Rp[x] < l) return -INF;
+    if (l <= Lp[x] && Rp[x] <= r) return mx[x];
+    pushdown(x);
+    int res = -INF;
+    if (l <= dfn[x] && dfn[x] <= r) res = val[x];
+    return max(res, max(range_max(ls[x], l, r), range_max(rs[x], l, r)));
+  }
+  void path_add(int u, int v, int d) {
+    while (top[u] != top[v]) {
+      if (dep[top[u]] < dep[top[v]]) swap(u, v);
+      range_add(root[top[u]], dfn[top[u]], dfn[u], d);
+      u = fa[top[u]];
+    }
+    if (dep[u] > dep[v]) swap(u, v);
+    range_add(root[top[u]], dfn[u], dfn[v], d);
+  }
+  int path_max(int u, int v) {
+    int res = -INF;
+    while (top[u] != top[v]) {
+      if (dep[top[u]] < dep[top[v]]) swap(u, v);
+      res = max(res, range_max(root[top[u]], dfn[top[u]], dfn[u]));
+      u = fa[top[u]];
+    }
+    if (dep[u] > dep[v]) swap(u, v);
+    res = max(res, range_max(root[top[u]], dfn[u], dfn[v]));
+    return res;
+  }
+  void point_set(int x, int v) {
+    int tp2 = 0;  // reuse member stack array instead of a large local
+    for (int y = x; y; y = f[y]) pstk[++tp2] = y;
+    while (tp2) pushdown(pstk[tp2--]);
+    val[x] = v;
+    for (int y = x; y; y = f[y]) up(y);
+  }
+};
 
 /*
  * ============================================================
- * 名称：全局平衡二叉树（Global BST，静态树路径操作）
- * 复杂度：预处理 O(n log n)；路径加/路径最大值/单点修改 O(log n) 均摊
- * 用途：静态树的路径修改与查询（本模板：路径加 + 路径最大值 + 单点改），
- *       相比"树链剖分 + 线段树"的 O(log^2 n)，链内操作用带权平衡 BST
- *       实现 O(log n)；改 up/apply 的聚合可扩展和、异或等信息
- * 原理：树链剖分后，每条重链按"轻子树大小和 + 1"为权建带权中位点的平衡
- *       BST（中序遍历 = 链序，子树覆盖链上连续 dfn 区间，存 Lp/Rp）；
- *       链内区间操作按子树区间覆盖递归（O(log n)）；路径操作 = 树剖跳链
- *       + 链内 BST 区间操作；带权中位点保证每条链 BST 高度 O(log n)，
- *       且轻链跳跃总次数受势能约束
- * 注意：森林需对每个根 dfs1/dfs2（gbst_build 已处理）；点权版本（边权可
- *       下放到儿子点）；up 中 Lp/Rp 依赖"中序 = dfn 序"的性质
+ * Name: Global balanced BST (static-tree path operations)
+ * Complexity: preprocessing O(n log n); path add / path max / point set O(log n) amortized
+ * Usage: path updates and queries on a static tree, wrapped as global_bst<N>:
+ *        fill es and val, build(n), then path_add / path_max / point_set;
+ *        compared to "HLD + segment tree" O(log^2 n), in-chain operations run
+ *        in O(log n) via weighted balanced BSTs; change up/apply to maintain
+ *        sums, xor, etc.
+ * Principle: after HLD, each heavy chain is built into a weighted-median BST
+ *        (weight = light-subtree-size sum + 1; in-order = chain order; subtrees
+ *        cover contiguous dfn ranges stored in Lp/Rp); in-chain range ops
+ *        recurse by subtree coverage (O(log n)); path ops = chain climbing +
+ *        in-chain BST range ops; weighted medians guarantee O(log n) chain height
+ * Notes: forests are handled (build runs dfs1/dfs2 for every root); vertex
+ *        weights (edge weights can be pushed down to the child); up relies on
+ *        "in-order == dfn order"
  * ============================================================
- * 使用示例（编译时取消注释；路径加 + 路径最大值 + 单点改）：
+ * Example (uncomment to compile; path add + path max + point set):
+ * static global_bst<200009> gb;
  * signed main() {
+ *   int n, m;
  *   cin >> n >> m;
- *   for (int i = 1; i <= n; ++i) cin >> val[i];
+ *   for (int i = 1; i <= n; ++i) cin >> gb.val[i];
  *   for (int i = 1, u, v; i < n; ++i) {
  *     cin >> u >> v;
- *     es[u].push_back(v), es[v].push_back(u);
+ *     gb.es[u].push_back(v), gb.es[v].push_back(u);
  *   }
- *   gbst_build();
+ *   gb.build(n);
  *   while (m--) {
  *     int o, u, v;
  *     cin >> o >> u >> v;
  *     if (o == 1) {
  *       int d;
  *       cin >> d;
- *       path_add(u, v, d);
+ *       gb.path_add(u, v, d);
  *     }
- *     if (o == 2) cout << path_max(u, v) << '\n';
- *     if (o == 3) point_set(u, v);
+ *     if (o == 2) cout << gb.path_max(u, v) << '\n';
+ *     if (o == 3) gb.point_set(u, v);
  *   }
  * }
  * ============================================================

@@ -7,7 +7,7 @@ using u64 = unsigned long long;
 using i128 = __int128;
 const u64 msk = rng();
 struct hash_t {
-  static u64 shift(u64 x) {
+  static u64 shift(u64 x) {  // xorshift scrambling, randomized by msk
     x ^= msk;
     x ^= (x << 5ull);
     x ^= (x >> 11ull);
@@ -26,7 +26,7 @@ struct hash_t {
     h += hmod - rhs.h, h >= hmod && (h -= hmod);
     return *this;
   }
-  hash_t& operator*=(hash_t rhs) {
+  hash_t& operator*=(hash_t rhs) {  // multiply modulo 2^61-1 (Mersenne fold)
     i128 rt = (i128) h * rhs.h;
     h = u64(rt & hmod) + u64(rt >> 61);
     if (h >= hmod) h -= hmod;
@@ -48,37 +48,41 @@ struct hash_t {
     return h < rhs.h;
   }
 };
-hash_t pw[N];
 const hash_t seed = uniform_int_distribution<u64>(hash_t::hmod >> 2, hash_t::hmod >> 1)(rng);
+// polynomial rolling hash; string must be 1-indexed (prepend a dummy char)
 struct strhash {
   int n;
-  hash_t h[N];
+  hash_t h[N], pw[N];
   void init(int m, string &a) {
     n = m, pw[0] = 1;
     for (int i = 1; i <= m; ++i) pw[i] = pw[i - 1] * seed;
     for (int i = 1; i <= m; ++i) h[i] = h[i - 1] * seed + hash_t::shift(a[i]);
   }
-  hash_t query(int l, int r) const {
+  hash_t query(int l, int r) const {  // hash of a[l..r]
     return h[r] - h[l - 1] * pw[r - l + 1];
   }
-} str;
+};
 /*
  * ============================================================
- * 名称：字符串哈希（mod 2^61-1，随机种子，shift 混淆）
- * 复杂度：O(n) 预处理，O(1) 子串查询
- * 用途：子串哈希快速比较（判等 / 排序），随机化防卡；字符串需 1-indexed（s = ' ' + s）。
- * 来源：all.cpp 行 53386-53446（原样保留；注释已统一移至文件尾部）
+ * Name: string hashing (mod 2^61-1, random seed, xorshift scrambling)
+ * Complexity: O(n) preprocessing, O(1) substring query
+ * Usage: fast substring-hash comparison (equality / sorting), randomized
+ *        against hacks; strings must be 1-indexed (s = ' ' + s). Wrapped as
+ *        strhash (power table pw inside the struct; seed is a file-level
+ *        random constant): init(n, s) preprocesses, query(l, r) hashes a substring
+ * Source: all.cpp lines 53386-53446 (wrapped into a struct, logic unchanged)
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Example (uncomment to compile):
+ * strhash str;
  * signed main() {
  *   cin.tie(nullptr)->sync_with_stdio(false);
  *   string s;
  *   cin >> s;
  *   s = ' ' + s;                          // 1-indexed
- *   str.init(s.size() - 1, s);            // 预处理
+ *   str.init(s.size() - 1, s);            // preprocess
  *   int l1, r1, l2, r2;
- *   cin >> l1 >> r1 >> l2 >> r2;          // 两个子串区间 (1-indexed)
- *   cout << (str.query(l1, r1) == str.query(l2, r2)) << '\n';  // 两子串是否相等
+ *   cin >> l1 >> r1 >> l2 >> r2;          // two substring ranges (1-indexed)
+ *   cout << (str.query(l1, r1) == str.query(l2, r2)) << '\n';  // are the substrings equal
  *   return 0;
  * }
  * ============================================================

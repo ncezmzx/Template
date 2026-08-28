@@ -2,52 +2,65 @@
 using namespace std;
 #define int long long
 
-constexpr int N = 1e5 + 9;
-int n, a[N], lc[N], rc[N], fa[N], stk[N];
-
-void build() {
-  int tp = 0;
-  for (int i = 1; i <= n; ++i) {
-    int last = 0;
-    while (tp && a[stk[tp]] > a[i]) last = stk[tp--];
-    if (tp) rc[stk[tp]] = i, fa[i] = stk[tp];
-    lc[i] = last;
-    if (last) fa[last] = i;
-    stk[++tp] = i;
+// Cartesian tree (min-heap ordered), built by a monotonic stack in O(n)
+template <size_t N>
+struct cartesian_tree {
+  int n, a[N], lc[N], rc[N], fa[N], stk[N];
+  void build(int n_) {
+    n = n_;
+    for (int i = 1; i <= n; ++i) lc[i] = rc[i] = fa[i] = 0;
+    int tp = 0;
+    for (int i = 1; i <= n; ++i) {
+      int last = 0;
+      while (tp && a[stk[tp]] > a[i]) last = stk[tp--];
+      if (tp) rc[stk[tp]] = i, fa[i] = stk[tp];
+      lc[i] = last;
+      if (last) fa[last] = i;
+      stk[++tp] = i;
+    }
   }
-}
+};
 
 /*
  * ============================================================
- * 名称：笛卡尔树（Cartesian Tree，小根堆型，单调栈 O(n) 构建）
- * 复杂度：O(n)
- * 用途：给定序列 a[1..n]，构造二叉树满足：
- *       1) 中序遍历 = 原序列（位置作为键，保持相对顺序）
- *       2) 堆性质：父亲的值 < 孩子的值（小根型；改 > 号即大根型）
- *       经典应用：
- *       - RMQ：区间 [l, r] 最小值 = lca(l, r) 的权值（对笛卡尔树做 LCA 预处理）
- *       - 直方图最大矩形 / 最大子矩阵：每个节点为根的子树区间即"以 a[x] 为
- *         最小值的最长区间"，区间长度 = sz[x]（可求），矩形面积 = a[x] * sz[x]
- *       - 与 Treap 的关系：固定键（位置）与值（优先级）的 Treap 即笛卡尔树
- * 原理：单调栈维护"当前最右链"；新元素不断弹出比它大的栈顶，弹出的链成为
- *       新元素的左子树，新元素挂到新的栈顶右侧
- * 注意：值相同的元素需自定义比较（如位置序）避免歧义；
- *       构建后根为 fa 为 0 的节点（栈底）；空节点 lc/rc/fa 均为 0
- * 用法：n、a 就绪后 build()；遍历 1..n 中 fa[x]==0 者即根
+ * Name: Cartesian tree (min-heap ordered, monotonic stack build in O(n))
+ * Complexity: O(n)
+ * Usage: given a sequence a[1..n], build the binary tree satisfying, wrapped
+ *        as cartesian_tree<N> (fill a[1..n], build(n); the tree lives in
+ *        lc / rc / fa):
+ *        1) in-order traversal = the original sequence (positions as keys);
+ *        2) heap property: parent value < child values (min-heap; flip the
+ *           comparison for max-heap).
+ *        Classic applications:
+ *        - RMQ: the minimum over [l, r] is the value at lca(l, r)
+ *          (preprocess LCA on the Cartesian tree);
+ *        - largest rectangle in a histogram / maximal submatrix: the subtree
+ *          interval rooted at x is the longest interval where a[x] is the
+ *          minimum; its length is sz[x] (computable), area = a[x] * sz[x];
+ *        - relation to Treap: a Treap with fixed keys (positions) and
+ *          priorities (values) is a Cartesian tree
+ * Principle: a monotonic stack maintains the current rightmost chain; each
+ *        new element pops larger stack tops, the popped chain becomes its
+ *        left subtree, and it attaches to the right of the new stack top
+ * Notes: equal values need a tiebreak (e.g. position order) to avoid
+ *        ambiguity; after the build the root is the node with fa = 0 (the
+ *        stack bottom); null nodes have lc/rc/fa = 0
  * ============================================================
- * 使用示例（编译时取消注释；求每个位置作为最小值的最长区间）：
+ * Example (uncomment to compile; longest interval where each position is the minimum):
+ * static cartesian_tree<100009> ct;
  * signed main() {
+ *   int n;
  *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> a[i];
- *   build();
+ *   for (int i = 1; i <= n; ++i) cin >> ct.a[i];
+ *   ct.build(n);
  *   vector<int> sz(n + 1, 1);
  *   function<void(int)> dfs = [&](int x) {
- *     if (lc[x]) dfs(lc[x]), sz[x] += sz[lc[x]];
- *     if (rc[x]) dfs(rc[x]), sz[x] += sz[rc[x]];
+ *     if (ct.lc[x]) dfs(ct.lc[x]), sz[x] += sz[ct.lc[x]];
+ *     if (ct.rc[x]) dfs(ct.rc[x]), sz[x] += sz[ct.rc[x]];
  *   };
  *   for (int x = 1; x <= n; ++x)
- *     if (!fa[x]) { dfs(x); break; }
- *   for (int i = 1; i <= n; ++i) cout << a[i] * sz[i] << ' ';
+ *     if (!ct.fa[x]) { dfs(x); break; }
+ *   for (int i = 1; i <= n; ++i) cout << ct.a[i] * sz[i] << ' ';
  * }
  * ============================================================
  */

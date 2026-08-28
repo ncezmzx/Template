@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// Matrix-Tree 定理：生成树计数（无向图 / 有向外向树），模 998244353
+// Matrix-Tree theorem: spanning tree counting (undirected / directed arborescences), mod 998244353
 constexpr long long MOD = 998244353;
 int pw(int x, int n, int p) {
   int r = 1 % p;
@@ -13,7 +13,7 @@ int pw(int x, int n, int p) {
   }
   return r;
 }
-// 高斯消元行列式（mod 素数）；a 为 n×n（会被改写）
+// determinant by Gaussian elimination (prime mod); a is n x n and gets overwritten
 int det_mod(vector<vector<int>>& a, int n) {
   int res = 1;
   for (int i = 0; i < n; ++i) {
@@ -24,7 +24,7 @@ int det_mod(vector<vector<int>>& a, int n) {
         break;
       }
     if (k < 0) return 0;
-    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD;  // 交换变号
+    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD;  // row swap flips sign
     res = res * a[i][i] % MOD;
     int iv = pw(a[i][i], MOD - 2, MOD);
     for (int r = i + 1; r < n; ++r) {
@@ -35,7 +35,7 @@ int det_mod(vector<vector<int>>& a, int n) {
   }
   return res;
 }
-// 无向图（重边允许，自环忽略）的生成树个数
+// number of spanning trees of an undirected graph (multi-edges ok, loops ignored)
 int count_spanning(int n, const vector<pair<int, int>>& edges) {
   if (n <= 1) return 1;
   vector<vector<int>> L(n - 1, vector<int>(n - 1, 0));
@@ -48,15 +48,15 @@ int count_spanning(int n, const vector<pair<int, int>>& edges) {
   }
   return det_mod(L, n - 1);
 }
-// 有向图以 root 为根的外向树（父 → 子，每个非根恰一条入边）个数
+// number of out-arborescences rooted at root (each non-root has exactly one in-edge)
 int count_arborescence(int n, const vector<pair<int, int>>& edges, int root) {
   if (n <= 1) return 1;
-  vector<vector<int>> L(n, vector<int>(n, 0));  // 入度 Laplacian
+  vector<vector<int>> L(n, vector<int>(n, 0));  // in-degree Laplacian
   vector<int> idx;
   for (int i = 0; i < n; ++i)
     if (i != root) idx.push_back(i);
   for (auto& e : edges) {
-    int u = e.first, v = e.second;  // 边 u → v：v 的入边
+    int u = e.first, v = e.second;  // edge u -> v: an in-edge of v
     if (v == root || u == v) continue;
     L[v][v]++;
     L[v][u] = (L[v][u] + MOD - 1) % MOD;
@@ -69,25 +69,30 @@ int count_arborescence(int n, const vector<pair<int, int>>& edges, int root) {
 
 /*
  * ============================================================
- * 名称：Matrix-Tree 定理（生成树计数）
- * 复杂度：O(n³)（行列式消元）
- * 用途：count_spanning(n, edges)：无向图（含重边）生成树个数；
- *       count_arborescence(n, edges, root)：有向图以 root 为根的
- *       外向树个数（内向树把边反向后即是）；均模 998244353
- * 原理：无向图：Laplacian L = D - A 去任意一行一列的行列式 =
- *       生成树个数（Kirchhoff）；有向外向树：入度 Laplacian
- *       （L[v][v] = indeg(v)，边 u→v 贡献 L[v][u] -= 1）去掉
- *       root 行列的行列式
- * 注意：自环不计入；模数固定 998244353（换模改 MOD 与逆元）；
- *       需要计数恰好 k 条特殊边的生成树（@KruskalWQS / 多项式
- *       Laplacian）另见对应模板
  * ============================================================
- * 使用示例（编译时取消注释）：
+ * Name: Matrix-Tree theorem (spanning tree counting)
+ * Complexity: O(n^3) (determinant elimination)
+ * Usage: count_spanning(n, edges): spanning trees of an undirected graph
+ *        (multi-edges allowed); count_arborescence(n, edges, root):
+ *        out-arborescences rooted at root of a directed graph (for
+ *        in-arborescences reverse all edges); both modulo 998244353
+ * Principle: undirected: the determinant of the Laplacian L = D - A with any
+ *        one row and column removed = number of spanning trees (Kirchhoff);
+ *        directed out-arborescences: the in-degree Laplacian (L[v][v] =
+ *        indeg(v), edge u->v contributes L[v][u] -= 1) with root's row and
+ *        column removed
+ * Notes: self-loops are ignored; the modulus is fixed at 998244353 (change
+ *        MOD and the inverse to switch); counting trees with exactly k
+ *        special edges is a different problem (see KruskalWQS / polynomial
+ *        Laplacians)
+ * ============================================================
+ * Example (uncomment to compile):
+
  * signed main() {
- *   // 三角形 0-1-2 + 一条 0-1 重边：生成树 {01,12} {12,20} {20,01} {01',12} {12? ,20? } 共 5 棵
+ *   // triangle 0-1-2 plus one parallel 0-1 edge: 5 spanning trees in total
  *   vector<pair<int,int>> es{{0, 1}, {1, 2}, {2, 0}, {0, 1}};
  *   cout << count_spanning(3, es) << '\n';   // 5（Laplacian [[3,-2],[-2,3]] det = 5）
  *   vector<pair<int,int>> es2{{0, 1}, {0, 2}, {1, 2}};
- *   cout << count_arborescence(3, es2, 0) << '\n';  // 2（{0→1,0→2} 与 {0→1,1→2}）
+ *   cout << count_arborescence(3, es2, 0) << '\n';  // 2 ({0->1,0->2} and {0->1,1->2})
  * }
  */
