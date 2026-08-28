@@ -1,89 +1,39 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/*
- * ============================================================
- * 名称：K-D Tree（动态插入 + 懒标记，泛型双半群 + 任意维度）
- * 复杂度：insert 均摊 O(log n * n^(1-1/K))（二进制分组重建）；
- *         update / query 期望 O(sqrt n)（OI 常规数据，构造数据最坏 O(n)）
- * 用途：K 维带权点集，支持动态插入、矩形区域内整体加标记（tag）、
- *       矩形区域信息查询（info），节点/子树信息只需满足半群性质
- * 相比 KDT_BinaryGroup.cpp（二维静态、int 权、仅查询）：
- *       本版为泛型封装 —— ① info 与 tag 类型可任意自定义，仅需满足
- *       “双半群”结合律；② 维度数 K 可为任意编译期常量；③ 支持 clear()
- *       清空后重复使用。原 tg / s / w 分别对应本模板的 Tag / sum / val。
- * 来源：用户提供模板（二进制分组 + 懒标记 K-D Tree），已泛型化并修复：
- *       1) up() 原把不存在的子节点（编号 0）包围盒当作全 0 参与 min/max，
- *          坐标含负数时包围盒被污染 → 改为仅合并存在的子节点；
- *       2) sum 合并改为显式按存在性子节点合并，摆脱“空节点即幺元”假设，
- *          使 info 只需半群（不必含幺元）；懒标记用 lazy 标志位区分，
- *          使 tag 也只需半群（不必含幺元）；
- *       3) 改为 vector 节点池 + 按需扩容，去掉固定 N。
- * 接口：
- *   KDT<Cfg> tree;                       // Cfg 见下方“配置结构体”
- *   tree.init(cap);  tree.clear();       // 初始化 / 清空（释放内存、可复用）
- *   tree.insert(pos, info);              // 动态插入一个带权点
- *   tree.update(l, r, tag);              // 对矩形 [l, r] 内所有点应用标记 tag
- *   tree.query(l, r) -> Info;            // 矩形 [l, r] 内所有点的信息合并
- *   tree.size() -> size_t;               // 当前点数
- * 配置结构体 Cfg 需求（双半群）：
- *   using Coord      坐标类型（须支持 < 比较与 std::min/max）
- *   static constexpr int K = 维度数（编译期常量）
- *   using Info       节点信息类型（对应原 w / s）
- *   using Tag        懒标记类型（对应原 tg）
- *   static Info  combine(Info a, Info b)    // 信息结合（结合律）
- *   static Info  apply  (Info x, Tag f, int sz)  // 对“sz 个点聚合为 x”的信息整体施加标记 f
- *       —— 即 apply 需满足对 combine 的分配律：op 表示 combine 时
- *          apply(op(a,b), f, szA+szB) == op(apply(a,f,szA), apply(b,f,szB))
- *   static Tag   compose(Tag f, Tag g)     // 标记合成：先 g 后 f 等价于 f∘g
- *       —— 需满足 apply(x, compose(f,g), sz) == apply(apply(x,g,sz), f, sz)
- * 说明：query 在部分覆盖节点时会下传懒标记（down），因此会改变树内标记
- *       分布，但信息语义保持一致；空集查询返回 Info 的默认构造值。
- * 特化示例（等价于原代码 int 加和）见下方使用示例。
- * ============================================================
- */
-
-// ---------------- 配置结构体（二选一，任选其一即可编译） ----------------
-// ① 原模板等价配置：3 维、long long 坐标、加和 info、加法 tag
 struct SumCfg3D {
   using Coord = long long;
   static constexpr int K = 3;
   using Pos = array<Coord, K>;
-  using Info = long long;   // 对应原 w / s
-  using Tag = long long;    // 对应原 tg
-  static Info combine(Info a, Info b) { return a + b; }
-  static Info apply(Info x, Tag f, int sz) { return x + f * (Info)sz; }
-  static Tag compose(Tag f, Tag g) { return f + g; }   // 加法交换，顺序无关
-};
-
-// ② 二维、加法 tag 的另一种 info 示例（展示 info 与 tag 可不同）
-struct MaxCfg2D {
-  using Coord = int;
-  static constexpr int K = 2;
-  using Pos = array<Coord, K>;
-  using Info = long long;  // 存每个点/子树的“和”
-  using Tag = long long;   // 懒标记 = 全体加上一个增量
+  using Info = long long;
+  using Tag = long long;
   static Info combine(Info a, Info b) { return a + b; }
   static Info apply(Info x, Tag f, int sz) { return x + f * (Info)sz; }
   static Tag compose(Tag f, Tag g) { return f + g; }
 };
 
-// ③ 非加法半群示例：Info = 子集内的 min，Tag = “取 min(f, x)”。
-//    展示 info/tag 不必是加法/可交换，仅需半群性质：
-//    combine = min，apply(x,f) = min(x,f)，compose(f,g) = min(f,g)，
-//    对 min 分配律成立，故整体加标记语义自洽。
+struct MaxCfg2D {
+  using Coord = int;
+  static constexpr int K = 2;
+  using Pos = array<Coord, K>;
+  using Info = long long;
+  using Tag = long long;
+  static Info combine(Info a, Info b) { return a + b; }
+  static Info apply(Info x, Tag f, int sz) { return x + f * (Info)sz; }
+  static Tag compose(Tag f, Tag g) { return f + g; }
+};
+
 struct MinCfg2D {
   using Coord = long long;
   static constexpr int K = 2;
   using Pos = array<Coord, K>;
-  using Info = long long;  // 每个点/子树的“最小值”
-  using Tag = long long;   // 懒标记 = 全体与 f 取 min
+  using Info = long long;
+  using Tag = long long;
   static Info combine(Info a, Info b) { return min(a, b); }
   static Info apply(Info x, Tag f, int) { return min(x, f); }
   static Tag compose(Tag f, Tag g) { return min(f, g); }
 };
 
-// ---------------- 泛型模板本体 ----------------
 template <class Cfg>
 class KDT {
  public:
@@ -95,7 +45,6 @@ class KDT {
 
   KDT(size_t cap = 0) { init(cap); }
 
-  // 初始化，预留 cap 个点的容量（可不调，按需扩容）
   void init(size_t cap = 0) {
     clear();
     if (cap) {
@@ -103,7 +52,7 @@ class KDT {
       grow_bins(cap + 1);
     }
   }
-  // 清空：释放内存并复位所有状态，之后可继续 insert（节点从 1 重新分配）
+
   void clear() {
     n = tot = tp = hd = tl = 0;
     rt.clear();
@@ -112,6 +61,7 @@ class KDT {
     ls.clear(); rs.clear(); sz.clear();
     tmp.clear(); stk.clear(); que.clear();
   }
+
   size_t size() const { return (size_t)n; }
 
   void insert(const Pos& p, const Info& v) {
@@ -122,16 +72,15 @@ class KDT {
     tmp[tot = 1] = u;
     for (int i = 0; i < (int)rt.size(); ++i) {
       if (!rt[i]) { rt[i] = build(1, tot, 0); return; }
-      flat(rt[i]);   // 腾空第 i 组，节点并入 tmp
+      flat(rt[i]);
     }
   }
 
-  // 对矩形 [l, r]（含端点）内所有点应用标记 f
   void update(const Pos& l, const Pos& r, const Tag& f) {
     for (int i = 0; i < (int)rt.size(); ++i)
       if (rt[i]) update_one(rt[i], l, r, f);
   }
-  // 查询矩形 [l, r]（含端点）内所有点的信息合并；空集返回 Info 默认值
+
   Info query(const Pos& l, const Pos& r) {
     bool have = false;
     Info res{};
@@ -143,10 +92,11 @@ class KDT {
  private:
   static size_t bitlen(size_t x) { size_t b = 0; while (x) ++b, x >>= 1; return b; }
 
-  void grow_bins(size_t point_cnt) {   // 二进制分组组数 = ceil(log2(cnt))+1
+  void grow_bins(size_t point_cnt) {
     size_t need = bitlen(point_cnt) + 1;
     if (rt.size() < need) rt.resize(need, 0);
   }
+
   void ensure(int need) {
     if ((int)val.size() >= need) return;
     int c = max(need * 2, 16);
@@ -155,13 +105,13 @@ class KDT {
     ls.resize(c, 0); rs.resize(c, 0); sz.resize(c, 0);
     tmp.resize(c); stk.resize(c); que.resize(c);
   }
+
   int new_node() {
-    grow_bins((size_t)n + 1);          // 新点可能使需要的组数增加
-    ensure(n + 2);                     // 节点 1-based：访问 a[n+1] 需 size>=n+2
+    grow_bins((size_t)n + 1);
+    ensure(n + 2);
     return ++n;
   }
 
-  // ---------- 坐标/包围盒判断 ----------
   static bool inside(const Pos& p, const Pos& l, const Pos& r) {
     for (int i = 0; i < K; ++i) if (p[i] < l[i] || r[i] < p[i]) return false;
     return true;
@@ -187,6 +137,7 @@ class KDT {
       if (rs[u]) { mn[u][i] = min(mn[u][i], mn[rs[u]][i]); mx[u][i] = max(mx[u][i], mx[rs[u]][i]); }
     }
   }
+
   void apply_node(int u, const Tag& f) {
     if (!u) return;
     val[u] = Cfg::apply(val[u], f, 1);
@@ -194,6 +145,7 @@ class KDT {
     tag[u] = lazy[u] ? Cfg::compose(f, tag[u]) : f;
     lazy[u] = 1;
   }
+
   void down(int u) {
     if (!u || !lazy[u]) return;
     apply_node(ls[u], tag[u]);
@@ -211,6 +163,7 @@ class KDT {
     up(tmp[m]);
     return tmp[m];
   }
+
   void flat(int& u) {
     hd = tl = 1; que[1] = u; u = 0;
     while (hd <= tl) {
@@ -243,6 +196,7 @@ class KDT {
       sum[x] = s;
     }
   }
+
   void query_one(int root, const Pos& l, const Pos& r, bool& have, Info& res) {
     hd = tl = 1; que[1] = root;
     while (hd <= tl) {
@@ -255,55 +209,24 @@ class KDT {
       if (rs[x]) que[++tl] = rs[x];
     }
   }
+
   static void add(Info& res, bool& have, const Info& v) {
     if (!have) res = v, have = true;
     else res = Cfg::combine(res, v);
   }
 
   int n = 0, tot = 0, tp = 0, hd = 0, tl = 0;
-  vector<int> rt;                       // 二进制分组各组的根
-  vector<Info> val, sum;                // 点自身信息 / 子树信息
-  vector<Tag> tag;                      // 懒标记
-  vector<char> lazy;                    // 该节点是否挂有懒标记
-  vector<Pos> a, mn, mx;                // 点坐标 / 子树包围盒
+  vector<int> rt;
+  vector<Info> val, sum;
+  vector<Tag> tag;
+  vector<char> lazy;
+  vector<Pos> a, mn, mx;
   vector<int> ls, rs, sz, tmp, stk, que;
 };
 
-/* ============================================================
- * 使用示例（等价于原代码，3 维 long long 加和；编译时取消注释）：
- * using Cfg = SumCfg3D;
- * int main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   KDT<Cfg> kd;
- *   int m; cin >> m;
- *   long long lst = 0;
- *   while (m--) {
- *     int o; cin >> o;
- *     Cfg::Pos l, r;
- *     if (o == 1) {
- *       for (auto& x : l) cin >> x, x ^= lst;
- *       long long v; cin >> v, v ^= lst;
- *       kd.insert(l, v);
- *     } else if (o == 2) {
- *       for (auto& x : l) cin >> x, x ^= lst;
- *       for (auto& x : r) cin >> x, x ^= lst;
- *       long long v; cin >> v, v ^= lst;
- *       kd.update(l, r, v);
- *     } else {
- *       for (auto& x : l) cin >> x, x ^= lst;
- *       for (auto& x : r) cin >> x, x ^= lst;
- *       cout << (lst = kd.query(l, r)) << '\n';
- *     }
- *   }
- * }
- * ============================================================
- */
-
-// ========================= 自测：随机数据对拍暴力 =========================
-namespace {  // 仅作验证用，可删除
 template <int K, class Cfg>
 typename Cfg::Info brute_query(const vector<pair<typename Cfg::Pos, typename Cfg::Info>>& pts,
-                 const typename Cfg::Pos& l, const typename Cfg::Pos& r) {
+                               const typename Cfg::Pos& l, const typename Cfg::Pos& r) {
   bool have = false; typename Cfg::Info res{};
   for (auto& [p, v] : pts) {
     bool in = true;
@@ -314,7 +237,6 @@ typename Cfg::Info brute_query(const vector<pair<typename Cfg::Pos, typename Cfg
   }
   return res;
 }
-}  // namespace
 
 void stress_3d() {
   using Cfg = SumCfg3D;
@@ -395,7 +317,6 @@ void stress_2d_clear() {
     }
     return pts.size();
   };
-  // 连续多轮：验证 clear() 后可复用、旧数据不残留
   size_t total = 0;
   for (int round = 0; round < 5; ++round) {
     if (round) kd.clear();
@@ -443,7 +364,6 @@ void stress_min_2d() {
   printf("2D min-semigroup stress OK (%zu points)\n", kd.size());
 }
 
-// ========================= 性能 / 大样例冒烟 =========================
 void perf_smoke() {
   using Cfg = SumCfg3D;
   KDT<Cfg> kd;
@@ -479,3 +399,95 @@ int main() {
   printf("ALL TESTS PASSED\n");
   return 0;
 }
+
+/*
+ * ====================================================================
+ * Generic K-D Tree with dynamic insertion and lazy tags
+ *
+ * - Custom Info and Tag types (dual semigroups), arbitrary compile-time
+ *   dimension K, and clear() support for reuse.
+ *
+ * Complexity:
+ *   insert  amortized O(log n * n^(1-1/K))   (binary-grouping rebuild)
+ *   update / query  expected O(sqrt n)       (typical competitive data)
+ *
+ * Compared with KDT_BinaryGroup.cpp (static 2D, int weights, query-only):
+ *   1) Info and Tag are fully customizable and only need semigroup laws;
+ *   2) dimension K is any compile-time constant;
+ *   3) clear() releases memory and allows the object to be reused.
+ *
+ * Public interface:
+ *   KDT<Cfg> tree;
+ *   tree.init(cap);                 // optional pre-reserve capacity
+ *   tree.clear();                   // clear and allow reuse
+ *   tree.insert(pos, info);         // insert one weighted point
+ *   tree.update(l, r, tag);         // apply tag to all points in [l, r]
+ *   tree.query(l, r) -> Info;       // merge info of all points in [l, r]
+ *   tree.size() -> size_t;          // current number of points
+ *
+ * Config struct (Cfg) requirements, a "dual semigroup":
+ *   using Coord          coordinate type (must support < and std::min/max)
+ *   static constexpr int K = dimension count (compile-time)
+ *   using Info           node info type      (original w / s)
+ *   using Tag            lazy tag type       (original tg)
+ *   static Info combine(Info a, Info b)      // associative
+ *   static Info apply  (Info x, Tag f, int sz)
+ *       // apply tag f to the aggregation x of sz points; must distribute
+ *       // over combine: op(apply(a,f,szA), apply(b,f,szB)) ==
+ *       //               apply(op(a,b), f, szA+szB)
+ *   static Tag  compose(Tag f, Tag g)        // g applied, then f
+ *       // must satisfy apply(x, compose(f,g), sz) ==
+ *       //               apply(apply(x, g, sz), f, sz)
+ *
+ * Notes:
+ *   query() pushes lazy tags down on partially covered nodes, so it can
+ *   change the tag distribution inside the tree while preserving semantics.
+ *   An empty query returns the default-constructed Info.
+ *
+ * Fixes applied over the original code:
+ *   1) up() previously merged child bounding boxes even for missing children
+ *      (node 0 treated as all-zero), which polluted the box whenever any
+ *      coordinate was negative; now only existing children are merged.
+ *   2) sum is merged only over existing children, dropping the implicit
+ *      "empty node is identity" assumption, so Info needs no identity.
+ *      A lazy flag distinguishes pending tags, so Tag also needs no identity.
+ *   3) fixed-size arrays were replaced by an auto-growing vector node pool,
+ *      removing the hard-coded limits N / M.
+ *
+ * Self-test:
+ *   main() runs randomized stress tests against a brute-force reference and
+ *   a large workload smoke test; it prints "ALL TESTS PASSED" on success.
+ *     - stress_3d:       3D additive sum, negative coordinates.
+ *     - stress_2d_clear: 2D additive sum across multiple clear() rounds.
+ *     - stress_min_2d:   2D min semigroup (non-additive, non-commutative).
+ *     - perf_smoke:      large 3D workload correctness/performance smoke test.
+ *   Compile with -std=c++17.
+ *
+ * Usage example (equivalent to the original, 3D long long additive sum):
+ *   using Cfg = SumCfg3D;
+ *   int main() {
+ *     cin.tie(nullptr)->sync_with_stdio(false);
+ *     KDT<Cfg> kd;
+ *     int k, m; cin >> k >> m;
+ *     long long lst = 0;
+ *     while (m--) {
+ *       int o; cin >> o;
+ *       Cfg::Pos l, r;
+ *       if (o == 1) {
+ *         for (auto& x : l) cin >> x, x ^= lst;
+ *         long long v; cin >> v, v ^= lst;
+ *         kd.insert(l, v);
+ *       } else if (o == 2) {
+ *         for (auto& x : l) cin >> x, x ^= lst;
+ *         for (auto& x : r) cin >> x, x ^= lst;
+ *         long long v; cin >> v, v ^= lst;
+ *         kd.update(l, r, v);
+ *       } else {
+ *         for (auto& x : l) cin >> x, x ^= lst;
+ *         for (auto& x : r) cin >> x, x ^= lst;
+ *         cout << (lst = kd.query(l, r)) << '\n';
+ *       }
+ *     }
+ *   }
+ * ====================================================================
+ */
