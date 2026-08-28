@@ -75,30 +75,16 @@ struct persistent_dsu {
  *        n, m = 2e5 needs N ~ 8e6); indices stored in 32-bit int to save memory
  * Source: OI-Wiki "Persistent DSU" (https://oi-wiki.org/ds/persistent-in-dsu/)
  * ============================================================
- * Example (uncomment to compile; Luogu P3402):
+ * Example (uncomment to compile; Luogu P3402 style):
  * static persistent_dsu<4000009, 200009> pdsu;
  * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   pdsu.init(n);
- *   int ver = 0;
- *   while (m--) {
- *     int op;
- *     cin >> op;
- *     if (op == 1) {
- *       int a, b;
- *       cin >> a >> b;
- *       ver = pdsu.merge(ver, a, b);
- *     } else if (op == 2) {
- *       int k;
- *       cin >> k;
- *       ver = k;
- *     } else {
- *       int a, b;
- *       cin >> a >> b;
- *       cout << pdsu.same(ver, a, b) << '\n';
- *     }
- *   }
+ *   pdsu.init(3);
+ *   int ver = pdsu.merge(0, 1, 2);           // version 1: union(1, 2)
+ *   cout << pdsu.same(ver, 1, 2) << '\n';    // 1
+ *   ver = pdsu.merge(ver, 2, 3);             // version 2: union(2, 3)
+ *   cout << pdsu.same(ver, 1, 3) << '\n';    // 1
+ *   ver = 1;                                 // rollback to version 1
+ *   cout << pdsu.same(ver, 1, 3) << '\n';    // 0
  * }
  * ============================================================
  */

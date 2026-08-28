@@ -28,7 +28,8 @@ struct virtual_tree {
   // (keys + LCAs + root 1) so callers can clear them afterwards
   vector<int> build(vector<int> v) {
     sort(v.begin(), v.end(), [&](int x, int y) -> bool { return dfn[x] < dfn[y]; });
-    for (int i = 0; i + 1 < (int)v.size(); ++i) v.push_back(lca(v[i], v[i + 1]));  // adjacent LCAs
+    int m = (int)v.size();  // snapshot: the LCA loop must not chase the growing vector
+    for (int i = 0; i + 1 < m; ++i) v.push_back(lca(v[i], v[i + 1]));  // adjacent LCAs
     v.push_back(1);                                                                // root
     sort(v.begin(), v.end(), [&](int x, int y) -> bool { return dfn[x] < dfn[y]; });
     v.erase(unique(v.begin(), v.end()), v.end());

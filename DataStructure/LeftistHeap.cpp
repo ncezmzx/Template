@@ -54,20 +54,15 @@ struct leftist_heap {
  * Example (uncomment to compile):
  * static leftist_heap<100009> lh;
  * signed main() {
- *   int n;
- *   cin >> n;
  *   vector<int> h;
- *   for (int i = 1, x; i <= n; ++i) {
- *     cin >> x;
- *     h.push_back(lh.node(x));
- *   }
+ *   for (int x : {5, 2, 8, 3, 7}) h.push_back(lh.node(x));
  *   while (h.size() > 1) {
  *     sort(h.begin(), h.end(), [&](int a, int b) { return lh.val[a] > lh.val[b]; });
  *     int a = h.back(); h.pop_back();
  *     int b = h.back(); h.pop_back();
  *     h.push_back(lh.merge(a, b));
  *   }
- *   cout << lh.val[h[0]] << '\n';
+ *   cout << lh.val[h[0]] << '\n';   // 2 (the overall minimum)
  * }
  * ============================================================
  */

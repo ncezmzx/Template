@@ -32,12 +32,12 @@ Template/
 └── Trash/           removed common/basic/duplicate templates (kept for reference)
 ```
 
-121 templates (DataStructure 48 / Graph 22 / String 8 / Math 29 / Misc 11 /
+122 templates (DataStructure 49 / Graph 22 / String 8 / Math 29 / Misc 11 /
 Geometry 3) + Trash 23.
 
 ## Index
 
-### DataStructure/ (48, incl. Heaps/ 16)
+### DataStructure/ (49, incl. Heaps/ 16)
 
 | File | Content |
 |---|---|
@@ -66,13 +66,14 @@ Geometry 3) + Trash 23.
 | `RangeSemigroup_ACK.cpp` | static range semigroup queries (Ackermann-function blocking, O(n) preprocessing, O(α(n)) query) — `uttree<...>` |
 | `MonoidOfflineQuery.cpp` | offline static range monoid products (cat-tree divide, O((n+q) log n) total / O(1) per query) — `monoid_product<Mono, F>` |
 | `RMQ_Linear.cpp` | linear RMQ (Cartesian tree + ±1 block RMQ, O(n) preprocessing / O(1) query) — `rmq_linear<N>` |
-| `SqrtTree.cpp` | sqrt tree (static associative range query, O(log log n)) — `sqrt_tree<N>` |
+| `SqrtTree.cpp` | sqrt tree (static associative range query, generic monoid, O(log log n)) — `SqrtTree<S, op, e, N>` |
 | `LCT.cpp` | Link-Cut Tree (link/cut/makeroot/path max) — `link_cut_tree<N>` |
 | `LCT_Monoid.cpp` | generic-monoid LCT (any invertible monoid path product) — `LinkCutTree<Mono, N>` |
 | `GlobalBST.cpp` | global balanced BST (static-tree path add / path max / point set, O(log n)) — `global_bst<N>` |
 | `TopTree.cpp` | static top tree (cluster decomposition; path query + subtree cluster query) — `top_tree<N>` |
 | `WaveletMatrix_Dynamic.cpp` | dynamic Wavelet Matrix via binary grouping (insert / global k-th / rank) — `dyn_wavelet` |
 | `KDT_BinaryGroup.cpp` | K-D tree (rectangle sums / nearest point; binary-grouping dynamic variant in comments) — `kdtree<N>` |
+| `KDT_DynamicSemigroup.cpp` | generic K-D tree (binary-grouping dynamic insertion + lazy tags; custom dual-semigroup Info/Tag, arbitrary dimension K, clear/reuse; self-tests included; C++17) — `KDT<Cfg>` |
 | `Heaps/` | 16 mergeable-heap implementations (see below) |
 
 #### Heaps/ (16, uniform interface: `newnode/top/join/decrease_key/erase`, min-heaps, heap = root index)
@@ -224,6 +225,7 @@ English documentation + example).
 - Every template compiles under `g++ -std=c++14 -O2` (Trash included). The
   few C++17 constructs used (structured bindings) only warn under -std=c++14
   (-Wc++17-extensions) on clang; `__lg` / `__int128` are GNU extensions.
+  Exception: `KDT_DynamicSemigroup.cpp` self-tests need `-std=c++17`.
   Compile check: `g++ -std=c++14 -O2 file.cpp -c`.
 - The library passed an ASan + UBSan randomized stress-test matrix; legal use
   shows no UB / out-of-bounds / use-after-free. Every file's trailing example
