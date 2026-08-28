@@ -24,11 +24,11 @@ Template/
 └── Trash/           被移除的常见/基础/重复模板（保留备查）
 ```
 
-全库共 121 个模板（DataStructure 48 / Graph 22 / String 8 / Math 29 / Misc 11 / Geometry 3）+ 本 README。
+全库共 121 个模板（DataStructure 47 / Graph 22 / String 8 / Math 29 / Misc 11 / Geometry 3）+ 本 README。
 
 ## 索引
 
-### DataStructure/（48 个，含 Heaps/ 16 个）
+### DataStructure/（47 个，含 Heaps/ 16 个）
 
 | 文件 | 内容 |
 |---|---|
@@ -40,7 +40,6 @@ Template/
 | `CartesianTree.cpp` | 笛卡尔树（单调栈 O(n) 构建，RMQ/最大矩形） |
 | `CatTree.cpp` | 猫树（静态可结合区间查询 O(1)，基于 operator+） |
 | `ODT.cpp` | 珂朵莉树（map 区间赋值，spl/assign/query） |
-| `SegmentTreeGCD.cpp` | gcd 线段树（单点改 + 前缀 gcd 查询） |
 | `SegmentTreeBeats.cpp` | 势能线段树（区间加 / chmin / chmax / 和与最值，均摊 O((n+q)log n)） |
 | `SegmentTree_Semigroup.cpp` | 半群懒标记线段树（info/tag 自定义，动态开点，全程非递归；ACL 对齐接口 get/all_prod/max_right/min_left + O(n) vector 建树） |
 | `SegmentTree_IterativeLazy.cpp` | 非递归线段树（zkw 式，区间加 + 区间和，懒标记，无递归常数小） |
@@ -405,5 +404,5 @@ prim、K 短路（A*）、匈牙利算法（已有 HopcroftKarp/KM）、Kosaraju
 - 整体二分 300 组 vs 排序取第 k 小（含负值与重复值）
 - 回滚莫队 300 组 vs O(n²) 暴力
 
-全库 144 个文件（含 Trash/）`g++ -std=c++14 -O2` 编译通过；9 个新模板的尾部示例取消注释后
+全库 143 个文件（含 Trash/）`g++ -std=c++14 -O2` 编译通过；9 个新模板的尾部示例取消注释后
 编译运行输出与注释一致。
