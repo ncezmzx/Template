@@ -64,6 +64,7 @@ Template/
 | `TopTree.cpp` | 静态 Top Tree（簇分解 + rake 轻链聚合，路径查询 + 子树簇查询） |
 | `WaveletMatrix_Dynamic.cpp` | 二进制分组动态 Wavelet Matrix（插入/全局第 k 小/rank） |
 | `KDT_BinaryGroup.cpp` | K-D Tree（矩形和/最近点，注释给出二进制分组动态版） |
+| `KDT_DynamicSemigroup.cpp` | 泛型 K-D Tree（二进制分组动态插入 + 懒标记；info/tag 自定义双半群、任意维度 K、支持 clear；原 tg/s/w 泛化） |
 | `Heaps/` | 15 种堆实现合集（见下表，均支持 newnode/top/join/decrease_key/erase） |
 
 #### Heaps/（16 个，洛谷《对优先队列的爱》）

@@ -1,64 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
+template<class S, S (*op)(S, S), S (*e)(), size_t N = 200000>
+struct SqrtTree {
+  int n, bsz, bn, tsz;
+  S pre[static_cast<int>(sqrt(N)) + 9][static_cast<int>(sqrt(N)) + 9];
+  S suf[static_cast<int>(sqrt(N)) + 9][static_cast<int>(sqrt(N)) + 9];
+  S t[(static_cast<int>(sqrt(N)) + 9) << 2], a[N];
 
-constexpr int N = 2e5 + 9;
-int n, a[N], bsz, bn;
-int pre[1000][1000], suf[1000][1000];
-int t[4000], tsz;
-
-int qop(int x, int y) { return min(x, y); }
-int qe() { return 0x3f3f3f3f3f3f3f3f; }
-
-void build(int p, int l, int r) {
-  if (l == r) {
-    t[p] = a[l];
-    return;
+  void sqt_build(int _n, const S *arr) {
+    n = _n, bsz = sqrt(n) + 1, bn = (n + bsz - 1) / bsz;
+    for (int i = 1; i <= n; ++i) a[i] = arr[i];
+    for (int b = 1; b <= bn; ++b) {
+      int L = (b - 1) * bsz + 1, R = min(b * bsz, n);
+      pre[b][1] = a[L];
+      for (int i = L + 1; i <= R; ++i) pre[b][i - L + 1] = op(pre[b][i - L], a[i]);
+      suf[b][R - L + 1] = a[R];
+      for (int i = R - 1; i >= L; --i) suf[b][i - L + 1] = op(a[i], suf[b][i - L + 2]);
+    }
+    tsz = 1;
+    while (tsz < bn) tsz <<= 1;
+    for (int i = 1; i <= tsz * 2; ++i) t[i] = e();
+    for (int i = 1; i <= bn; ++i) {
+      int len = min(bsz, n - (i - 1) * bsz);
+      t[i + tsz - 1] = pre[i][len];
+    }
+    for (int i = tsz - 1; i >= 1; --i) t[i] = op(t[i << 1], t[i << 1 | 1]);
   }
-  int m = (l + r) >> 1;
-  build(p << 1, l, m), build(p << 1 | 1, m + 1, r);
-  t[p] = qop(t[p << 1], t[p << 1 | 1]);
-}
 
-int tquery(int p, int l, int r, int x, int y) {
-  if (x <= l && r <= y) return t[p];
-  int m = (l + r) >> 1, res = qe();
-  if (x <= m) res = qop(res, tquery(p << 1, l, m, x, y));
-  if (m < y) res = qop(res, tquery(p << 1 | 1, m + 1, r, x, y));
-  return res;
-}
-
-void sqt_build() {
-  bsz = sqrt(n) + 1, bn = (n + bsz - 1) / bsz;
-  for (int b = 1; b <= bn; ++b) {
-    int L = (b - 1) * bsz + 1, R = min(b * bsz, n);
-    pre[b][1] = a[L];
-    for (int i = L + 1; i <= R; ++i) pre[b][i - L + 1] = qop(pre[b][i - L], a[i]);
-    suf[b][R - L + 1] = a[R];
-    for (int i = R - 1; i >= L; --i) suf[b][i - L + 1] = qop(suf[b][i - L + 2], a[i]);
-  }
-  tsz = 1;
-  while (tsz < bn) tsz <<= 1;
-  for (int i = 1; i <= tsz * 2; ++i) t[i] = qe();
-  for (int i = 1; i <= bn; ++i) {
-    int len = min(bsz, n - (i - 1) * bsz);
-    t[i + tsz - 1] = pre[i][len];
-  }
-  for (int i = tsz - 1; i >= 1; --i) t[i] = qop(t[i << 1], t[i << 1 | 1]);
-}
-
-int sqt_query(int l, int r) {
-  int bl = (l - 1) / bsz + 1, br = (r - 1) / bsz + 1;
-  if (bl == br) {
-    int L = (bl - 1) * bsz + 1;
-    int res = qe();
-    for (int i = l; i <= r; ++i) res = qop(res, a[i]);
+  S tquery(int p, int l, int r, int x, int y) {
+    if (x <= l && r <= y) return t[p];
+    int m = (l + r) >> 1;
+    S res = e();
+    if (x <= m) res = op(res, tquery(p << 1, l, m, x, y));
+    if (m < y) res = op(res, tquery(p << 1 | 1, m + 1, r, x, y));
     return res;
   }
-  int res = qop(suf[bl][l - (bl - 1) * bsz], pre[br][r - (br - 1) * bsz]);
-  if (bl + 1 <= br - 1) res = qop(res, tquery(1, 1, tsz, bl + 1, br - 1));
-  return res;
-}
+
+  S sqt_query(int l, int r) {
+    int bl = (l - 1) / bsz + 1, br = (r - 1) / bsz + 1;
+    if (bl == br) {
+      S res = e();
+      for (int i = l; i <= r; ++i) res = op(res, a[i]);
+      return res;
+    }
+    S res = suf[bl][l - (bl - 1) * bsz];
+    if (bl + 1 <= br - 1) res = op(res, tquery(1, 1, tsz, bl + 1, br - 1));
+    return op(res, pre[br][r - (br - 1) * bsz]);
+  }
+};
 
 /*
  * ============================================================
@@ -73,16 +62,21 @@ int sqt_query(int l, int r) {
  *       支持修改需按块重建（块长 √n 时单次修改 O(√n) 重建整块）
  * ============================================================
  * 使用示例（编译时取消注释；区间最小值）：
+ * constexpr int N = 2e5 + 9;
+ * int a[N];
+ * int op(int x, int y) { return min(x, y); }
+ * int e() { return 0x3f3f3f3f; }
+ * SqrtTree<int, op, e, N> s;
  * signed main() {
  *   cin >> n;
  *   for (int i = 1; i <= n; ++i) cin >> a[i];
- *   sqt_build();
+ *   s.sqt_build();
  *   int q;
  *   cin >> q;
  *   while (q--) {
  *     int l, r;
  *     cin >> l >> r;
- *     cout << sqt_query(l, r) << '\n';
+ *     cout << s.sqt_query(l, r) << '\n';
  *   }
  * }
  * ============================================================
