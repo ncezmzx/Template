@@ -18,8 +18,8 @@
   Exception: `KDT_DynamicSemigroup.cpp` self-tests need `-std=c++17`.
   Compile check: `g++ -std=c++14 -O2 file.cpp -c`.
 - The library passed an ASan + UBSan randomized stress-test matrix; legal use
-  shows no UB / out-of-bounds / use-after-free. Every file's trailing example
-  is buildable and runnable.
+  shows no UB / out-of-bounds / use-after-free. Every file is a code body only
+  and compiles standalone: `g++ -std=c++14 -O2 file.cpp -c`.
 - Array sizes (N, M) are template parameters in the wrapped structures — tune
   them per problem.
 - Files using `#define int long long`: mind memset / 0x3f semantics on 64-bit ints.
