@@ -10,10 +10,7 @@ void monoid_product(const std::vector<Mono> &vec,
   std::vector<std::vector<int>> buk(n);
   for (int id = 0; id < (int)query.size(); ++id) {
     int l = query[id].first, r = query[id].second;
-    if (l == r) {
-      f(id, vec[l]);
-      continue;
-    }
+    if (l == r) { f(id, vec[l]); continue; }
     int k = 31 - __builtin_clz(l ^ r);   // topbit
     buk[r >> k << k].push_back(id);
   }

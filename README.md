@@ -1,22 +1,6 @@
 # OI Template Library (curated)
 
-A curated collection of competitive-programming templates. Algorithms with a
-fixed structure are encapsulated as reusable `struct` / `template` wrappers
-(in the spirit of the AtCoder Library); technique-style code whose shape
-varies per problem (CDQ divide & conquer, Mo's algorithm, DP tricks, ...) is
-kept as self-contained free functions.
-
-## Coding conventions (library-wide)
-
-- Each file holds **only the code body**: `#include` + `using namespace std;`
-  (+ `#define int long long` where the algorithm needs it) + the
-  encapsulated implementation;
-- **all documentation lives in one trailing comment block** (Name /
-  Complexity / Usage / Interface / Principle / Notes);
-- the block documents **only the essentials**: Name, Complexity, a compact
-  Usage (API + the conventions you must obey), Notes (hard constraints and
-  pitfalls) and, where useful, Principle;
-- comments are written in **English**.
+A curated collection of competitive-programming templates.
 
 ## Directory layout
 
@@ -32,12 +16,12 @@ Template/
 └── Trash/           removed common/basic/duplicate templates (kept for reference)
 ```
 
-122 templates (DataStructure 49 / Graph 22 / String 8 / Math 29 / Misc 11 /
+119 templates (DataStructure 46 / Graph 22 / String 8 / Math 29 / Misc 11 /
 Geometry 3) + Trash 23.
 
 ## Index
 
-### DataStructure/ (49, incl. Heaps/ 16)
+### DataStructure/ (46, incl. Heaps/ 16)
 
 | File | Content |
 |---|---|
@@ -55,7 +39,6 @@ Geometry 3) + Trash 23.
 | `SegmentTree_IterativeLazy.cpp` | iterative (zkw-style) segment tree (range add + range sum, lazy tags) — `segtree_iterative_lazy<N>` |
 | `SegmentTree_ACL.cpp` | lazy segment tree, ACL style (static full tree, generic op/mapping; supports segment-length-dependent actions such as range affine + range sum; max_right/min_left) — `lazy_segtree<...>` |
 | `SegmentTree_LiChao.cpp` | Li Chao segment tree (line/segment insert, point minimum query) — `lichao_segtree<N, SP>` |
-| `PersistentSegmentTree.cpp` | persistent segment tree (static range k-th smallest / range rank) — `persistent_segtree<N, SP>` |
 | `PersistentDSU.cpp` | persistent DSU (segment trees for fa/siz + union by size, historical versions) — `persistent_dsu<N, MV>` |
 | `PersistentTreap.cpp` | persistent balanced tree (fully persistent fhq-Treap) — `persistent_treap<N>` |
 | `SegmentTree_Merge.cpp` | segment tree merging (dynamic value-segment trees) — `segtree_merge<SP>` |
@@ -67,12 +50,10 @@ Geometry 3) + Trash 23.
 | `MonoidOfflineQuery.cpp` | offline static range monoid products (cat-tree divide, O((n+q) log n) total / O(1) per query) — `monoid_product<Mono, F>` |
 | `RMQ_Linear.cpp` | static RMQ / FastST (in-block Cartesian-tree bitmask + sparse table over block extrema, O(1) query) — `FastST<U, Z, T>` |
 | `SqrtTree.cpp` | sqrt tree (static associative range query, generic monoid, O(log log n)) — `SqrtTree<S, op, e, N>` |
-| `LCT.cpp` | Link-Cut Tree (link/cut/makeroot/path max) — `link_cut_tree<N>` |
 | `LCT_Monoid.cpp` | generic-monoid LCT (any invertible monoid path product) — `LinkCutTree<Mono, N>` |
 | `GlobalBST.cpp` | global balanced BST (static-tree path add / path max / point set, O(log n)) — `global_bst<N>` |
 | `TopTree.cpp` | static top tree (cluster decomposition; path query + subtree cluster query) — `top_tree<N>` |
 | `WaveletMatrix_Dynamic.cpp` | dynamic Wavelet Matrix via binary grouping (insert / global k-th / rank) — `dyn_wavelet` |
-| `KDT_BinaryGroup.cpp` | K-D tree (rectangle sums / nearest point; binary-grouping dynamic variant in comments) — `kdtree<N>` |
 | `KDT_DynamicSemigroup.cpp` | generic K-D tree (binary-grouping dynamic insertion + lazy tags; custom dual-semigroup Info/Tag, arbitrary dimension K, clear/reuse; self-tests included; C++17) — `KDT<Cfg>` |
 | `Heaps/` | 16 mergeable-heap implementations (see below) |
 
@@ -201,38 +182,3 @@ Geometry 3) + Trash 23.
 | `Geometry_2D.cpp` | 2D basics (exact integer arithmetic: convex hull / rotating-calipers diameter / closest pair / point in polygon / segment intersection) |
 | `Geometry_HalfPlane.cpp` | half-plane intersection (sort & incremental deque, O(n log n), area included) |
 | `Geometry_MinCircle.cpp` | minimum enclosing circle (randomized incremental, expected O(n); circle2/circle3 included) |
-
-### Trash/ (23, removed from the main set, kept for reference)
-
-Removed because they are simple / basic / commonly seen / error-resistant:
-`FenwickTree`, `DSU`, `SparseTable`, `SegmentTreeLazy`, `SegmentTreeIterative`,
-`Dijkstra`, `LCA_BinaryLifting`, `LCA_EulerTourRMQ`, `HLD`, `VirtualTree`,
-`KMP`, `ZFunction` (replaced by `String/ZAlgorithm.cpp`), `RollingHash`, `Matrix`,
-`Combinatorics`, `EulerSieve`, `Exgcd`, `SlopeOptimization`, `TreeReroot`,
-`MonotoneQueue`, `DigitDP`, `FastIO`, `Random`, `LogTrick`.
-
-Reasons by category:
-- common/basic: FenwickTree, DSU, SparseTable, Dijkstra, LCA×2, HLD, Matrix, Combinatorics, EulerSieve, Exgcd, FastIO
-- hard to encapsulate / tightly coupled to problems: KMP, ZFunction, VirtualTree
-- simple structure, extend per problem: SlopeOptimization, TreeReroot, MonotoneQueue, DigitDP, SegmentTreeLazy, SegmentTreeIterative
-- duplicated / subsumed: RollingHash (hash_t overlaps StringHash), Random (splitmix64 overlaps HashTable_PBDS), LogTrick (gcd segment merging is covered by ODT)
-
-All Trash files follow the same conventions (wrapped where sensible, trailing
-English documentation + example).
-
-## Notes
-
-- Every template compiles under `g++ -std=c++14 -O2` (Trash included). The
-  few C++17 constructs used (structured bindings) only warn under -std=c++14
-  (-Wc++17-extensions) on clang; `__lg` / `__int128` are GNU extensions.
-  Exception: `KDT_DynamicSemigroup.cpp` self-tests need `-std=c++17`.
-  Compile check: `g++ -std=c++14 -O2 file.cpp -c`.
-- The library passed an ASan + UBSan randomized stress-test matrix; legal use
-  shows no UB / out-of-bounds / use-after-free. Every file's trailing example
-  is buildable and runnable.
-- Array sizes (N, M) are template parameters in the wrapped structures — tune
-  them per problem.
-- Files using `#define int long long`: mind memset / 0x3f semantics on 64-bit ints.
-- Multiple implementations of the same algorithm are distinguished by file
-  suffix: balanced trees (Treap / Splay / WBST_Seq / WBST_Set), GCD (Binary /
-  Table), hash tables (PBDS / Chain / OpenAddress) — pick per problem.

@@ -17,8 +17,7 @@ class LinkCutTree {
   }
   void push_down(int x) {
     if (tag[x]) {
-      tag[x] = 0;
-      std::swap(ls, rs);
+      tag[x] = 0, std::swap(ls, rs);
       if (ls) tag[ls] ^= 1, dp[ls].flip();   // leave null children alone (the original flipped tag[0])
       if (rs) tag[rs] ^= 1, dp[rs].flip();
     }
@@ -36,8 +35,7 @@ class LinkCutTree {
     push_down(x);
   }
   void splay(int x) {
-    update(x);
-    for (; !isroot(x); rotate(x))
+    for (update(x); !isroot(x); rotate(x))
       if (!isroot(fa[x])) rotate(get(x) == get(fa[x]) ? fa[x] : x);
   }
   int access(int x) {
@@ -45,9 +43,7 @@ class LinkCutTree {
     for (; x; p = x, x = fa[x]) splay(x), rs = p, push_up(x);
     return p;
   }
-  int make_root(int x) {
-    return x = access(x), tag[x] ^= 1, dp[x].flip(), x;
-  }
+  int make_root(int x) { return x = access(x), tag[x] ^= 1, dp[x].flip(), x; }
 
  public:
   void init(int x, const Mono &v) {   // initial value of one vertex (dp/val of x = v)
@@ -61,10 +57,8 @@ class LinkCutTree {
   void set(int x, const Mono &v) { splay(x), val[x] = v, push_up(x); }
   Mono query(int u, int v) { return make_root(u), dp[access(v)]; }
   int find(int x) {
-    x = access(x);
-    for (push_down(x); ls; x = ls, push_down(x));   // push tags before descending (the original order went the wrong way)
-    splay(x);
-    return x;
+    for (push_down(x = access(x)); ls; x = ls, push_down(x));   // push tags before descending (the original order went the wrong way);
+    return splay(x), x;
   }
 #undef ls
 #undef rs
