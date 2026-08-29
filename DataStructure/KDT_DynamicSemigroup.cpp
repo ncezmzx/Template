@@ -3,8 +3,8 @@ using namespace std;
 
 struct SumCfg3D {
   using Coord = long long;
-  static constexpr int K = 3;
-  using Pos = array<Coord, K>;
+  static constexpr int MAXK = 3;
+  using Pos = array<Coord, MAXK>;
   using Info = long long;
   using Tag = long long;
   static Info combine(Info a, Info b) { return a + b; }
@@ -14,8 +14,8 @@ struct SumCfg3D {
 
 struct MaxCfg2D {
   using Coord = int;
-  static constexpr int K = 2;
-  using Pos = array<Coord, K>;
+  static constexpr int MAXK = 2;
+  using Pos = array<Coord, MAXK>;
   using Info = long long;
   using Tag = long long;
   static Info combine(Info a, Info b) { return a + b; }
@@ -25,8 +25,8 @@ struct MaxCfg2D {
 
 struct MinCfg2D {
   using Coord = long long;
-  static constexpr int K = 2;
-  using Pos = array<Coord, K>;
+  static constexpr int MAXK = 2;
+  using Pos = array<Coord, MAXK>;
   using Info = long long;
   using Tag = long long;
   static Info combine(Info a, Info b) { return min(a, b); }
@@ -40,38 +40,34 @@ class KDT {
   using Coord = typename Cfg::Coord;
   using Info = typename Cfg::Info;
   using Tag = typename Cfg::Tag;
-  static constexpr int K = Cfg::K;
-  using Pos = array<Coord, K>;
+  using Pos = typename Cfg::Pos;
+  int K = Cfg::MAXK;
 
+  KDT(int k) { K = k; }
   KDT(size_t cap = 0) { init(cap); }
+
+  void set_dims(int k) { K = k; clear(); }
 
   void init(size_t cap = 0) {
     clear();
-    if (cap) {
-      ensure((int)cap + 1);
-      grow_bins(cap + 1);
-    }
+    if (cap) ensure((int)cap + 1), grow_bins(cap + 1);
   }
 
   void clear() {
     n = tot = tp = hd = tl = 0;
-    rt.clear();
-    val.clear(); sum.clear(); tag.clear(); lazy.clear();
-    mn.clear(); mx.clear(); a.clear();
-    ls.clear(); rs.clear(); sz.clear();
-    tmp.clear(); stk.clear(); que.clear();
+    rt.clear(), val.clear(), sum.clear(), tag.clear(), lazy.clear();
+    mn.clear(), mx.clear(), a.clear(),  ls.clear(), rs.clear();
+    tmp.clear(); stk.clear(); que.clear(), sz.clear();
   }
 
   size_t size() const { return (size_t)n; }
 
   void insert(const Pos& p, const Info& v) {
     int u = new_node();
-    a[u] = p; mn[u] = mx[u] = p;
-    val[u] = v; sum[u] = v; sz[u] = 1;
-    lazy[u] = 0; ls[u] = rs[u] = 0;
-    tmp[tot = 1] = u;
+    a[u] = mn[u] = mx[u] = p, val[u] = sum[u] = v, sz[u] = 1;
+    lazy[u] = ls[u] = rs[u] = 0, tmp[tot = 1] = u;
     for (int i = 0; i < (int)rt.size(); ++i) {
-      if (!rt[i]) { rt[i] = build(1, tot, 0); return; }
+      if (!rt[i]) return rt[i] = build(1, tot, 0), void();
       flat(rt[i]);
     }
   }
@@ -90,37 +86,30 @@ class KDT {
   }
 
  private:
-  static size_t bitlen(size_t x) { size_t b = 0; while (x) ++b, x >>= 1; return b; }
-
   void grow_bins(size_t point_cnt) {
-    size_t need = bitlen(point_cnt) + 1;
+    size_t need = __lg(point_cnt) + 1;
     if (rt.size() < need) rt.resize(need, 0);
   }
 
   void ensure(int need) {
     if ((int)val.size() >= need) return;
     int c = max(need * 2, 16);
-    val.resize(c); sum.resize(c); tag.resize(c); lazy.resize(c, 0);
-    mn.resize(c); mx.resize(c); a.resize(c);
-    ls.resize(c, 0); rs.resize(c, 0); sz.resize(c, 0);
-    tmp.resize(c); stk.resize(c); que.resize(c);
+    val.resize(c), sum.resize(c), tag.resize(c), lazy.resize(c, 0);
+    mn.resize(c), mx.resize(c), a.resize(c), ls.resize(c, 0), rs.resize(c, 0);
+    tmp.resize(c); stk.resize(c); que.resize(c), sz.resize(c, 0);
   }
 
-  int new_node() {
-    grow_bins((size_t)n + 1);
-    ensure(n + 2);
-    return ++n;
-  }
+  int new_node() { return grow_bins((size_t)n + 1), ensure(n + 2), ++n; }
 
-  static bool inside(const Pos& p, const Pos& l, const Pos& r) {
+  bool inside(const Pos& p, const Pos& l, const Pos& r) {
     for (int i = 0; i < K; ++i) if (p[i] < l[i] || r[i] < p[i]) return false;
     return true;
   }
-  static bool contained(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
+  bool contained(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
     for (int i = 0; i < K; ++i) if (mn[i] < l[i] || r[i] < mx[i]) return false;
     return true;
   }
-  static bool disjoint(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
+  bool disjoint(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
     for (int i = 0; i < K; ++i) if (mx[i] < l[i] || r[i] < mn[i]) return true;
     return false;
   }
@@ -130,27 +119,22 @@ class KDT {
     Info s = val[u];
     if (ls[u]) s = Cfg::combine(s, sum[ls[u]]);
     if (rs[u]) s = Cfg::combine(s, sum[rs[u]]);
-    sum[u] = s;
-    mn[u] = mx[u] = a[u];
+    sum[u] = s, mn[u] = mx[u] = a[u];
     for (int i = 0; i < K; ++i) {
-      if (ls[u]) { mn[u][i] = min(mn[u][i], mn[ls[u]][i]); mx[u][i] = max(mx[u][i], mx[ls[u]][i]); }
-      if (rs[u]) { mn[u][i] = min(mn[u][i], mn[rs[u]][i]); mx[u][i] = max(mx[u][i], mx[rs[u]][i]); }
+      if (ls[u]) mn[u][i] = min(mn[u][i], mn[ls[u]][i]), mx[u][i] = max(mx[u][i], mx[ls[u]][i]);
+      if (rs[u]) mn[u][i] = min(mn[u][i], mn[rs[u]][i]), mx[u][i] = max(mx[u][i], mx[rs[u]][i]);
     }
   }
 
   void apply_node(int u, const Tag& f) {
     if (!u) return;
-    val[u] = Cfg::apply(val[u], f, 1);
-    sum[u] = Cfg::apply(sum[u], f, sz[u]);
-    tag[u] = lazy[u] ? Cfg::compose(f, tag[u]) : f;
-    lazy[u] = 1;
+    val[u] = Cfg::apply(val[u], f, 1), sum[u] = Cfg::apply(sum[u], f, sz[u]);
+    tag[u] = lazy[u] ? Cfg::compose(f, tag[u]) : f, lazy[u] = 1;
   }
 
   void down(int u) {
     if (!u || !lazy[u]) return;
-    apply_node(ls[u], tag[u]);
-    apply_node(rs[u], tag[u]);
-    lazy[u] = 0;
+    apply_node(ls[u], tag[u]), apply_node(rs[u], tag[u]), lazy[u] = 0;
   }
 
   int build(int l, int r, int kd) {
@@ -160,8 +144,7 @@ class KDT {
                 [&](int x, int y) { return a[x][kd] < a[y][kd]; });
     if (l < m) ls[tmp[m]] = build(l, m - 1, (kd + 1) % K);
     if (m < r) rs[tmp[m]] = build(m + 1, r, (kd + 1) % K);
-    up(tmp[m]);
-    return tmp[m];
+    return up(tmp[m]), tmp[m];
   }
 
   void flat(int& u) {
@@ -170,7 +153,7 @@ class KDT {
       int x = que[hd++];
       down(x);
       tmp[++tot] = x;
-      sz[x] = 1; lazy[x] = 0; sum[x] = val[x]; mn[x] = mx[x] = a[x];
+      sz[x] = 1, lazy[x] = 0, sum[x] = val[x], mn[x] = mx[x] = a[x];
       if (ls[x]) { que[++tl] = ls[x]; ls[x] = 0; }
       if (rs[x]) { que[++tl] = rs[x]; rs[x] = 0; }
     }
