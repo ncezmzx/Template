@@ -407,9 +407,8 @@ int main() {
  * - Custom Info and Tag types (dual semigroups), arbitrary compile-time
  *   dimension K, and clear() support for reuse.
  *
- * Complexity:
- *   insert  amortized O(log n * n^(1-1/K))   (binary-grouping rebuild)
- *   update / query  expected O(sqrt n)       (typical competitive data)
+ * Complexity: insert amortized O(log n * n^(1-1/K)) (binary-grouping rebuild);
+ *   update / query expected O(sqrt n) on typical competitive data
  *
  * Compared with KDT_BinaryGroup.cpp (static 2D, int weights, query-only):
  *   1) Info and Tag are fully customizable and only need semigroup laws;
@@ -463,31 +462,5 @@ int main() {
  *     - perf_smoke:      large 3D workload correctness/performance smoke test.
  *   Compile with -std=c++17.
  *
- * Usage example (equivalent to the original, 3D long long additive sum):
- *   using Cfg = SumCfg3D;
- *   int main() {
- *     cin.tie(nullptr)->sync_with_stdio(false);
- *     KDT<Cfg> kd;
- *     int k, m; cin >> k >> m;
- *     long long lst = 0;
- *     while (m--) {
- *       int o; cin >> o;
- *       Cfg::Pos l, r;
- *       if (o == 1) {
- *         for (auto& x : l) cin >> x, x ^= lst;
- *         long long v; cin >> v, v ^= lst;
- *         kd.insert(l, v);
- *       } else if (o == 2) {
- *         for (auto& x : l) cin >> x, x ^= lst;
- *         for (auto& x : r) cin >> x, x ^= lst;
- *         long long v; cin >> v, v ^= lst;
- *         kd.update(l, r, v);
- *       } else {
- *         for (auto& x : l) cin >> x, x ^= lst;
- *         for (auto& x : r) cin >> x, x ^= lst;
- *         cout << (lst = kd.query(l, r)) << '\n';
- *       }
- *     }
- *   }
  * ====================================================================
  */

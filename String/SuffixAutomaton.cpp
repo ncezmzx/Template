@@ -45,32 +45,23 @@ struct suffix_automaton {
 /*
  * ============================================================
  * Name: suffix automaton (SAM)
- * Complexity: build O(n * |Sigma|) (transition table ch[N][26]); <= 2n states, <= 3n edges
- * Usage: all substring information of one string, wrapped as
- *        suffix_automaton<N>; classic facts:
- *        1) number of distinct substrings = sum_{i=2..tot} (len[i] - len[lnk[i]]);
- *        2) after count(), sz[i] = size of state i's endpos set, i.e. the
- *           occurrence count of the substrings represented by state i (the
- *           root state 1 is meaningless);
- *        3) minimal representation, longest common substring, k-th smallest
- *           substring, etc. all extend this skeleton
- * Principle: online construction; each state represents endpos equivalence
- *        classes; lnk points to the longest-suffix state with strictly
- *        smaller len (the suffix-link tree)
+ * Complexity: build O(n * |Sigma|) (transition table ch[N][26]); <= 2n states,
+ *             <= 3n edges
+ * Usage: all substring information of one string, `suffix_automaton<N>`.
+ *        Classic facts:
+ *        number of distinct substrings = sum_{i=2..tot} (len[i] - len[lnk[i]]);
+ *        after count(), sz[i] is the size of state i's endpos set, i.e. the
+ *        occurrence count of the substrings state i represents (the root state
+ *        1 is meaningless);
+ *        minimal representation, longest common substring and k-th smallest
+ *        substring all extend this skeleton.
+ *        Call pattern: sam.init(); for (char c : s) sam.extend(c - 'a');
+ *        sam.count();
+ * Principle: online construction; each state is an endpos equivalence class and
+ *            lnk points to the longest-suffix state with strictly smaller len
+ *            (the suffix-link tree)
  * Notes: lowercase alphabet (26); for other alphabets change ch's second
- *        dimension and c's values; take N >= 2*|S| + 5; init() between cases
- * Usage pattern: sam.init(); for (char c : s) sam.extend(c - 'a'); sam.count();
+ *        dimension and c's values; take N >= 2*|S| + 5; init() between test
+ *        cases
  * ============================================================
- * Example (uncomment to compile; state occurrence counts + distinct substrings):
- * static suffix_automaton<200005> sam;
- * signed main() {
- *   string s;
- *   cin >> s;
- *   sam.init();
- *   for (char c : s) sam.extend(c - 'a');
- *   sam.count();
- *   long long cnt = 0;
- *   for (int i = 2; i <= sam.tot; ++i) cnt += sam.len[i] - sam.len[sam.lnk[i]];
- *   cout << cnt << '\n';
- * }
  */

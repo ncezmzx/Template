@@ -51,32 +51,17 @@ int lagrange_1n(const vector<int>& y, int k) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Lagrange interpolation
- * Complexity: general form O(n^2); O(n) for consecutive nodes x = 1..n
- * Usage: given n+1 points (x_i, y_i) (distinct x_i), evaluate the unique
- *        polynomial of degree <= n at any point k:
- *        1) lagrange(x, y, k): general abscissas (need not be an arithmetic
- *           progression modulo the prime);
- *        2) lagrange_1n(y, k): O(n) version for abscissas 1..n (prefix/
- *           suffix products + factorial inverses), typical for "evaluate a
- *           degree-n polynomial at k" (k may far exceed n, even a modular
- *           negative)
- * Principle: Lagrange basis polynomials L_i(k) = prod_{j!=i} (k - x_j) /
- *        (x_i - x_j); answer = sum y_i * L_i(k)
- * Notes: denominators must be non-zero (prime modulus + distinct x_i); in
- *        lagrange_1n, y is indexed 0..n against abscissas 1..n (y[0]
- *        unused); pass k as long long, reduced internally
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   // the quadratic through (0,1),(1,2),(2,4) is f(k)=k^2+1
- *   cout << lagrange({0, 1, 2}, {1, 2, 4}, 5) << '\n';       // 26
- *   // 1^2+2^2+...+n^2 = n(n+1)(2n+1)/6 is cubic in n:
- *   // f(1)=1, f(2)=5, f(3)=14, f(4)=30 -> evaluate f(1e9)
- *   vector<int> y = {0, 1, 5, 14, 30};
- *   cout << lagrange_1n(y, 1000000000) << '\n';
- * }
+ * Complexity: general form O(n^2); O(n) for consecutive abscissas x = 1..n
+ * Usage: evaluate the unique polynomial of degree <= n through n+1 points (x_i,
+ *        y_i), distinct x_i, at any point k:
+ *        lagrange(x, y, k) for general abscissas; lagrange_1n(y, k) is the O(n)
+ *        version for abscissas 1..n (k may far exceed n, even be a modular
+ *        negative).
+ * Principle: Lagrange basis polynomials L_i(k) = prod_{j!=i} (k - x_j) / (x_i -
+ *            x_j); the answer is sum y_i * L_i(k)
+ * Notes: denominators must be non-zero (prime modulus plus distinct x_i); in
+ *        lagrange_1n, y is indexed 0..n against abscissas 1..n, so y[0] is
+ *        unused; pass k as long long, it is reduced internally
  * ============================================================
  */

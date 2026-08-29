@@ -88,30 +88,21 @@ int exlucas(int n, int m, int P) {  // C(n, m) mod P; factor P into prime powers
 
 /*
  * ============================================================
- * ============================================================
  * Name: Lucas / exLucas (large binomial coefficients modulo m)
- * Complexity: Lucas O(log_p n) (table build O(p)); exLucas O(sqrt P + sum p^e * log_p n)
+ * Complexity: Lucas O(log_p n) (table build O(p)); exLucas O(sqrt P + sum p^e *
+ *             log_p n)
  * Usage: struct lucas: lc.init(p) builds the factorial table (p up to ~1e6),
- *        then lc.solve(n, m) = C(n, m) mod p for prime p (n, m up to 1e18);
- *        exlucas(n, m, P): arbitrary positive P (prime-power factorization +
- *        CRT merge)
+ *        then lc.solve(n, m) = C(n, m) mod p for prime p with n, m up to 1e18;
+ *        exlucas(n, m, P) handles arbitrary positive P (prime-power
+ *        factorization + CRT merge).
  * Principle: Lucas' theorem C(n,m) = C(n/p, m/p) * C(n%p, m%p) (mod p),
- *        expanding digit by digit in base p; exLucas handles each prime
- *        power p^e by "stripping p factors from factorials" (fact_pe uses
- *        the periodic block [1, p^e] of non-multiples of p + recursion) to
- *        get the p-free part of C, then multiplies back p^k (k = Kummer carry
- *        count); results across prime powers merge by CRT
- * Notes: keep exLucas' P <= 1e9 (the internal mod * pe products must fit in
- *        long long); duplicates Math/CRT.cpp's exgcd/inv_mod (self-contained here)
+ *            expanded digit by digit in base p; exLucas strips p factors from
+ *            factorials per prime power p^e
+ *            (the periodic block [1, p^e] of non-multiples of p plus
+ *            recursion), multiplies back p^k where k is the Kummer carry count,
+ *            and merges prime powers by CRT
+ * Notes: keep exLucas' P <= 1e9 so the internal mod * pe products still fit in
+ *        long long; duplicates Math/CRT.cpp's exgcd / inv_mod to stay self-
+ *        contained
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   lucas lc;
- *   lc.init(7);
- *   cout << lc.solve(10, 3) << '\n';        // 1（C(10,3)=120 = 17×7+1）
- *   cout << lc.solve(25, 12) << '\n';       // 0（25=34₇, 12=15₇，C(4,5)=0 → 0）
- *   cout << exlucas(10, 3, 12) << '\n';     // 0（C(10,3)=120 ≡ 0 mod 12）
- *   cout << exlucas(10, 2, 12) << '\n';     // 9（C(10,2)=45 = 3×12+9）
- * }
  */

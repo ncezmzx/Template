@@ -40,24 +40,16 @@ int min_representation(const string& s) {
  * ============================================================
  * Name: Lyndon factorization (Duval) + minimal representation
  * Complexity: both O(n), tiny constants
- * Usage: duval(s) splits s into lexicographically non-increasing Lyndon
- *        factors — for runs / distinct-substring counting, k-th smallest
- *        substrings, suffix-array helpers; min_representation(s) gives the
- *        lexicographically smallest cyclic shift's start index (cyclic
- *        isomorphism / period problems)
- * Principle: Duval maintains a "pre-factor" [i, j) that is almost Lyndon and
- *        an inner comparison pointer k: s[k] < s[j] extends the period, >
- *        cuts off one period-length Lyndon factor; minimal representation
- *        races two starts i/j with comparison pointer k
- * Notes: duval returns [a, b) ranges concatenating back to the original;
- *        O(n) factors; guard the empty string for minimal representation
+ * Usage: duval(s) splits s into lexicographically non-increasing Lyndon factors
+ *        (runs, distinct-substring counting, k-th smallest substrings, suffix-
+ *        array helpers);
+ *        min_representation(s) gives the start index of the lexicographically
+ *        smallest cyclic shift (cyclic isomorphism, period problems).
+ * Principle: Duval maintains a pre-factor [i, j) that is almost Lyndon plus an
+ *            inner comparison pointer k: s[k] < s[j] extends the period, s[k] >
+ *            s[j] cuts off one period-length Lyndon factor; the minimal
+ *            representation races two starts i / j with a comparison pointer k
+ * Notes: duval returns [a, b) ranges that concatenate back to the original;
+ *        guard the empty string for min_representation
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   auto f = duval("ababa");                // "ab" | "ab" | "a" (non-increasing Lyndon factors)
- *   for (auto& p : f) cout << p.first << ',' << p.second << ' ';
- *   cout << '\n';                           // 0,2 2,4 4,5
- *   cout << min_representation("abab") << '\n';  // 0 (rotations {abab, baba}; abab is minimal)
- *   cout << min_representation("baab") << '\n';  // 1 (start 1 in s+s gives "aabb", minimal)
- * }
  */

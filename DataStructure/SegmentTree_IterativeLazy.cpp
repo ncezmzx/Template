@@ -64,26 +64,15 @@ struct segtree_iterative_lazy {
  * ============================================================
  * Name: iterative segment tree (zkw style, range add + range sum, lazy tags)
  * Complexity: range update / query O(log n), recursion-free (small constants)
- * Usage: range add, range sum, point assignment (point_set via delta),
- *        wrapped as segtree_iterative_lazy<N>: init(n) then range_add /
- *        range_sum / point_set; a faster alternative to recursive segment trees
- * Principle: full binary tree in an array (sz = least power of two >= n);
- *        len[p] stores each node's segment length; before update/query, push
- *        lazy tags along the boundary root-to-leaf paths, tag fully covered
- *        nodes directly, then pull the paths back
- * Notes: indices 1..n; n may be any positive integer (padding segments have
- *        len = 0 and contribute nothing); change apply/pull to support other
- *        additive info (e.g. range max with adjusted tag semantics)
- * ============================================================
- * Example (uncomment to compile):
- * static segtree_iterative_lazy<400009> st;
- * signed main() {
- *   st.init(5);
- *   st.range_add(2, 4, 3);                  // a = {0,3,3,3,0}
- *   cout << st.range_sum(1, 5) << '\n';     // 9
- *   st.point_set(3, 10);                    // a = {0,3,10,3,0}
- *   cout << st.range_sum(1, 5) << '\n';     // 16
- *   cout << st.range_sum(3, 3) << '\n';     // 10
- * }
+ * Usage: `segtree_iterative_lazy<N>`: range add, range sum and point assignment
+ *        (point_set via delta);
+ *        init(n), then range_add / range_sum / point_set.
+ * Principle: zkw-style full binary array tree; len[p] stores each node's
+ *            segment length; before update / query push lazy tags along the
+ *            boundary root-to-leaf paths, tag fully covered nodes directly,
+ *            then pull the paths back
+ * Notes: indices 1..n; n may be any positive integer (padding segments have len
+ *        = 0 and contribute nothing); change apply / pull for other additive
+ *        info
  * ============================================================
  */

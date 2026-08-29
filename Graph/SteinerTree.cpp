@@ -33,38 +33,19 @@ int steiner_tree(int n, const vector<array<int, 3>>& edges, const vector<int>& k
 
 /*
  * ============================================================
- * ============================================================
  * Name: minimum Steiner tree
  * Complexity: O(3^k * n + 2^k * (m + n) log n)
- * Usage: given an undirected positive-weight connected graph and k terminals,
- *        find the minimum total edge weight connecting all terminals (may
- *        route through non-terminals; k usually <= 10), free function
- *        steiner_tree(n, {{u, v, w}, ...}, {key1, ..., keyk}) returning the
- *        minimum cost (INF if unreachable)
- * Principle: dp[i][S] = min cost of a tree rooted at i connecting the
- *        terminals in S. Transition 1 (subset merge): dp[i][S] =
- *        min(dp[i][T] + dp[i][S^T]); transition 2 (edge relaxation):
- *        dp[v][S] = min(dp[v][S], dp[u][S] + w(u,v)), run as one Dijkstra
- *        pass per S
- * Notes: 0x3f3f3f3f3f3f3f3f is the "infinity" sentinel; dedupe multi-edges/
- *        self-loops yourself; for vertex-weighted versions (e.g. WC2008 tour
+ * Usage: minimum total edge weight connecting all k terminals of an undirected
+ *        positive-weight connected graph (it may route through non-terminals; k
+ *        is usually <= 10):
+ *        steiner_tree(n, {{u, v, w}, ...}, {key1, ..., keyk}) returns the
+ *        minimum cost, INF if unreachable.
+ * Principle: dp[i][S] = minimum cost of a tree rooted at i connecting the
+ *            terminals in S; transition 1 merges subsets (dp[i][T] +
+ *            dp[i][S^T]), transition 2 relaxes edges as one Dijkstra pass per S
+ * Notes: 0x3f3f3f3f3f3f3f3f is the infinity sentinel; dedupe multi-edges and
+ *        self-loops yourself; for vertex-weighted variants (e.g. WC2008 tour
  *        planning) subtract double-counted vertex weights during merges
  * Source: OI-Wiki "Steiner tree" (https://oi-wiki.org/graph/steiner-tree/)
- * ============================================================
- * Example (uncomment to compile; Luogu P6192):
-
- * signed main() {
- *   int n, m, k;
- *   cin >> n >> m >> k;
- *   vector<array<int, 3>> es;
- *   for (int i = 0; i < m; ++i) {
- *     int u, v, w;
- *     cin >> u >> v >> w;
- *     es.push_back({u, v, w});
- *   }
- *   vector<int> keys(k);
- *   for (int& x : keys) cin >> x;
- *   cout << steiner_tree(n, es, keys) << '\n';
- * }
  * ============================================================
  */

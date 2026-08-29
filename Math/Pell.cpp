@@ -38,30 +38,21 @@ pair<long long, long long> pell(long long D) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Pell equation (fundamental solution of x^2 - D y^2 = 1)
- * Complexity: O(sqrt D) (continued-fraction period <= 2 sqrt D * log; convergents O(L))
- * Usage: smallest positive integer solution (x1, y1) of x^2 - D y^2 = 1 (the
+ * Complexity: O(sqrt D) (the continued-fraction period is <= 2 sqrt D * log;
+ *             convergents O(L))
+ * Usage: smallest positive solution (x1, y1) of x^2 - D y^2 = 1 (the
  *        fundamental solution); all positive solutions are (x1 + y1 sqrt D)^k.
- *        The negative Pell equation (x^2 - D y^2 = -1) is solvable iff the
- *        continued-fraction period of sqrt D is odd, with fundamental
- *        solution (p_{L-1}, q_{L-1})
+ *        The negative Pell equation x^2 - D y^2 = -1 is solvable iff the
+ *        continued-fraction period of sqrt D is odd, with fundamental solution
+ *        (p_{L-1}, q_{L-1}).
+ *        pell(D) -> pair(x1, y1); D is positive and not a perfect square.
  * Interface: pell(D) -> pair(x1, y1); D positive and not a perfect square
- * Principle: the continued fraction of sqrt D is periodic; the fundamental
- *        solution comes from its convergents: even period L gives
- *        (p_{L-1}, q_{L-1}), odd L gives (p_{2L-1}, q_{2L-1})
- * Notes: intermediate products use __int128; if D is so large that the
- *        fundamental solution exceeds long long (e.g. D=1021 has 74 digits),
- *        big integers are needed; D a perfect square is meaningless
+ * Principle: the continued fraction of sqrt D is periodic; an even period L
+ *            gives (p_{L-1}, q_{L-1}) and an odd L gives (p_{2L-1}, q_{2L-1})
+ * Notes: intermediate products use __int128; for large D the fundamental
+ *        solution can exceed long long (D = 1021 has 74 digits), which needs
+ *        big integers; D a perfect square is meaningless
  * Source: OI-Wiki "Pell equation" (https://oi-wiki.org/math/number-theory/pell-equation/)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   auto [x, y] = pell(61);  // 1766319049² - 61·226153980² = 1
- *   cout << x << ' ' << y << '\n';
- *   auto [x2, y2] = pell(2); // 3² - 2·2² = 1
- *   cout << x2 << ' ' << y2 << '\n';
- * }
  * ============================================================
  */

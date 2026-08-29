@@ -67,28 +67,17 @@ struct heap_thin {
 /*
  * ============================================================
  * Name: thin heap (mergeable), min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key O(1) amortized;
+ * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
  *             erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_thin<N>;
- *        heaps identified by their container index
+ * Usage: `heap_thin<N>`: newnode / top / join / decrease_key / erase; heaps are
+ *        identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 10, wrapped into a struct
- * Notes: ist[] marks "thin" nodes (allowed to lose one child); decrease_key
- *        thins / restructures while climbing. KNOWN DEFECTS (article
- *        original): erase-rebuild fa semantics conflict with decrease_key
- *        unlinking, non-first-child unlink is wrong, erase may leave
- *        LLONG_MIN ghost nodes. Reference implementation only — do not use
- *        in contests
- * ============================================================
- * Example (uncomment to compile; join/top only — see the known-defects note above):
- * static heap_thin<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: ist[] marks thin nodes (allowed to lose one child); decrease_key thins
+ *        / restructures while climbing.
+ *        KNOWN DEFECTS (from the source article): erase-rebuild fa semantics
+ *        conflict with decrease_key unlinking, non-first-child unlink is wrong,
+ *        erase may leave LLONG_MIN ghost nodes. Reference only, do not use in
+ *        contests
  * ============================================================
  */

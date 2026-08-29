@@ -65,30 +65,18 @@ struct xor_basis {
 
 /*
  * ============================================================
- * ============================================================
  * Name: xor linear basis (60-bit xor space)
- * Complexity: insert/query O(60); merge O(60^2); qkth/cnt_le O(60^2)
- * Usage: maintain the subset-xor value set of a number collection, wrapped
- *        as xor_basis: insert; contains (representability test); qmax/qmin
- *        extrema; qkth k-th smallest (0 included); cnt_le count of subset
- *        xors <= x; merge two bases; clear
- * Principle: Gaussian elimination — each basis vector b[i] represents the
- *        highest bit i; queries are greedy from the top (qmax) or eliminate
- *        low bits (qmin); qkth first normalizes to reduced form (no 1s on
- *        lower basis bits), then the binary bits of k-1 (by basis index,
- *        low to high) decide which basis vectors to take (ordering = top-bit
- *        order, basis index = rank digit)
- * Notes: inserted values must be < 2^60; cnt is the rank; 2^cnt values are
- *        representable (including 0)
+ * Complexity: insert / query O(60); merge O(60^2); qkth / cnt_le O(60^2)
+ * Usage: maintain the subset-xor value set of a number collection, `xor_basis`:
+ *        insert; contains (representability test); qmax / qmin extrema;
+ *        qkth k-th smallest (0 included); cnt_le count of subset xors <= x;
+ *        merge two bases; clear.
+ * Principle: Gaussian elimination: each basis vector b[i] owns the highest bit
+ *            i; queries are greedy from the top (qmax) or eliminate low bits
+ *            (qmin); qkth first normalizes to reduced form (no 1s on lower
+ *            basis bits), then the binary bits of k-1 by basis index decide
+ *            which vectors to take
+ * Notes: inserted values must be < 2^60; cnt is the rank, so 2^cnt values are
+ *        representable including 0
  * ============================================================
- * Example (uncomment to compile; Luogu P3812):
-
- * xor_basis bs;
- * signed main() {
- *   bs.insert(1), bs.insert(2), bs.insert(3);   // {1,2,3}
- *   cout << bs.qmax() << '\n';                  // 3（1^2=3, 1^3=2, 2^3=1, 1^2^3=0）
- *   cout << bs.contains(0) << ' ' << bs.contains(4) << '\n';  // 1 0
- *   cout << bs.qkth(1) << ' ' << bs.qkth(4) << '\n';          // 0 3
- *   cout << bs.cnt_le(2) << '\n';               // 3（0,1,2）
- * }
  */

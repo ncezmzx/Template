@@ -32,25 +32,10 @@ struct scc {
  * ============================================================
  * Name: Tarjan strongly connected components (SCC) + condensation
  * Complexity: O(n + m)
- * Usage: SCCs of a directed graph, wrapped as scc<N>: es holds the edges,
- *        build(n), then cl = number of SCCs and col[x] = component id of x;
- *        condense to a DAG for topological DP etc. — for every original
- *        edge (x, y) with col[x] != col[y], add col[x] -> col[y] in the new graph
+ * Usage: SCCs of a directed graph, `scc<N>`: es holds the edges, build(n), then
+ *        cl = number of SCCs and col[x] = component id of x.
+ *        To condense into a DAG, add col[x] -> col[y] for every original edge
+ *        (x, y) with col[x] != col[y].
  * Source: all.cpp lines 14111-14129 (wrapped into a struct, recursion unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * static scc<500009> sc;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1, x, y; i <= m; ++i) {
- *     cin >> x >> y;
- *     sc.es[x].push_back(y);              // directed edge
- *   }
- *   sc.build(n);
- *   cout << sc.cl << '\n';                // number of SCCs
- *   for (int i = 1; i <= n; ++i) cout << sc.col[i] << " \n"[i == n];
- * }
  * ============================================================
  */

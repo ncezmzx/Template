@@ -83,30 +83,22 @@ vector<int> mo_distinct_modify(int n, const vector<int>& val, const vector<array
 /*
  * ============================================================
  * Name: Mo's algorithm (plain + with updates)
- * Complexity: plain O((n+q) sqrt n); with updates O(n^{5/3}) (block size n^{2/3})
- * Usage: offline range statistics (forcing online without updates is
- *        expensive; ranges support O(1) add/remove): the example counts
- *        distinct values in range; adapt mo_add/mo_del for modes, value-range
- *        counting on [x,y], xor-sum kinds, etc.
+ * Complexity: plain O((n+q) sqrt n); with updates O(n^{5/3}) (block size
+ *             n^{2/3})
+ * Usage: offline range statistics where forcing online without updates is
+ *        expensive and the ranges support O(1) add / remove; adapt mo_add /
+ *        mo_del for modes,
+ *        value-range counting on [x, y], xor-sum style queries, and friends.
+ *        Method list: see Interface below.
  * Interface: mo_distinct(n, val[1..n], {{l, r}, ...});
  *        mo_distinct_modify(n, val, qs, ups) (ups = {pos, val}; assumes all
  *        updates happen before all queries — for interleaved timelines, set
  *        each query's t to the number of updates preceding it)
- * Principle: queries sorted by (l-block, r-block/odd-even, t); three
- *        pointers (l, r, time) move; with O(1) add/remove the total movement
- *        under optimal blocking reaches the amortized lower bound
- * Notes: add/del must be safe to call in any order (the example's cnt checks
- *        are); compress values exceeding N first; odd/even blocking saves
- *        half the r movement
+ * Principle: queries are sorted by (l-block, r-block with odd-even ordering,
+ *            t); three pointers (l, r, time) move; with O(1) add / remove the
+ *            total movement under optimal blocking reaches the amortized lower
+ *            bound
+ * Notes: add / del must be safe to call in any order; compress values exceeding
+ *        N first; odd/even blocking saves half the r movement
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   vector<int> val{0, 1, 2, 1, 3, 2};  // n = 5: {1,2,1,3,2}
- *   auto res = mo_distinct(5, val, {{1, 3}, {2, 5}, {4, 4}});
- *   for (int x : res) cout << x << ' ';  // 2 3 1（{1,2} {2,1,3} {3}）
- *   cout << '\n';
- *   auto res2 = mo_distinct_modify(5, val, {{1, 5}}, {{2, 5}});  // a[2] = 5 → {1,5,1,3,2}
- *   for (int x : res2) cout << x << ' ';  // 4
- *   cout << '\n';
- * }
  */

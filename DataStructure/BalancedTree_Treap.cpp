@@ -64,37 +64,16 @@ struct treap {
 /*
  * ============================================================
  * Name: fhq-Treap (split/merge, no rotations)
- * Complexity: amortized O(log n) per operation
- * Usage: split by value (ordered set) or by size (sequence), wrapped as treap<N>:
- *        - set mode: split_v(x, v, a, b) splits into < v and >= v; with merge
- *          this gives insert/erase/kth/predecessor/successor; value-based
- *          insert/erase/kth are provided;
- *        - sequence mode: split(x, k, a, b) takes the first k nodes; apply
- *          tags a reversal (implicit treap), see the example
- * Principle: each node carries a random priority pr; merge keeps the heap
- *        property, giving expected balance; split/merge are the only
- *        primitives and persist naturally (clone nodes during split/merge)
- * Notes: alternative implementations of the same job live in
- *        BalancedTree_Splay.cpp and BalancedTree_WBST_*.cpp; reset tot/rt
+ * Complexity: amortized O(log n) per operation (randomized priorities)
+ * Usage: split / merge, no rotations; `treap<N>`, root passed by reference: rt
+ *        = merge(a, b); insert(rt, v); erase(rt, v); kth(rt, k).
+ *        set mode: split_v(x, v, a, b) splits < v / >= v, giving insert / erase
+ *        / kth / pred / succ.
+ *        sequence mode: split(x, k, a, b) takes the first k nodes; apply(x)
+ *        tags a reversal (implicit treap).
+ * Principle: random priority pr + heap order under merge gives expected
+ *            balance; split / merge are the only primitives
+ * Notes: erase removes ALL nodes equal to v (set semantics); reset tot / rt
  *        between test cases
- * Usage pattern: rt = merge(a, b); insert(rt, v); erase(rt, v); kth(rt, k)
- *        (erase removes ALL nodes equal to v — set semantics; for multiset
- *        behavior split one out yourself)
- * ============================================================
- * Example (uncomment to compile; sequence range reverse):
- * static treap<100009> tp;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1; i <= n; ++i) tp.rt = tp.merge(tp.rt, tp.node(i));
- *   while (m--) {
- *     int l, r, a, b, c;
- *     cin >> l >> r;
- *     tp.split(tp.rt, l - 1, a, b), tp.split(b, r - l + 1, b, c);
- *     tp.apply(b);
- *     tp.rt = tp.merge(tp.merge(a, b), c);
- *   }
- *   tp.dfs(tp.rt);
- * }
  * ============================================================
  */

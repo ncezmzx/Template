@@ -23,32 +23,22 @@ ull nim_prod(ull a, ull b) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: nim product (nimber multiplication)
  * Complexity: ~O(log^2 64) recursion (depth <= 5, constant splits per level)
- * Usage: multiply SG values of independent "coin-turning" subgames (2D Nim,
+ * Usage: multiply SG values of independent coin-turning subgames (2D Nim,
  *        products of coin-turning games); nimbers form a characteristic-2
- *        field — with XOR as the Nim sum, arbitrary field operations work
- *        (including inverses: x (x) x^{-1} = 1)
+ *        field, so with xor as the Nim sum
+ *        arbitrary field operations work, including inverses (x (x) x^{-1} =
+ *        1). Method list: see Interface below.
  * Interface: nim_prod(a, b), a and b 64-bit unsigned nimbers
- * Principle: let m = F(k) = 2^{2^k} be the largest Fermat 2-power <= max(a,b);
- *        split a = a1*m (+) a0, b = b1*m (+) b0 (parts < m). Distributivity
- *        plus two key identities: (1) m (x) z = m*z (a plain shift for
- *        z < m); (2) m (x) m = 3m/2 = m (+) (m>>1). Hence a (x) b = a0b0 (+)
- *        (a1b0 (+) a0b1)*m (+) a1b1*(m (+) m>>1), each term recursing with
- *        smaller k
- * Notes: inputs must be < 2^64; the Nim sum is bitwise xor (^); inverses via
+ * Principle: with m = F(k) = 2^{2^k} the largest Fermat 2-power <= max(a, b),
+ *            split a = a1*m (+) a0 and b = b1*m (+) b0; distributivity plus m
+ *            (x) z = m*z for z < m and m (x) m = m (+) (m>>1)
+ *            give a (x) b = a0b0 (+) (a1b0 (+) a0b1)*m (+) a1b1*(m (+) m>>1),
+ *            each term recursing with a smaller k
+ * Notes: inputs must be < 2^64; the Nim sum is bitwise xor; inverses come from
  *        fast exponentiation in the nimber field (a^{-1} = a^{2^{64}-2})
  * Source: OI-Wiki "Impartial games / Nim numbers"
  *         (https://oi-wiki.org/math/game-theory/impartial-game/)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   cout << nim_prod(2, 2) << '\n';  // 3
- *   cout << nim_prod(3, 3) << '\n';  // 2
- *   cout << nim_prod(4, 4) << '\n';  // 6
- *   cout << nim_prod(2, 4) << '\n';  // 8 (distinct Fermat 2-powers = ordinary product)
- * }
  * ============================================================
  */

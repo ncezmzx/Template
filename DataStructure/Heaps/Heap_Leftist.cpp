@@ -32,28 +32,13 @@ struct heap_leftist {
 /*
  * ============================================================
  * Name: leftist heap (mergeable, dist-based merging), min-heap
- * Complexity: join/top O(1); merge/erase/decrease_key O(log n) worst case
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_leftist<N>;
- *        a heap is identified by its root node (h passed by reference), empty heap = 0
+ * Complexity: join / top O(1); merge / erase / decrease_key O(log n) worst case
+ * Usage: `heap_leftist<N>`: newnode / top / join / decrease_key / erase; a heap
+ *        is identified by its root node (h passed by reference), empty heap =
+ *        0.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 2, wrapped into a struct
- * Notes: arrays fa/vl/d/ls/rs inside the struct, size N as needed; join uses
- *        x|=y for empty heaps; self-merge x==y not handled; erase repairs d
- *        along the fa chain
- * ============================================================
- * Example (uncomment to compile):
- * static heap_leftist<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: join uses x |= y for empty heaps; self-merge x == y not handled; erase
+ *        repairs d along the fa chain
  * ============================================================
  */

@@ -44,31 +44,16 @@ struct heap_one_root_fibonacci {
 /*
  * ============================================================
  * Name: one-root Fibonacci heap (single-root form), mergeable min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key O(1) amortized;
+ * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
  *             erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as
- *        heap_one_root_fibonacci<N>; the heap always has one root h
- *        (join hangs y directly under x's child list)
+ * Usage: `heap_one_root_fibonacci<N>`: newnode / top / join / decrease_key /
+ *        erase; the heap always has one root h (join hangs y directly under x's
+ *        child list).
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 12, wrapped into a struct
  * Notes: frm[] = previous sibling (sibling chain via bt); mk[] lost marks;
  *        erase decreases to LLONG_MIN, detaches all children and rebuilds the
  *        root by rank buckets; h by reference (empty = 0, but join does not
- *        handle x/y = 0)
- * ============================================================
- * Example (uncomment to compile):
- * static heap_one_root_fibonacci<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ *        handle x / y = 0)
  * ============================================================
  */

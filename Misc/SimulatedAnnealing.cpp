@@ -27,29 +27,19 @@ void anneal(double& x, double& y) {
 /*
  * ============================================================
  * Name: simulated annealing (generic template)
- * Complexity: O(iterations * evaluation cost); iterations ~ ln(T0/T_end)/ln(1/cooling rate)
- * Usage: continuous or discrete optimization without analytic solutions
+ * Complexity: O(iterations * evaluation cost); iterations ~ ln(T0/T_end) /
+ *             ln(1/cooling rate)
+ * Usage: continuous or discrete optimization without an analytic solution
  *        (geometric extrema, shuffled-greedy tuning, ...); this template is a
- *        continuous 2D example — swap target and the perturbation to adapt
+ *        continuous 2D example — swap the target function and the perturbation
+ *        to adapt.
  * Principle: perturb the current solution into a candidate; accept if better,
- *        otherwise accept with probability exp(-dE / T) (Metropolis rule,
- *        allows escaping local optima); the temperature T cools geometrically
- *        until convergence
- * Notes: tune the parameters (initial T0, cooling rate, perturbation scale =
- *        T) per problem; run anneal several times and keep the best
- *        (randomness); the objective is minimization — negate for maxima;
- *        for discrete problems use random swaps/flips as the perturbation
- * ============================================================
- * Example (uncomment to compile; minimize (x-3)^2+(y+2)^2+1):
- * signed main() {
- *   fx = fy = 0;
- *   double best = 1e18, bx = 0, by = 0;
- *   for (int i = 0; i < 20; ++i) {
- *     fx = rnd() * 20 - 10, fy = rnd() * 20 - 10;
- *     anneal(fx, fy);
- *     if (target(fx, fy) < best) best = target(fx, fy), bx = fx, by = fy;
- *   }
- *   cout << fixed << setprecision(6) << bx << ' ' << by << ' ' << best << '\n';
- * }
+ *            otherwise accept with probability exp(-dE / T) (the Metropolis
+ *            rule, which allows escaping local optima); the temperature T cools
+ *            geometrically until convergence
+ * Notes: tune the parameters (initial T0, cooling rate, perturbation scale = T)
+ *        per problem; run anneal several times and keep the best, since it is
+ *        randomized; the objective is minimization, so negate for maxima; for
+ *        discrete problems use random swaps / flips as the perturbation
  * ============================================================
  */

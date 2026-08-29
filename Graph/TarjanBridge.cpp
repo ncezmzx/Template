@@ -38,27 +38,12 @@ struct edcc {
  * ============================================================
  * Name: Tarjan bridges / edge-biconnected components (e-DCC)
  * Complexity: O(n + m)
- * Usage: contract the components left after removing bridges, wrapped as
- *        edcc<N>: add(x, y) inserts edges, build(n), then cl = number of
- *        edge-biconnected components and col[x] = component id; bridge
- *        criterion: edge (x, parent) is a bridge iff dfn[x] == low[x] after
- *        x is finished; the parent-edge id (lst) handles multi-edges
- *        correctly (parallel edges get distinct ids, so none is skipped)
+ * Usage: components left after removing the bridges, `edcc<N>`: add(x, y)
+ *        inserts edges, build(n), then cl = number of edge-biconnected
+ *        components and col[x] = component id.
+ *        Bridge criterion: the edge (x, parent) is a bridge iff dfn[x] ==
+ *        low[x] once x is finished; the parent-edge id (lst) handles multi-
+ *        edges correctly.
  * Source: all.cpp lines 51899-51912 (wrapped into a struct, recursion unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * static edcc<300009> ec;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1, x, y; i <= m; ++i) {
- *     cin >> x >> y;
- *     ec.add(x, y);
- *   }
- *   ec.build(n);
- *   cout << ec.cl << '\n';                    // number of e-DCCs
- *   for (int i = 1; i <= n; ++i) cout << ec.col[i] << " \n"[i == n];
- * }
  * ============================================================
  */

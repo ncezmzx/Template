@@ -175,29 +175,14 @@ struct dynbitset {
 /*
  * ============================================================
  * Name: hand-written dynamic bitset (all std::bitset operations + runtime resizing)
- * Complexity: 64-bit word granularity; and/or/xor/shift/popcount are O(n/64); single bits O(1)
- * Usage: bitset acceleration (reachability, subset convolution, string
- *        matching, DP state compression) when the length must be dynamic or
- *        larger than a compile-time constant allows (std::bitset needs one)
- * Notes: stored as 64-bit words, low bits first; find_first/find_next use
- *        ctz, ideal for enumerating all set bits (total O(#words + #ones));
- *        shifts preserve the length (overflow dropped, high bits zero);
- *        resize changes the logical length and clears; mixed-length & | ^
- *        use the longer length (missing bits read as 0); to_string prints
- *        most significant first
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   dynbitset a = dynbitset::from_string("10101"), b(10);
- *   b.set(2), b.set(9);
- *   cout << a.to_string() << '\n';                    // 00101
- *   cout << (a & b).to_string() << '\n';              // 00100
- *   a <<= 3;
- *   cout << a.to_string() << '\n';                    // 01000
- *   cout << a.count() << ' ' << a.find_first() << ' ' << a.find_next(2) << '\n'; // 1 3 10
- *   a.resize(100), a.set(99);
- *   cout << a.size() << ' ' << a.test(99) << '\n';    // 100 1
- *   cout << (a.all() ? "all" : "notall") << '\n';
- * }
+ * Complexity: and / or / xor / shift / popcount O(n/64); single bit O(1)
+ * Usage: runtime-resizable bitset (reachability, subset convolution, string
+ *        matching, bit-parallel DP); `dynamic_bitset`
+ *        keeps every std::bitset operation plus resize; find_first / find_next
+ *        enumerate set bits.
+ * Notes: stored as 64-bit words, low bits first; shifts keep the logical length
+ *        (overflow dropped, high bits zero);
+ *        mixed-length & | ^ use the longer length, missing bits read as 0;
+ *        resize changes the length and clears; to_string prints MSB first
  * ============================================================
  */

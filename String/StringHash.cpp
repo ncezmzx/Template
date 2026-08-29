@@ -67,23 +67,10 @@ struct strhash {
  * Name: string hashing (mod 2^61-1, random seed, xorshift scrambling)
  * Complexity: O(n) preprocessing, O(1) substring query
  * Usage: fast substring-hash comparison (equality / sorting), randomized
- *        against hacks; strings must be 1-indexed (s = ' ' + s). Wrapped as
- *        strhash (power table pw inside the struct; seed is a file-level
- *        random constant): init(n, s) preprocesses, query(l, r) hashes a substring
+ *        against hacks; `strhash` (the power table pw lives inside the struct
+ *        and the seed is a file-level random constant):
+ *        init(n, s) preprocesses, query(l, r) hashes a substring.
  * Source: all.cpp lines 53386-53446 (wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * strhash str;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   string s;
- *   cin >> s;
- *   s = ' ' + s;                          // 1-indexed
- *   str.init(s.size() - 1, s);            // preprocess
- *   int l1, r1, l2, r2;
- *   cin >> l1 >> r1 >> l2 >> r2;          // two substring ranges (1-indexed)
- *   cout << (str.query(l1, r1) == str.query(l2, r2)) << '\n';  // are the substrings equal
- *   return 0;
- * }
+ * Notes: strings must be 1-indexed (s = " " + s)
  * ============================================================
  */

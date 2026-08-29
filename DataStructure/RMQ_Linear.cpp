@@ -103,36 +103,14 @@ struct rmq_linear {
 /*
  * ============================================================
  * Name: linear RMQ (O(n) preprocessing, O(1) query; from OI-Wiki topic/rmq)
- * Complexity: preprocessing O(n), query O(1)
- * Usage: static range minimum query returning the index, wrapped as
- *        rmq_linear<N>: fill a[1..n], build(n), then query(u, v) returns the
- *        position of the minimum of a over [u, v]
- * Principle (three steps of the OI-Wiki linear RMQ):
- *   1) build the (min) Cartesian tree: the range minimum is the LCA of the
- *      two endpoints in that tree;
- *   2) the Euler tour turns LCA into a "+-1 RMQ" on depths (adjacent depths
- *      differ by exactly +-1);
- *   3) +-1 RMQ via blocks + bitmasks: block size B = 16 gives only
- *      2^(B-1) = 32768 shapes; brute-force preprocess all in-block ranges per
- *      shape (16MB); a sparse table over the blocks (n/B of them) takes O(n)
+ * Complexity: preprocessing O(n); query O(1)
+ * Usage: static RMQ returning the index of the minimum, `rmq_linear<N>`:
+ *        fill a[1..n], build(n), then query(u, v) returns the position of the
+ *        minimum of a over [u, v].
+ * Principle: min-Cartesian tree (range minimum = LCA of the endpoints) -> Euler
+ *            tour (+-1 RMQ on depths) -> block bitmasks (B = 16, 2^15 shapes,
+ *            brute-forced) + sparse table over blocks
  * Notes: with equal values the leftmost minimum is returned (strict > pop in
- *        the Cartesian build); dep is the +-1 sequence, f tables are reused
- *        per shape; array indices 1..n
- * ============================================================
- * Example (uncomment to compile):
- * static rmq_linear<200009> rmq;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> rmq.a[i];
- *   rmq.build(n);
- *   int q;
- *   cin >> q;
- *   while (q--) {
- *     int l, r;
- *     cin >> l >> r;
- *     cout << rmq.a[rmq.query(l, r)] << '\n';
- *   }
- * }
+ *        the Cartesian build); indices are 1..n
  * ============================================================
  */

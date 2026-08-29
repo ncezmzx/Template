@@ -35,28 +35,19 @@ vector<int> subset_convolution(int n, const vector<int>& f, const vector<int>& g
 
 /*
  * ============================================================
- * ============================================================
  * Name: subset convolution
- * Complexity: O(n^2 2^n) (n = log2 of the length; naive is O(3^n))
- * Usage: h[S] = sum_{T subset S} f[T] g[S\T] (with the |T|+|S\T|=|S|
- *        constraint); common in set power series, set-partition counting,
- *        tree-set DP merges, etc.
+ * Complexity: O(n^2 2^n) (n = log2 of the length; the naive form is O(3^n))
+ * Usage: h[S] = sum_{T subset S} f[T] g[S\T] with the |T| + |S\T| = |S|
+ *        constraint; common in set power series, set-partition counting and
+ *        tree-set DP merges.
+ *        subset_convolution(n, f, g) with f / g of length 2^n returns h of
+ *        length 2^n.
  * Interface: subset_convolution(n, f, g), f/g of length 2^n, returns h of length 2^n
- * Principle: layer by popcount into F[k][S] (keeping only |S| = k terms);
- *        OR-zeta each layer, convolve layers (univariate polynomial product
- *        per S), Mobius-invert, then read back H[popcount(S)][S]
- * Notes: results taken mod MOD; f/g lengths must be powers of two; MOD
+ * Principle: layer by popcount into F[k][S] keeping only the |S| = k terms; OR-
+ *            zeta each layer, convolve the layers (a univariate polynomial
+ *            product per S), Mobius-invert, then read back H[popcount(S)][S]
+ * Notes: results are taken mod MOD; f / g lengths must be powers of two; MOD
  *        should be prime (only multiplications are reduced)
  * Source: OI-Wiki "Set power series / subset convolution" (https://oi-wiki.org/math/poly/sps/)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   int n = 2;
- *   vector<int> f{1, 2, 3, 4}, g{5, 6, 7, 8};  // indices 0..3 are subsets 0,1,2,3
- *   auto h = subset_convolution(n, f, g);
- *   for (int x : h) cout << x << ' ';  // h[3] = f[0]g[3]+f[1]g[2]+f[2]g[1]+f[3]g[0]
- *   cout << '\n';
- * }
  * ============================================================
  */

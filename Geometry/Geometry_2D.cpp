@@ -104,31 +104,21 @@ long long closest_pair2(vector<P> p) {
 /*
  * ============================================================
  * Name: 2D computational geometry basics (integer points, all exact arithmetic)
- * Complexity: convex hull O(n log n); rotating calipers O(n); closest pair O(n log n)
- * Usage: cross/dot/cr (products and orientation); on_seg/seg_inter (segment
- *        intersection, endpoints included); area2 (doubled signed polygon
- *        area); pip (point in polygon, any simple polygon); convex_hull
- *        (Andrew monotone chain, strictly convex); diameter2 (squared
- *        diameter via rotating calipers); closest_pair2 (squared closest-pair
- *        distance)
- * Principle: everything in exact long long arithmetic, no floating error
- *        (coordinates need |x|,|y| < ~2^31 so cross products do not
- *        overflow); hull via two monotone-chain passes; calipers walk edges
- *        with the antipode moving monotonically; closest pair divides by x,
- *        merges by y, scans the middle strip
- * Notes: results are squared lengths/areas (no sqrt error); an all-collinear
- *        hull returns the two endpoints (size=2); duplicate points are
+ * Complexity: convex hull O(n log n); rotating calipers O(n); closest pair O(n
+ *             log n)
+ * Usage: cross / dot / cr (products and orientation); on_seg / seg_inter
+ *        (segment intersection, endpoints included); area2 (doubled signed
+ *        polygon area);
+ *        pip (point in polygon, any simple polygon); convex_hull (Andrew
+ *        monotone chain, strictly convex); diameter2 (squared diameter via
+ *        rotating calipers); closest_pair2 (squared closest-pair distance).
+ * Principle: exact long long arithmetic throughout, no floating error
+ *            (coordinates need |x|, |y| < ~2^31 so cross products do not
+ *            overflow); the hull is two monotone-chain passes; calipers walk
+ *            edges with the antipode moving monotonically; closest pair divides
+ *            by x, merges by y and scans the middle strip
+ * Notes: results are squared lengths / areas (no sqrt error); an all-collinear
+ *        hull returns just the two endpoints (size 2); duplicate points are
  *        removed automatically
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   vector<P> p{{0, 0}, {0, 2}, {2, 0}, {2, 2}, {1, 1}};
- *   auto h = convex_hull(p);                     // the square's four corners
- *   cout << h.size() << ' ' << area2(h) << '\n'; // 4 8 (area 4 x 2)
- *   cout << diameter2(h) << '\n';                // 8 (diagonal^2 = 2^2 + 2^2)
- *   cout << pip(h, {1, 1}) << pip(h, {3, 1}) << '\n';  // 2 (inside) 0 (outside)
- *   cout << seg_inter({0, 0}, {2, 2}, {0, 2}, {2, 0}) << '\n';  // 1 (diagonals cross)
- *   vector<P> q{{0, 0}, {3, 4}};
- *   cout << closest_pair2(q) << '\n';            // 25
- * }
  */

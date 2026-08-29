@@ -64,32 +64,14 @@ struct block_cut_tree {
  * ============================================================
  * Name: Tarjan vertex-biconnected components (v-BCC) / block-cut tree
  * Complexity: O(n + m)
- * Usage: vertex-biconnected components + block-cut tree, wrapped as
- *        block_cut_tree<N>: g holds the original graph; build(n) contracts
- *        BCCs (square nodes numbered from n+1 up, total sq, adjacency e
- *        sized 2N); then dfs(root, 0) per component roots the tree and
- *        builds the lifting table for lca(x, y). Cut vertices = round nodes
- *        with degree >= 2 in the block-cut tree
+ * Usage: vertex-biconnected components + block-cut tree, `block_cut_tree<N>`: g
+ *        holds the original graph; build(n) contracts the BCCs
+ *        (square nodes numbered from n+1 up, total sq, adjacency e sized 2N);
+ *        then dfs(root, 0) per component roots the tree and builds the lifting
+ *        table for lca(x, y).
+ *        Cut vertices are the round nodes with degree >= 2 in the block-cut
+ *        tree.
  * Source: all.cpp lines 55913-55931 (tarjan verbatim; sq = n from 55972;
  *         dfs/lca 55932-55955 came with the same block); wrapped into a struct
- * ============================================================
- * Example (uncomment to compile):
- * static block_cut_tree<20010> bct;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1, x, y; i <= m; ++i) {
- *     cin >> x >> y;
- *     bct.g[x].push_back(y), bct.g[y].push_back(x);
- *   }
- *   bct.build(n);
- *   bct.dfs(1, 0);   // connected-graph demo; call dfs per component otherwise
- *   cout << "BCC count: " << bct.sq - n << '\n';
- *   cout << "cut vertices:";
- *   for (int i = 1; i <= n; ++i)
- *     if ((int)bct.e[i].size() >= 2) cout << ' ' << i;   // round node touching >=2 blocks
- *   cout << '\n';
- * }
  * ============================================================
  */

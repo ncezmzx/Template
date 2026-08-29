@@ -26,27 +26,13 @@ struct heap_skew {
 /*
  * ============================================================
  * Name: skew heap (mergeable, swaps children on merge), min-heap
- * Complexity: newnode/top O(1); merge/erase/decrease_key O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_skew<N>;
- *        heap identified by its root (h by reference), empty heap = 0
+ * Complexity: newnode / top O(1); merge / erase / decrease_key O(log n)
+ *             amortized
+ * Usage: `heap_skew<N>`: newnode / top / join / decrease_key / erase; heap
+ *        identified by its root (h by reference), empty heap = 0.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 3, wrapped into a struct
  * Notes: with #define int long long the LLONG_MIN sentinel in erase behaves
- *        correctly; self-merge x==y not handled; no rank information
- * ============================================================
- * Example (uncomment to compile):
- * static heap_skew<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ *        correctly; self-merge x == y not handled; no rank information
  * ============================================================
  */

@@ -244,33 +244,13 @@ namespace Poly {
 using namespace Poly;
 /*
  * ============================================================
- * ============================================================
  * Name: NTT + polynomial toolkit (namespace Poly)
- * Complexity: ntt O(n log n), convolution O(n log n), inv / ln / exp O(n log n),
- *             deri / inte O(n)
- * Usage: polynomial convolution, inverse, ln, exp, derivative, integral,
- *        shifts and trailing-zero trim under modulus 998244353.
- *        Note: inv / ln require a non-zero constant term; exp requires the
- *        constant term 0 (formal power series semantics).
+ * Complexity: ntt O(n log n); convolution / inv / ln / exp O(n log n); deri /
+ *             inte O(n)
+ * Usage: polynomial convolution, inverse, ln, exp, derivative, integral, shifts
+ *        and trailing-zero trim under modulus 998244353 (namespace Poly).
  * Source: all.cpp lines 39879-40104 (kept verbatim, comments translated)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   poly a = {1, 2, 3}, b = {4, 5};
- *   poly c = convolution(a, b, 4);  // {4, 13, 22, 15}
- *   for (int x : c) cout << x << ' ';
- *   cout << '\n';
- *   poly f = {0, 1, 1};      // x + x^2
- *   poly g = exp(f, 4);      // first 4 terms of exp(x + x^2)
- *   for (int x : g) cout << x << ' ';
- *   cout << '\n';
- *   poly h = ln({1, 1, 0}, 3);  // first 3 terms of ln(1 + x): 0, 1, md - 1/2
- *   for (int x : h) cout << x << ' ';
- *   cout << '\n';
- *   poly d = deri(a), it = inte(d);  // derivative / integral
- *   for (int x : it) cout << x << ' ';
- *   cout << '\n';
- * }
+ * Notes: inv / ln require a non-zero constant term; exp requires the constant
+ *        term 0 (formal power series semantics)
  * ============================================================
  */

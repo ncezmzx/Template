@@ -65,37 +65,16 @@ struct link_cut_tree {
 /*
  * ============================================================
  * Name: Link-Cut Tree (dynamic trees, splay-based)
- * Complexity: amortized O(log n) per operation (splay potential)
- * Usage: dynamic forest, wrapped as link_cut_tree<N>:
- *        link(x, y) add edge; cut(x, y) remove edge (x, y adjacent);
- *        makeroot(x) reroot; findroot(x) tree root of x;
- *        split(x, y) expose the x->y path as a splay rooted at y (then mx[y]
- *        holds the path aggregate); path_max / point_set are sample ops
- *        (change up to maintain sum / xor / min etc.)
- * Principle: preferred-path decomposition; each preferred path is a splay keyed
- *        by depth; access exposes the path from x to the root; makeroot uses a
- *        lazy reverse tag; virtual-child info is not maintained (add a virtual
- *        aggregate if subtree info is needed)
- * Notes: cut requires x, y to be directly connected; vertices 1..n;
- *        clear the arrays between test cases
- * ============================================================
- * Example (uncomment to compile; path maximum):
- * static link_cut_tree<100009> lct;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1; i <= n; ++i) {
- *     cin >> lct.val[i];
- *     lct.mx[i] = lct.val[i];
- *   }
- *   while (m--) {
- *     int o, x, y;
- *     cin >> o >> x >> y;
- *     if (o == 0) cout << lct.path_max(x, y) << '\n';
- *     if (o == 1) lct.link(x, y);
- *     if (o == 2) lct.cut(x, y);
- *     if (o == 3) lct.point_set(x, y);
- *   }
- * }
+ * Complexity: amortized O(log n) per operation
+ * Usage: dynamic forest, `link_cut_tree<N>`: link(x, y); cut(x, y) (x, y must
+ *        be adjacent); makeroot(x) reroots; findroot(x);
+ *        split(x, y) exposes the x->y path as a splay rooted at y (aggregate in
+ *        mx[y]); path_max / point_set are samples (change up for sum / xor /
+ *        ...).
+ * Principle: preferred-path decomposition, one splay per path keyed by depth;
+ *            access exposes the path to the root; makeroot uses a lazy reverse
+ *            tag
+ * Notes: vertices are 1..n; clear the arrays between test cases; virtual-child
+ *        info is not maintained (add it yourself for subtree aggregates)
  * ============================================================
  */

@@ -267,14 +267,14 @@ struct semigroup_segtree {
 /*
  * ============================================================
  * Name: custom-semigroup segment tree (dynamic nodes, lazy tags, iterative)
- * Complexity: O(log n) per operation (no recursion); node count =
- *             O(#updates * log n), allocated dynamically
- * Usage: range operations over custom info and lazy tags (isomorphic to ACL
- *        lazy_segtree):
- *        info + info -> info (op, range merge, need not commute)
- *        info + tag  -> info (mapping, apply a tag to the info)
- *        tag + tag   -> tag  (composition, compose tags)
- *        e() / id() are the identities (empty segment / empty tag)
+ * Complexity: O(log n) per operation (no recursion); node count O(#updates *
+ *             log n), allocated dynamically
+ * Usage: `semigroup_segtree<S, op, e, F, mapping, composition, id>`: range
+ *        operations over custom info and lazy tags
+ *        (isomorphic to ACL lazy_segtree).
+ *        op = info + info, mapping = info + tag, composition = tag + tag; e() /
+ *        id() are the identities.
+ *        Method list: see Interface below.
  * Interface (1-indexed, closed ranges [x, y]):
  *        update(x, y, z)     range update: apply tag z to [x, y]
  *        update(x, y)        point update: apply tag y at x
@@ -287,49 +287,19 @@ struct semigroup_segtree {
  *        init(n, a)          ACL-style vector build: a[1..n] initial values, O(n)
  *        clear()/reserve(k)  clear / pre-allocate the node pool
  * Principle: nodes come from a dynamic pool (0 = sentinel, unbuilt subtrees
- *        count as e()); every operation is iterative — range ops first
- *        descend to the "split node" (the unique node with x <= mid < y),
- *        then walk the two boundary paths to the leaves: fully covered
- *        canonical blocks get tagged / read, updates pull back in reverse
- *        stack order; max_right/min_left greedily walk the canonical blocks
- *        up from the leaf path and binary-descend inside the failing block
- *        (equivalent to ACL's bottom-up formulation); queries/bisections push
- *        only when a node carries a tag (nodes are created only then)
- * Notes: composition(f, g) means "g first, then f" (mapping(composition(f,g),x)
- *        == mapping(f, mapping(g, x))); mapping must satisfy mapping(f, e()) == e()
- *        (unbuilt nodes count as e(), i.e. whole-range operations must be
- *        no-ops on "implicit empty segments") — range-assignment semantics
- *        work; range-add + range-sum does NOT (empty segments have no length
- *        info); for range-add either fold the length into info, or use
- *        SegmentTree_ACL.cpp (static full tree, no such restriction);
- *        max_right/min_left follow ACL's canonical-block greedy semantics —
- *        when a whole block passes, its prefixes are not re-checked (best for
- *        g that fails monotonically as the range grows); init/clear between
- *        test cases
+ *            count as e()); range ops descend to the split node (the unique
+ *            node with x <= mid < y), then walk both boundary paths to the
+ *            leaves: fully covered canonical blocks get tagged / read and
+ *            updates pull back in reverse stack order
+ * Notes: composition(f, g) means "g first, then f": mapping(composition(f, g),
+ *        x) == mapping(f, mapping(g, x)).
+ *        mapping must satisfy mapping(f, e()) == e() — range-assignment
+ *        semantics work, but range-add + range-sum does NOT (empty segments
+ *        carry no length); for range-add either fold the length into info, or
+ *        use SegmentTree_ACL.cpp.
+ *        max_right / min_left follow ACL's canonical-block greedy semantics: a
+ *        block that passes is not re-checked, so g should fail monotonically as
+ *        the range grows.
+ *        init / clear between test cases
  * ============================================================
- * Example (uncomment to compile; range assignment + range max, satisfies mapping(f, e())==e()):
- * using S = long long;
- * using F = long long;
- * S op(S a, S b) { return max(a, b); }
- * S e() { return LLONG_MIN; }
- * F id() { return LLONG_MIN; }
- * S mapping(F f, S s) { return f == id() ? s : f; }   // range assignment
- * F composition(F f, F g) { return f; }               // later write wins (g first, then f)
- * semigroup_segtree<S, op, e, F, mapping, composition, id> st;
- * signed main() {
- *   st.init(1e9);                                // dynamic nodes: huge domains ok
- *   st.update(2, 4, 7);                          // assign 7 to [2,4]
- *   st.update(3, 9);                             // assign 9 at point 3
- *   cout << st.query(1, 10) << '\n';             // 9
- *   st.set(4, 5);
- *   cout << st.query(4) << '\n';                 // 5
- *   // ACL-aligned interface:
- *   vector<S> a{0, 1, 2, 3, 4};                  // a[1..4] = {1,2,3,4}
- *   st.init(4, a);                               // O(n) full build
- *   st.update(1, 2, 10);                         // assign 10 to [1,2]
- *   cout << st.get(2) << ' ' << st.all_prod() << '\n';            // 10 10
- *   cout << st.max_right(3, [](S s) { return s < 5; }) << '\n';   // 4 ([3,4] max is 4 < 5, all pass)
- *   cout << st.min_left(4, [](S s) { return s < 5; }) << '\n';    // 3 (at l=2 the 10 is included, fails)
- *   st.clear();
- * }
  */

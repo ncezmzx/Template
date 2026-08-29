@@ -74,8 +74,9 @@ class LinkCutTree {
  * ============================================================
  * Name: Link-Cut Tree (generic monoid version: path products + reversal)
  * Complexity: amortized O(log n) per operation
- * Usage: link / cut / find (component representative) / set (point update) /
- *        query (path product u..v) on a dynamic forest
+ * Usage: dynamic forest over any invertible monoid: link / cut / find
+ *        (component representative) / set (point update) / query (path product
+ *        u..v).
  * Comparison: against LCT.cpp (int-max specialization, array form): this
  *        version supports any invertible monoid (sums / extrema / gcd /
  *        commutative matrix products, ...) at the cost of Mono providing
@@ -87,24 +88,7 @@ class LinkCutTree {
  *           pollution) -> null checks added;
  *        2) find's loop descended before pushing tags (wrong direction under
  *           reverse tags) -> order corrected
- * ============================================================
- * Example (uncomment to compile):
- * struct MxMonoid {
- *   long long v = -0x3f3f3f3f3f3f3f3f;   // default constructor = identity
- *   MxMonoid() = default;
- *   MxMonoid(long long x) : v(x) {}
- *   void flip() {}   // max commutes: reversal does not change the aggregate; non-commutative monoids must swap internal aggregates
- * };
- * MxMonoid operator*(MxMonoid a, MxMonoid b) { return MxMonoid(max(a.v, b.v)); }
- * signed main() {
- *   LinkCutTree<MxMonoid, 100009> lct;
- *   int n = 5;
- *   long long w[] = {0, 3, 1, 4, 2, 5};
- *   for (int i = 1; i <= n; ++i) lct.init(i, MxMonoid(w[i]));
- *   lct.link(1, 2), lct.link(2, 3), lct.link(3, 4), lct.link(4, 5);
- *   cout << lct.query(1, 5).v << '\n';   // 5
- *   lct.set(3, MxMonoid(9));
- *   cout << lct.query(2, 4).v << '\n';   // 9
- * }
+ * Notes: Mono must supply flip() and a default identity constructor; see
+ *        Comparison below
  * ============================================================
  */

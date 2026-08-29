@@ -30,27 +30,13 @@ struct heap_pairing {
 /*
  * ============================================================
  * Name: pairing heap (mergeable, mgsn two-pass deletion), min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key/erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_pairing<N>;
- *        heap identified by its root (h by reference)
+ * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
+ *             n) amortized
+ * Usage: `heap_pairing<N>`: newnode / top / join / decrease_key / erase; heap
+ *        identified by its root (h by reference).
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 5, wrapped into a struct
- * Notes: vl/sn/bt/fa arrays are now struct members; erase uses the LLONG_MIN
- *        sentinel; empty heap / self-merge boundaries not handled
- * ============================================================
- * Example (uncomment to compile):
- * static heap_pairing<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: erase uses the LLONG_MIN sentinel; empty-heap / self-merge boundaries
+ *        not handled
  * ============================================================
  */

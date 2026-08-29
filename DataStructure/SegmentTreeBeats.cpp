@@ -142,35 +142,19 @@ struct segbeats {
 /*
  * ============================================================
  * Name: Segment Tree Beats
- * Complexity: range add / queries O(log n); range chmin/chmax amortized
- *             O((n + q) log n) (each chmin only decreases a node's "number
- *             of distinct values"; potential analysis bounds the total)
- * Usage: range add, range chmin (a[i] = min(a[i], v)), range chmax
- *        (a[i] = max(a[i], v)), range sum / max / min queries, wrapped as
- *        segbeats; typical problem: Luogu P6242 (historic extrema need
- *        extra his fields and pushdown logic; this template is the core
- *        skeleton without them)
- * Principle: each node keeps mx/mx2 (max, strict second max) and mn/mn2
- *        (min, strict second min) with counts cmx/cmn; chmin over a segment
- *        whose max > v but second max < v only changes the maxima (O(1)
- *        tagging); otherwise recurse. tag is the range-add lazy tag;
- *        pushdown passes the parent's mx/mn down as chmin/chmax hints
- * Notes: INF must exceed the value range; all-equal segments have mx2 = -INF,
- *        mn2 = INF (sentinels); the whole-segment chmin condition is
- *        mx2 < v (strict, so the second max never leaks past v)
- * Usage pattern: build(1, 1, n); then st.add / st.chmin / st.chmax / st.qsum / st.qmax / st.qmin
- * ============================================================
- * Example (uncomment to compile; initial a = {3, 1, 4, 1, 5}):
- * signed main() {
- *   n = 5, a[1] = 3, a[2] = 1, a[3] = 4, a[4] = 1, a[5] = 5;
- *   st.build(1, 1, n);
- *   st.chmin(1, 1, n, 1, 5, 3);            // chmin 3 everywhere -> {3,1,3,1,3}
- *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 11
- *   cout << st.qmax(1, 1, n, 1, 5) << ' ' << st.qmin(1, 1, n, 1, 5) << '\n'; // 3 1
- *   st.chmax(1, 1, n, 1, 5, 2);            // chmax 2 everywhere -> {3,2,3,2,3}
- *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 13
- *   st.chmin(1, 1, n, 2, 4, 2);            // chmin 2 on [2,4] -> {3,2,2,2,3}
- *   cout << st.qsum(1, 1, n, 1, 5) << '\n'; // 12
- * }
+ * Complexity: range add / queries O(log n); range chmin / chmax amortized O((n
+ *             + q) log n)
+ * Usage: range add, range chmin (a[i] = min(a[i], v)), range chmax (a[i] =
+ *        max(a[i], v)), range sum / max / min, `segbeats`:
+ *        build(1, 1, n), then st.add / st.chmin / st.chmax / st.qsum / st.qmax
+ *        / st.qmin.
+ * Principle: nodes keep mx / mx2 and mn / mn2 with counts; a chmin whose max >
+ *            v but second max < v only retags the maxima in O(1), otherwise it
+ *            recurses; the number of distinct values is the potential
+ * Notes: INF must exceed the value range; all-equal segments carry the
+ *        sentinels mx2 = -INF, mn2 = INF; the whole-segment chmin condition is
+ *        mx2 < v (strict);
+ *        historic extrema (Luogu P6242) need extra his fields and pushdown
+ *        logic, which this skeleton does not have
  * ============================================================
  */

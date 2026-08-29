@@ -56,32 +56,20 @@ double area(const vector<P>& p) {  // unsigned polygon area
  * ============================================================
  * Name: half-plane intersection (sort & incrementally maintain a deque)
  * Complexity: O(n log n) (sorting dominates)
- * Usage: intersection of n half-planes (a convex polygon, possibly empty):
- *        typical problems: polygon kernels, LP feasible regions, 2D
- *        decision-monotone problems
+ * Usage: intersection of n half-planes (a convex polygon, possibly empty);
+ *        typical problems are polygon kernels, LP feasible regions and 2D
+ *        decision-monotone problems.
+ *        HP(p, v) is the half-plane left of p -> p+v; hpi(ls) returns the CCW
+ *        vertex list; area(poly) computes the area.
  * Interface: HP(p, v): the half-plane left of p -> p+v; hpi(ls) returns the
  *        CCW vertex list; area(poly) computes the area
- * Principle: sort by polar angle, then a monotone deque keeps candidate
- *        lines — each new half-plane pops old intersections lying on its
- *        right (deque tail/head); parallel lines keep the tighter one when
- *        same-directed, an empty region when opposite; a final cyclic trim
- *        closes the deque
- * Notes: add a large bounding box when the region may be unbounded; tune EPS
- *        to the coordinate scale; whether boundary points survive depends on
+ * Principle: sort by polar angle, then a monotone deque keeps the candidate
+ *            lines: each new half-plane pops old intersections lying on its
+ *            right (deque tail / head); parallel lines keep the tighter one
+ *            when same-directed and an empty region when opposite; a final
+ *            cyclic trim closes the deque
+ * Notes: add a large bounding box when the region may be unbounded; tune EPS to
+ *        the coordinate scale; whether boundary points survive depends on
  *        onleft's strictness (currently strict > 0)
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   // the four inward half-planes of the square [0,1]^2, plus a diagonal cut keeping the lower-left side:
- *   vector<HP> ls;
- *   ls.push_back({{0, 0}, {1, 0}});   // y >= 0 (left of +x)
- *   ls.push_back({{1, 0}, {0, 1}});   // x <= 1 (left of +y)
- *   ls.push_back({{1, 1}, {-1, 0}});  // y <= 1 (left of -x)
- *   ls.push_back({{0, 1}, {0, -1}});  // x >= 0 (left of -y)
- *   auto poly = hpi(ls);
- *   cout << poly.size() << ' ' << area(poly) << '\n';  // 4 1
- *   ls.push_back({{0.5, 0.5}, {1, 1}});  // then cut off the upper-right corner (diagonal cut)
- *   auto poly2 = hpi(ls);
- *   cout << poly2.size() << ' ' << area(poly2) << '\n'; // 3 0.5 (the small triangle on the y > x side remains)
- * }
  */

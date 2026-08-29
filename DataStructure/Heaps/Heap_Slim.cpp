@@ -48,25 +48,14 @@ struct heap_slim {
 /*
  * ============================================================
  * Name: slim heap (mergeable), min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key O(1) amortized;
- *             erase O(log n) amortized (pairwise merges converge root count)
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_slim<N>;
- *        heaps identified by their container index
+ * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
+ *             erase O(log n) amortized
+ * Usage: `heap_slim<N>`: newnode / top / join / decrease_key / erase; heaps are
+ *        identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 14, wrapped into a struct
  * Notes: with #define int long long the LLONG_MIN sentinel stays correct.
- *        KNOWN DEFECT (article original): decrease_key unlinking a non-first
- *        child p mishandles the sibling chain. Reference implementation only
- * ============================================================
- * Example (uncomment to compile; join/top only — see the known-defect note above):
- * static heap_slim<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ *        KNOWN DEFECT (from the source article): decrease_key unlinking a non-
+ *        first child p mishandles the sibling chain. Reference only
  * ============================================================
  */

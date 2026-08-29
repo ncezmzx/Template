@@ -13,9 +13,9 @@ kept as self-contained free functions.
   encapsulated implementation;
 - **all documentation lives in one trailing comment block** (Name /
   Complexity / Usage / Interface / Principle / Notes);
-- every file ends with an **uncommentable usage example** in that block —
-  uncomment it and the file compiles and runs (examples that read stdin
-  need input fed in);
+- the block documents **only the essentials**: Name, Complexity, a compact
+  Usage (API + the conventions you must obey), Notes (hard constraints and
+  pitfalls) and, where useful, Principle;
 - comments are written in **English**.
 
 ## Directory layout

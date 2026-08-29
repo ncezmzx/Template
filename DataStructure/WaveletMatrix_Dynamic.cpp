@@ -147,30 +147,18 @@ struct dyn_wavelet {
 /*
  * ============================================================
  * Name: dynamic Wavelet Matrix via binary grouping (insertable value sequence)
- * Complexity: insert amortized O(log n * LOG) (binary grouping: small blocks
- *             keep merging/rebuilding, each element joins at most O(log n)
- *             rebuilds per round); kth/rank_lt O(LOG * log n)
- * Usage: dynamically maintain a multiset (insert-only, optional erase):
- *        insert(x) inserts; kth(k) global k-th smallest (0-based);
- *        rank_lt(x) global count of values < x; count(x) count of x;
- *        each "block" is a static Wavelet Matrix (domain [0, 2^LOG))
- * Principle: logarithmic method: maintain blocks of sizes exactly 1,2,4,...;
- *        an insert creates a size-1 block and repeatedly merges with an
- *        equal-sized block (binary carry), keeping O(log n) blocks at all
- *        times; queries descend bitwise across all blocks in parallel (kth)
- *        or accumulate (rank_lt)
- * Notes: values must be in [0, 2^LOG) (LOG = 30; shift negatives); erase is
- *        a simple O(sum of block sizes) implementation (find the block
- *        holding x and rebuild it) — for deletion-heavy workloads prefer a
- *        persistent segment tree / balanced tree
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   dyn_wavelet st;
- *   for (int x : {5, 3, 9, 1, 7, 5}) st.insert(x);
- *   cout << st.kth(0) << ' ' << st.kth(3) << '\n';   // 1 5
- *   cout << st.rank_lt(6) << '\n';                   // 4（1,3,5,5）
- *   cout << st.count(5) << '\n';                     // 2
- * }
+ * Complexity: insert amortized O(log n * LOG); kth / rank_lt O(LOG * log n)
+ * Usage: dynamically maintained insert-only multiset: insert(x); kth(k) global
+ *        k-th smallest (0-based);
+ *        rank_lt(x) global count of values < x; count(x) count of x; each block
+ *        is a static Wavelet Matrix over [0, 2^LOG).
+ * Principle: logarithmic method: blocks of sizes exactly 1, 2, 4, ...; an
+ *            insert creates a size-1 block and repeatedly merges with an equal-
+ *            sized block (binary carry), keeping O(log n) blocks; queries
+ *            descend bitwise across all blocks in parallel (kth) or accumulate
+ *            (rank_lt)
+ * Notes: values must lie in [0, 2^LOG) (LOG = 30; shift negatives into range);
+ *        erase is a simple O(sum of block sizes) rebuild, so prefer a
+ *        persistent segment tree / balanced tree for deletion-heavy workloads
  * ============================================================
  */

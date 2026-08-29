@@ -72,32 +72,19 @@ struct Blossom {
 
 /*
  * ============================================================
- * ============================================================
  * Name: general graph maximum matching (blossom algorithm)
  * Complexity: O(n^3) (much faster in practice)
- * Usage: maximum matching on non-bipartite graphs (odd cycles), wrapped as
- *        struct Blossom: solve() returns the matching size; match_[i] is the
- *        partner of i (0 = unmatched)
- * Principle: BFS alternating tree (col 1 outer/black = queued side incl.
- *        root, col 2 inner/white) searches augmenting paths; adjacent
- *        outer-outer pairs form odd cycles -> contract blossoms (DSU par),
- *        promoting inner blossom vertices to outer; lca climbs the
- *        pre/match chains with timestamps to find the blossom base; hitting
- *        a free vertex flips along pre. Outer-inner adjacency is always an
- *        even cycle and is skipped
+ * Usage: maximum matching on non-bipartite graphs (odd cycles), `struct
+ *        Blossom`: solve() returns the matching size; match_[i] is i's partner
+ *        (0 = unmatched).
+ * Principle: BFS alternating tree (outer / inner colors) searches augmenting
+ *            paths; adjacent outer-outer pairs form odd cycles, which are
+ *            contracted into blossoms (DSU par) with their inner vertices
+ *            promoted to outer; lca climbs the pre / match chains with
+ *            timestamps to find the blossom base; hitting a free vertex flips
+ *            along pre
  * Source: rewritten against the classic the-tourist/algo flows/blossom.cpp
- * Notes: callers should avoid adding self-loops/duplicate edges; adjacency
- *        is stored undirected and symmetric
+ * Notes: callers should avoid self-loops and duplicate edges; adjacency is
+ *        stored undirected and symmetric
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   Blossom bm;                       // pentagon 1-2-3-4-5-1 (odd cycle)
- *   bm.init(5);
- *   bm.add(1, 2), bm.add(2, 3), bm.add(3, 4), bm.add(4, 5), bm.add(5, 1);
- *   cout << bm.solve() << '\n';       // 2
- *   bm.init(4);                       // triangle + isolated vertex
- *   bm.add(1, 2), bm.add(2, 3), bm.add(3, 1);
- *   cout << bm.solve() << '\n';       // 1
- * }
  */

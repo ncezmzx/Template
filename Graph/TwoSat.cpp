@@ -64,44 +64,23 @@ struct two_sat {
 
 /*
  * ============================================================
- * ============================================================
  * Name: 2-SAT (implication graph + iterative Tarjan SCC, ACL twosat interface)
- * Complexity: O(n + m) (n variables, m clauses); fully iterative (deep graphs safe)
+ * Complexity: O(n + m) (n variables, m clauses); fully iterative, so deep
+ *             graphs are safe
  * Usage: satisfiability of boolean formulas whose clauses have at most two
- *        literals; decides and produces one assignment. Interface aligned
- *        with the AtCoder Library: add_clause(i, f, j, g) adds
- *        (xi==f) OR (xj==g) (0-indexed variables); satisfiable() decides;
- *        answer() returns the assignment; plus composite helpers add_if /
- *        add_not / add_xor / add_eq
- * Principle: literal u = 2i+f is a vertex; clause (a OR b) adds edges
- *        not-a -> b and not-b -> a; literals in one SCC share their truth
- *        value; i and not-i in one SCC = unsatisfiable; otherwise set each
- *        variable by the literal on the "closer to the source" side in
- *        topological order — Tarjan emits component ids in reverse
- *        topological order, hence ans[i] = (col[2i] > col[2i+1])
- * Notes: satisfiable() re-runs Tarjan internally (repeated calls agree);
- *        do not read answer() before satisfiable(); variables 0-indexed
+ *        literals; decides and produces one assignment. Interface aligned with
+ *        the AtCoder Library (0-indexed variables):
+ *        add_clause(i, f, j, g) adds (xi == f) OR (xj == g); satisfiable()
+ *        decides; answer() returns the assignment; helpers add_if / add_not /
+ *        add_xor / add_eq.
+ * Principle: literal u = 2i+f is a vertex and a clause (a OR b) adds the edges
+ *            not-a -> b and not-b -> a; literals in one SCC share their truth
+ *            value, and i together with not-i in one SCC means unsatisfiable;
+ *            otherwise Tarjan emits component ids in reverse topological order,
+ *            so ans[i] = (col[2i] > col[2i+1])
+ * Notes: do not read answer() before satisfiable(); satisfiable() re-runs
+ *        Tarjan internally and repeated calls agree
  * Source: modeled on AtCoder Library twosat.hpp (same interface, SCC via
  *         iterative Tarjan)
  * ============================================================
- * Example (uncomment to compile; Luogu P4782 style input):
-
- * signed main() {
- *   int n = 3, m = 3;                         // 3 variables, 3 clauses
- *   two_sat ts(n);
- *   ts.add_clause(0, true, 1, false);          // x0 ∨ ¬x1
- *   ts.add_clause(1, true, 2, true);           // x1 ∨ x2
- *   ts.add_clause(0, false, 2, false);         // ¬x0 ∨ ¬x2
- *   if (!ts.satisfiable()) cout << "NO\n";
- *   else {
- *     auto a = ts.answer();
- *     cout << "YES\n";                         // e.g. x0=0, x1=0, x2=1
- *     for (int i = 0; i < n; i++) cout << a[i] << " \n"[i == n - 1];
- *   }
- *   // composite clauses:
- *   two_sat t2(2);
- *   t2.add_if(0, true, 1, true);               // x0 -> x1
- *   t2.add_xor(0, true, 1, false);             // exactly one of x0, not-x1 (i.e. x0 == x1)
- *   cout << (t2.satisfiable() ? "SAT" : "UNSAT") << '\n';  // SAT (x0=x1=0 works)
- * }
  */

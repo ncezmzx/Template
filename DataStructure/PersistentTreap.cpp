@@ -97,30 +97,17 @@ struct persistent_treap {
 /*
  * ============================================================
  * Name: persistent balanced tree (fully persistent fhq-Treap)
- * Complexity: insert / erase O(log n) (path cloning); kth / rank / predecessor /
- *             successor O(log n)
- * Usage: ordered multiset keeping every historical version (classic: Luogu
- *        P3835), wrapped as persistent_treap<N>: insert(rt, x) / erase(rt, x)
- *        -> new root; kth(rt, k), rnk(rt, x), pre(rt, x), nxt(rt, x) are pure
- *        queries (allocate nothing); "rollback to version k" = use its root
- * Principle: split/merge are copy-on-write — every visited node is cloned
- *        first, so structures referenced by old roots are never mutated;
- *        random priorities keep balance
- * Notes: N ~ (n+m)*2log n (~4e6 for 1e5 ops); erase removes only one copy;
- *        kth returns LLONG_MIN out of range
+ * Complexity: insert / erase / kth / rank / predecessor / successor O(log n)
+ * Usage: `persistent_treap<N>`: ordered multiset keeping every historical
+ *        version.
+ *        insert(rt, x) / erase(rt, x) -> new root;
+ *        kth(rt, k), rnk(rt, x), pre(rt, x), nxt(rt, x) are pure queries
+ *        (allocate nothing); "rollback to version k" = use its root.
+ * Principle: split / merge are copy-on-write: every visited node is cloned
+ *            first, so structures referenced by old roots are never mutated;
+ *            random priorities keep balance
+ * Notes: N ~ (n + m) * 2 log n (~4e6 for 1e5 ops); erase removes only one copy;
+ *        kth returns LLONG_MIN when out of range
  * Source: OI-Wiki "Persistent balanced tree" (https://oi-wiki.org/ds/persistent-balanced/)
- * ============================================================
- * Example (uncomment to compile; maintain versions, query k-th smallest):
- * static persistent_treap<4000009> pt;
- * signed main() {
- *   vector<int> ver{0};  // ver[i] = version i (0 = empty tree)
- *   ver.push_back(pt.insert(ver[0], 2));
- *   ver.push_back(pt.insert(ver[1], 1));
- *   ver.push_back(pt.insert(ver[2], 2));  // multiset {1,2,2}
- *   cout << pt.kth(ver[3], 2) << '\n';    // 2
- *   cout << pt.rnk(ver[3], 2) << '\n';    // 1 (count of values < 2)
- *   cout << pt.kth(ver[1], 1) << '\n';    // 2 (historical versions stay usable)
- *   cout << pt.nxt(ver[3], 1) << '\n';    // 2
- * }
  * ============================================================
  */

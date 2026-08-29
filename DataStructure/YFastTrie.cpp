@@ -266,37 +266,22 @@ struct yfast {
 /*
  * ============================================================
  * Name: y-fast trie (x-fast trie + blocking); source: Luogu o99sh6m1 (sketch, self-implemented)
- * Complexity: find/predecessor/successor/max/min O(log omega) (omega = 64);
- *             insert/delete amortized O(log omega)
- * Principle:
- *   1) x-fast trie: a 64-bit prefix trie with one hash table per level
- *      (prefix -> node); nodes store subtree min/max; combined with an
- *      ordered doubly-linked list of representatives, a longest-prefix
- *      binary search + sibling-subtree extrema yields a key whose rank
- *      differs from x's by at most 1 (equivalent to the van Emde Boas-style
- *      iteration, O(log omega) hash lookups)
- *   2) y-fast trie: elements are grouped into blocks (sorted vector + binary
- *      search inside, target block size B = 64); an x-fast trie maintains
- *      the blocks' minima (representatives); a block exceeding 2B splits in
- *      two, a block below B/2 merges with a neighbor (amortized O(1))
- * Usage: dynamic set of 64-bit integers (find/pred/succ/min/max/insert/
- *        delete), smaller constants than std::set (O(log n) and cache-
- *        unfriendly); suited to very heavy workloads (~1e6 operations in OI)
- * Notes: 0 is reserved as "not stored" (predecessor/successor/max/min return
- *        0 when empty); tune the block threshold B per data scale (larger B =
- *        less blocking overhead, slower in-block binary search)
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   yfast st;
- *   for (yfast::u64 x : {5ull, 3ull, 9ull, 1ull, 7ull}) st.insert(x);
- *   cout << st.minimum() << ' ' << st.maximum() << '\n';       // 1 9
- *   cout << st.find(7) << ' ' << st.find(4) << '\n';           // 1 0
- *   cout << st.predecessor(6) << ' ' << st.successor(6) << '\n';  // 5 7
- *   st.erase(5);
- *   cout << st.predecessor(6) << ' ' << st.successor(4) << '\n';  // 3 7
- *   for (yfast::u64 x : {3ull, 1ull, 9ull, 7ull}) st.erase(x);
- *   cout << st.minimum() << '\n';                              // 0 (empty)
- * }
+ * Complexity: find / pred / succ / max / min O(log omega) (omega = 64); insert
+ *             / delete amortized O(log omega)
+ * Principle: x-fast trie: a 64-bit prefix trie with one hash table per level,
+ *            subtree min / max per node, plus a doubly-linked list of
+ *            representatives, so a longest-prefix binary search finds a key
+ *            whose rank differs from x's by at most 1.
+ *            y-fast trie: elements are grouped into blocks (sorted vector + in-
+ *            block binary search, target size B = 64) whose minima live in the
+ *            x-fast trie; a block above 2B splits, below B/2 merges (amortized
+ *            O(1)).
+ * Usage: dynamic set of 64-bit integers (find / pred / succ / min / max /
+ *        insert / delete);
+ *        lower constants than std::set (O(log n), cache-unfriendly) on very
+ *        heavy workloads (~1e6 operations).
+ * Notes: 0 is reserved as "not stored" (pred / succ / max / min return 0 when
+ *        empty); tune the block threshold B to the data scale (larger B = less
+ *        blocking overhead, slower in-block search)
  * ============================================================
  */

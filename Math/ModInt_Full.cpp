@@ -130,34 +130,20 @@ template <uint32_t m> struct modint {
 
 /*
  * ============================================================
- * ============================================================
  * Name: full modint (Montgomery reduction, fixed modulus)
- * Complexity: arithmetic O(1) (multiplication is Montgomery reduction, no
- *             division/modulo instructions); pow O(log b)
- * Usage: complete integer arithmetic modulo a prime: + - * / (modular
- *        inverse) % unary minus, increment/decrement, comparisons, stream
- *        IO, powers, inverses, modular square roots (Tonelli-Shanks)
- * Principle: values stored in Montgomery form (value * R mod m,
- *        R = 2^32); multiplication uses REDC (__int128 exact, no overflow);
- *        im = -m^{-1} mod 2^32 (compile-time Newton iteration),
- *        r2 = R^2 mod m
+ * Complexity: arithmetic O(1) (Montgomery multiplication, no division / modulo
+ *             instructions); pow O(log b)
+ * Usage: complete integer arithmetic modulo a fixed prime: + - * / %, unary
+ *        minus, increment / decrement, comparisons, stream IO, powers, inverses
+ *        and modular square roots (Tonelli-Shanks).
+ * Principle: values are stored in Montgomery form (value * R mod m with R =
+ *            2^32); multiplication uses REDC (__int128 exact, no overflow),
+ *            with im = -m^{-1} mod 2^32 from a compile-time Newton iteration
+ *            and r2 = R^2 mod m
  * Notes: MOD must be an odd prime (inv via Fermat, sqrt via Tonelli-Shanks);
- *        inv(0) = 0, dividing by zero is undefined; operator% has integer
- *        semantics (modulo val()); compared with the Barrett version
- *        (DynamicModInt.cpp): this fixed-modulus version is faster (no
- *        runtime reduction object)
- * ============================================================
- * Example (uncomment to compile):
-
- * using mint = modint<998244353>;
- * signed main() {
- *   mint a, b;
- *   cin >> a >> b;
- *   cout << a + b << ' ' << a * b << ' ' << a / b << ' ' << a.pow(10) << '\n';
- *   cout << a.inv() * a << '\n';          // 1
- *   cout << mint(2).sqrt() << '\n';       // sqrt(2) modulo 998244353
- *   mint x = 5;
- *   cout << ++x << ' ' << x-- << '\n';    // 6 6
- * }
+ *        inv(0) = 0 and dividing by zero is undefined; operator% has integer
+ *        semantics (modulo val());
+ *        compared with the Barrett version DynamicModInt.cpp, this fixed-
+ *        modulus one is faster because there is no runtime reduction object
  * ============================================================
  */

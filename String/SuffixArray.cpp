@@ -50,33 +50,15 @@ struct suffix_array {
  * ============================================================
  * Name: suffix array SA (doubling + radix sort) with the height array
  * Complexity: O(n log n) to build SA, O(n) for height
- * Usage: suffix sorting, LCP queries, distinct-substring counting, substring
- *        occurrence statistics. Wrapped as suffix_array<N>: fill sa.n and
- *        sa.a[1..n], then build() (doubling + radix sort) and
- *        build_height(); results in sa.sa / sa.rk / sa.h.
- *        Note: a[1..n] must be integers >= 1 (map strings through a
- *        compression first); the first bucsort has bucket cap n, so initial
- *        values must be <= n; sentinel a[n+1] = 0 (global arrays default to
- *        0; the height loop relies on it to stop comparing).
+ * Usage: suffix sorting, LCP queries, distinct-substring counting and substring
+ *        occurrence statistics, `suffix_array<N>`:
+ *        fill sa.n and sa.a[1..n], then build() (doubling + radix sort) and
+ *        build_height(); the results land in sa.sa / sa.rk / sa.h.
  * Source: all.cpp lines 27981-28028 (wrapped into a struct, logic unchanged)
+ * Notes: a[1..n] must be integers >= 1 (map strings through a compression
+ *        first); the first bucsort has bucket cap n, so initial values must be
+ *        <= n;
+ *        the sentinel a[n+1] = 0 comes from global arrays defaulting to 0, and
+ *        the height loop relies on it to stop comparing
  * ============================================================
- * Example (uncomment to compile; map the string to an integer sequence):
- * static suffix_array<200> sfx;
- * signed main() {
- *   string str = "banana";
- *   int n = str.size();
- *   sfx.n = n;
- *   // map chars to integers >= 1; first bucsort has bucket cap n, so compress:
- *   vector<int> val(256, 0);
- *   for (int i = 0; i < n; ++i) val[str[i]] = 1;
- *   int tot = 0;
- *   for (int c = 0; c < 256; ++c) if (val[c]) val[c] = ++tot;
- *   for (int i = 1; i <= n; ++i) sfx.a[i] = val[str[i - 1]];
- *   sfx.a[n + 1] = 0;                  // sentinel (0 by default, written explicitly for safety)
- *   sfx.build();
- *   sfx.build_height();
- *   for (int i = 1; i <= n; ++i)
- *     cout << sfx.sa[i] << ' ' << sfx.h[i] << ' ' << str.substr(sfx.sa[i] - 1) << '\n';
- *   // distinct substring count = n * (n + 1) / 2 - sum(h[2..n])
- * }
  */

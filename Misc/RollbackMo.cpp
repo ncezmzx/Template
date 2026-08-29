@@ -78,27 +78,20 @@ vector<int> rollback_mo(int n, const vector<int>& val, const vector<array<int, 2
  * ============================================================
  * Name: rollback Mo (deletion-free Mo)
  * Complexity: O(n sqrt q + q sqrt n) (block size n / sqrt q)
- * Usage: offline range queries for statistics that are O(1) to add but hard
- *        or impossible to remove in O(1): the example is the maximum
- *        distance between equal values in range (Luogu P5906); the same
- *        scheme does range-mode counts, etc.
+ * Usage: offline range queries for statistics that are O(1) to add but hard or
+ *        impossible to remove in O(1): the example is the maximum distance
+ *        between equal values in range (Luogu P5906);
+ *        the same scheme does range-mode counts. rollback_mo(n, val[1..n], {{l,
+ *        r}, ...}) returns the per-query farthest equal-value distance.
  * Interface: rollback_mo(n, val[1..n], {{l, r}, ...}) -> per-query farthest equal-value distance
  * Principle: group by l's block; inside a block the right pointer only moves
- *        right (additions kept permanently); per query the left pointer
- *        extends temporarily leftward from the block's right end and rolls
- *        back in reverse after answering — no deletion ever needed
+ *            right (additions are kept permanently); per query the left pointer
+ *            extends temporarily leftward from the block's right end and rolls
+ *            back in reverse after answering, so no deletion is ever needed
  * Notes: r increases monotonically within a block, so odd/even ordering does
  *        not apply; values are compressed automatically; empty windows return
- *        0; left additions only touch first[] (reverse-order rollback keeps
- *        it correct)
+ *        0; left additions only touch first[], and reverse-order rollback keeps
+ *        it correct
  * Source: OI-Wiki "Rollback Mo" (https://oi-wiki.org/misc/rollback-mo/)
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   vector<int> val{0, 1, 2, 1, 3, 2};  // n = 5: {1,2,1,3,2}
- *   auto r = rollback_mo(5, val, {{1, 3}, {2, 5}, {1, 5}});
- *   for (int x : r) cout << x << ' ';  // 2 (the 1s, distance 2) 3 (the 2s, distance 3) 3
- *   cout << '\n';
- * }
  * ============================================================
  */

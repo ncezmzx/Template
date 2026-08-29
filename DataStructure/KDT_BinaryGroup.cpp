@@ -75,58 +75,17 @@ struct kdtree {
 /*
  * ============================================================
  * Name: K-D Tree (2D, rectangle weight-sum query + nearest-point query)
- * Complexity: build O(n log n) (nth_element splits, alternating dimension per
- *             level); rect_query / nearest expected O(sqrt n) on typical OI
- *             data (adversarial data worst-case O(n))
- * Usage: 2D weighted point set: rectangle-sum queries and nearest-point
- *        distance (squared Euclidean), wrapped as kdtree<N>; combine with
- *        binary grouping for dynamic inserts (sketch below)
- * Principle: median split with alternating dimensions (dim = level parity);
- *        nodes keep a bounding box (mnx/mny/mxx/mxy) and subtree weight sum;
- *        rectangle query prunes by box intersection and returns the subtree
- *        sum on full containment; nearest searches the closer box first
- * Notes: put points in p[1..n] before build(1, n) (and clear tot);
- *        nearest includes the query point itself (returns 0 when it is in the
- *        set); special-case if you need to exclude it
- * ============================================================
- * Example (uncomment to compile; rectangle weight sums):
- * static kdtree<100009> kd;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> kd.p[i].x >> kd.p[i].y >> kd.p[i].w;
- *   int root = kd.build(1, n);
- *   int q;
- *   cin >> q;
- *   while (q--) {
- *     int x1, y1, x2, y2;
- *     cin >> x1 >> y1 >> x2 >> y2;
- *     cout << kd.rect_query(root, x1, y1, x2, y2) << '\n';
- *   }
- * }
- * // binary-grouping dynamic inserts (amortized O(log n * sqrt n)):
- * // struct dyn_kdt {
- * //   vector<vector<kdtree<100009>::pt>> g;
- * //   vector<int> rt;
- * //   kdtree<100009> kd;
- * //   void insert(kdtree<100009>::pt q) {
- * //     vector<kdtree<100009>::pt> v{q};
- * //     int i = 0;
- * //     while (i < (int)g.size() && !g[i].empty()) {
- * //       v.insert(v.end(), g[i].begin(), g[i].end());
- * //       g[i].clear(), rt[i] = 0;
- * //       ++i;
- * //     }
- * //     if (i == (int)g.size()) g.resize(i + 1), rt.resize(i + 1);
- * //     g[i] = v, kd.tot = 0;
- * //     for (int j = 0; j < (int)v.size(); ++j) kd.p[j + 1] = v[j];
- * //     rt[i] = kd.build(1, (int)v.size());
- * //   }
- * //   int rect(int x1, int y1, int x2, int y2) {
- * //     int s = 0;
- * //     for (int i = 0; i < (int)rt.size(); ++i) s += kd.rect_query(rt[i], x1, y1, x2, y2);
- * //     return s;
- * //   }
- * // };
+ * Complexity: build O(n log n); rect_query / nearest expected O(sqrt n) on
+ *             typical data (adversarial worst case O(n))
+ * Usage: static 2D weighted point set, `kdtree<N>`: fill p[1..n], then build(1,
+ *        n).
+ *        rect_query = rectangle weight sum; nearest = squared Euclidean nearest
+ *        distance.
+ *        Combine with binary grouping for dynamic inserts.
+ * Principle: median split with the dimension alternating per level; nodes keep
+ *            a bounding box and subtree weight sum; prune by box, take the sum
+ *            on full containment, nearest searches the closer box first
+ * Notes: clear tot before build(1, n); nearest includes the query point itself
+ *        (returns 0 if it is in the set)
  * ============================================================
  */

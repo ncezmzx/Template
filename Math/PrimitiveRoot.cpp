@@ -45,23 +45,16 @@ vector<int> primitive_roots(int p) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: primitive roots (smallest / all)
- * Complexity: trial-division factorization of p-1 is O(sqrt p); enumeration O(sqrt p + omega(p)*log p)
- * Usage: min_primitive_root(p) = smallest primitive root g of the prime p;
- *        primitive_roots(p) lists all phi(p-1) of them; typical uses: the
- *        NTT modulus generator g, discrete logarithms (indices), etc.
- * Principle: g is a primitive root mod p iff its order is p-1, iff for every
- *        prime factor q of p-1, g^{(p-1)/q} != 1 (mod p); the smallest
- *        primitive root is usually tiny (< ~300)
- * Notes: p must be prime (p = 2 returns 1); p-1 is factored by trial
- *        division, fine up to p <= 1e12
+ * Complexity: trial-division factorization of p-1 is O(sqrt p); enumeration
+ *             O(sqrt p + omega(p) log p)
+ * Usage: min_primitive_root(p) is the smallest primitive root g of the prime p;
+ *        primitive_roots(p) lists all phi(p-1) of them; typical uses are the
+ *        NTT modulus generator g and discrete logarithms (indices).
+ * Principle: g is a primitive root mod p iff its order is p-1, i.e. iff
+ *            g^{(p-1)/q} != 1 (mod p) for every prime factor q of p-1; the
+ *            smallest primitive root is usually tiny (< ~300)
+ * Notes: p must be prime (p = 2 returns 1); p-1 is factored by trial division,
+ *        which is fine up to p <= 1e12
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   cout << min_primitive_root(998244353) << '\n';  // 3
- *   cout << min_primitive_root(7) << '\n';          // 3 (5 is the other primitive root)
- *   cout << primitive_roots(7).size() << '\n';      // 2 (3 and 5)
- * }
  */

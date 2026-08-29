@@ -52,32 +52,20 @@ struct dominator_tree {
 /*
  * ============================================================
  * Name: dominator tree (Lengauer-Tarjan algorithm)
- * Complexity: O((n + m) log n) (DSU find with path compression), effectively O((n+m) alpha)
- * Usage: given a directed graph and a source s, wrapped as dominator_tree<N>:
- *        g/rg hold the forward/reverse adjacency, build(n, s), then idom[x]
- *        is the immediate dominator of x — every s->x path passes through
- *        idom[x]; the idom edges form the dominator tree (the dominators of x
- *        are its ancestors). Applications: mandatory vertices/edges, control
- *        flow graphs, connectivity after vertex deletion
- * Principle: DFS the graph for dfn/fa; compute semidominators sdom in reverse
- *        dfn order (a path-compressing DSU keeps the current best sdom
- *        candidate), then refine them into idom
- * Notes: only vertices reachable from s are handled (dfn != 0); unreachable
- *        vertices stay outside the tree; idom[s] = 0 (the source has no
- *        dominator); multi-edges/self-loops are harmless; clear g/rg between
- *        test cases
- * ============================================================
- * Example (uncomment to compile; prints every vertex's immediate dominator):
- * static dominator_tree<200009> dt;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1, u, v; i <= m; ++i) {
- *     cin >> u >> v;
- *     dt.g[u].push_back(v), dt.rg[v].push_back(u);
- *   }
- *   dt.build(n, 1);
- *   for (int i = 1; i <= n; ++i) cout << dt.idom[i] << " \n"[i == n];
- * }
+ * Complexity: O((n + m) log n) (DSU find with path compression), effectively
+ *             O((n + m) alpha)
+ * Usage: dominators of a directed graph from a source s, `dominator_tree<N>`: g
+ *        / rg hold the forward / reverse adjacency; build(n, s);
+ *        then idom[x] is the immediate dominator of x (every s->x path passes
+ *        through it) and the dominators of x are its ancestors in the idom
+ *        tree.
+ *        Applications: mandatory vertices / edges, control flow graphs,
+ *        connectivity after vertex deletion.
+ * Principle: DFS for dfn / fa; compute semidominators sdom in reverse dfn order
+ *            (a path-compressing DSU keeps the current best candidate), then
+ *            refine them into idom
+ * Notes: only vertices reachable from s are handled (dfn != 0), so unreachable
+ *        vertices stay outside the tree; idom[s] = 0; multi-edges / self-loops
+ *        are harmless; clear g / rg between test cases
  * ============================================================
  */

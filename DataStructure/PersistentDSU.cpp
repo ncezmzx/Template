@@ -62,29 +62,17 @@ struct persistent_dsu {
 /*
  * ============================================================
  * Name: persistent DSU
- * Complexity: one merge / query O(log^2 n) (find does O(log n) point queries, each O(log n))
- * Usage: DSU with "go back to a historical version", wrapped as
- *        persistent_dsu<N, MV>: init(n); merge(ver, x, y) -> new version id;
- *        same(ver, x, y); find(ver, x); "rollback to version k" = set ver = k;
- *        classic: Luogu P3402 (1 merge / 2 rollback to k / 3 query)
- * Principle: two persistent segment trees persist fa[] and siz[]; a version is
- *        the pair of roots. Union by size keeps tree height O(log n) so find
- *        may recurse; **path compression is impossible** (it would corrupt
- *        structures shared with old versions)
- * Notes: vertices 1..n; N ~ 4n + 36m (n, m ~ 1e5 -> N = 4e6; P3402 with
- *        n, m = 2e5 needs N ~ 8e6); indices stored in 32-bit int to save memory
+ * Complexity: one merge / query O(log^2 n)
+ * Usage: DSU with historical versions, `persistent_dsu<N, MV>`: init(n);
+ *        merge(ver, x, y) -> new version id;
+ *        same(ver, x, y); find(ver, x); "rollback to version k" = set ver = k.
+ * Principle: persistent segment trees persist fa[] and siz[]; a version is the
+ *            pair of roots; union by size keeps the height O(log n) so find may
+ *            recurse
+ * Notes: vertices 1..n; N ~ 4n + 36m (n, m = 2e5 -> N ~ 8e6); indices stored as
+ *        32-bit int to save memory;
+ *        path compression is impossible — it would corrupt structures shared
+ *        with old versions
  * Source: OI-Wiki "Persistent DSU" (https://oi-wiki.org/ds/persistent-in-dsu/)
- * ============================================================
- * Example (uncomment to compile; Luogu P3402 style):
- * static persistent_dsu<4000009, 200009> pdsu;
- * signed main() {
- *   pdsu.init(3);
- *   int ver = pdsu.merge(0, 1, 2);           // version 1: union(1, 2)
- *   cout << pdsu.same(ver, 1, 2) << '\n';    // 1
- *   ver = pdsu.merge(ver, 2, 3);             // version 2: union(2, 3)
- *   cout << pdsu.same(ver, 1, 3) << '\n';    // 1
- *   ver = 1;                                 // rollback to version 1
- *   cout << pdsu.same(ver, 1, 3) << '\n';    // 0
- * }
  * ============================================================
  */

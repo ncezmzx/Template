@@ -676,12 +676,11 @@ public:
 
 /*
  * ============================================================
- * ============================================================
  * Name: fstdlib polynomial library (poly: fixed-modulus NTT; m_poly: arbitrary-modulus MTT)
- * Complexity: multiply / inv / log / exp all O(n log n) (NTT or 3-mod/complex MTT)
- * Usage: use poly over 998244353; use m_poly for arbitrary moduli (incl. 1e9+7);
- *        supports + - * / scalars, inv, log, exp, sqrt (modulo_sqrt in sqrt
- *        is a placeholder returning 1 — implement quadratic residues first)
+ * Complexity: multiply / inv / log / exp all O(n log n) (NTT, or 3-mod /
+ *             complex MTT)
+ * Usage: use poly over 998244353, and m_poly for arbitrary moduli (including
+ *        1e9+7); both support + - * with scalars, inv, log, exp and sqrt.
  * Comparison: against NTT.cpp (Barrett butterflies + precomputed roots +
  *        linear inverse table): this library is more feature-complete
  *        (arbitrary-modulus MTT, two types) but slower for the fixed modulus
@@ -690,20 +689,8 @@ public:
  *        moduli / quick integration
  * Source: fstdlib (feist), included verbatim; compiles under C++14 (has its
  *         own C++11 gate); MTT precision is good up to ~n <= 1e5 (author's note)
- * ============================================================
- * Example (uncomment to compile):
-
- * #include <iostream>
- * signed main() {
- *   fstdlib::poly a{std::vector<int>{1, 2, 3}}, b{std::vector<int>{4, 5}};
- *   fstdlib::poly c = a * b;                       // fixed modulus 998244353
- *   for (int i = 0; i < c.size(); ++i) std::cout << c[i] << " \n"[i + 1 == c.size()];
- *   fstdlib::m_poly x{std::vector<int>{1, 1}, 1000000007};
- *   fstdlib::m_poly y = x * x;                     // arbitrary-modulus MTT
- *   for (int i = 0; i < y.size(); ++i) std::cout << y[i] << " \n"[i + 1 == y.size()];
- *   // exp / log：
- *   fstdlib::poly e{std::vector<int>{0, 1, 2}};    // exp(x + 2x^2)
- *   fstdlib::poly r = fstdlib::exp(e);
- * }
+ * Notes: sqrt's modulo_sqrt is a placeholder returning 1, so implement
+ *        quadratic residues first; MTT precision is good up to ~n <= 1e5
+ *        (author's note); compiles under C++14
  * ============================================================
  */

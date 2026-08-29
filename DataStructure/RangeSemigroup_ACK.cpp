@@ -82,37 +82,22 @@ class uttree {
 /*
  * ============================================================
  * Name: static range semigroup queries (Ackermann-function blocking + jump table, uttree)
- * Complexity: preprocessing O(n); O(alpha(n)) per query (alpha = inverse
- *             Ackermann, <= 4 in practice)
- * Usage: associative range queries on a static array (op associative: sum/
- *        max/gcd/xor, ...), answered online; preprocessing O(n) beats the ST
- *        table O(n log n) and the cat tree O(n log n); queries O(alpha(n)),
- *        essentially O(1)
- * Principle: the bottom layer blocks by B = 2(A+1) = 8 with prefix/suffix
- *        sums; a zkw segment tree spans the blocks; a jump table over
- *        "heights" uses Ackermann recurrences (ACK_PRECALCER preprocesses at
- *        compile time, computing only c = 1 Ackermann values and capping the
- *        top); queries greedily split the prefix by pth and assemble the
- *        range answer (essentially doubling accelerated by inverse Ackermann)
+ * Complexity: preprocessing O(n); query O(alpha(n)) (inverse Ackermann, <= 4 in
+ *             practice)
+ * Usage: associative range queries on a static array (sum / max / gcd / xor,
+ *        ...), answered online;
+ *        O(n) preprocessing beats sparse table / cat tree O(n log n), queries
+ *        are essentially O(1).
+ * Principle: bottom-layer blocking at B = 2(A+1) = 8 with prefix / suffix sums,
+ *            a zkw segment tree over the blocks, and a jump table over
+ *            Ackermann heights (ACK_PRECALCER precomputes at compile time)
  * Source: Luogu article "Segment trees, Ackermann, blocking"
  *         (Luogu blog 2: segment trees, Ackermann, blocking); rewritten for C++14
  *         (span/requires/auto template params -> arrays + function pointers)
- * Notes: compiles under C++14+ (__lg/__int128 are GNU extensions, fine on
- *        g++); op/e enter the template as plain function pointers; indices
- *        are 0-indexed and query(l, r) is the HALF-OPEN range [l, r) (the
- *        right end excluded, matching the article's code) — for the closed
- *        range [l, r] call query(l, r + 1); static queries only (no updates
- *        after build)
- * ============================================================
- * Example (uncomment to compile; range sums):
- * long long op(long long a, long long b) { return a + b; }
- * long long e() { return 0; }
- * signed main() {
- *   uttree<long long, op, e> st;
- *   st.build({1, 3, 5, 2, 4, 6});
- *   cout << st.query(1, 3) << '\n';  // [1,3) = 3+5 = 8
- *   cout << st.query(0, 6) << '\n';  // [0,6) = 21
- *   cout << st.query(2, 3) << '\n';  // 5
- * }
+ * Notes: 0-indexed HALF-OPEN ranges: query(l, r) covers [l, r), so for the
+ *        closed range [l, r] call query(l, r + 1);
+ *        static only (no updates after build); op / e are plain function
+ *        pointer template parameters; C++14+ (__lg / __int128 are GNU
+ *        extensions)
  * ============================================================
  */

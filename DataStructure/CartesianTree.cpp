@@ -24,43 +24,20 @@ struct cartesian_tree {
 /*
  * ============================================================
  * Name: Cartesian tree (min-heap ordered, monotonic stack build in O(n))
- * Complexity: O(n)
- * Usage: given a sequence a[1..n], build the binary tree satisfying, wrapped
- *        as cartesian_tree<N> (fill a[1..n], build(n); the tree lives in
- *        lc / rc / fa):
- *        1) in-order traversal = the original sequence (positions as keys);
- *        2) heap property: parent value < child values (min-heap; flip the
- *           comparison for max-heap).
- *        Classic applications:
- *        - RMQ: the minimum over [l, r] is the value at lca(l, r)
- *          (preprocess LCA on the Cartesian tree);
- *        - largest rectangle in a histogram / maximal submatrix: the subtree
- *          interval rooted at x is the longest interval where a[x] is the
- *          minimum; its length is sz[x] (computable), area = a[x] * sz[x];
- *        - relation to Treap: a Treap with fixed keys (positions) and
- *          priorities (values) is a Cartesian tree
- * Principle: a monotonic stack maintains the current rightmost chain; each
- *        new element pops larger stack tops, the popped chain becomes its
- *        left subtree, and it attaches to the right of the new stack top
- * Notes: equal values need a tiebreak (e.g. position order) to avoid
- *        ambiguity; after the build the root is the node with fa = 0 (the
- *        stack bottom); null nodes have lc/rc/fa = 0
- * ============================================================
- * Example (uncomment to compile; longest interval where each position is the minimum):
- * static cartesian_tree<100009> ct;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> ct.a[i];
- *   ct.build(n);
- *   vector<int> sz(n + 1, 1);
- *   function<void(int)> dfs = [&](int x) {
- *     if (ct.lc[x]) dfs(ct.lc[x]), sz[x] += sz[ct.lc[x]];
- *     if (ct.rc[x]) dfs(ct.rc[x]), sz[x] += sz[ct.rc[x]];
- *   };
- *   for (int x = 1; x <= n; ++x)
- *     if (!ct.fa[x]) { dfs(x); break; }
- *   for (int i = 1; i <= n; ++i) cout << ct.a[i] * sz[i] << ' ';
- * }
+ * Complexity: build O(n)
+ * Usage: `cartesian_tree<N>`: fill a[1..n], build(n); the tree lives in lc / rc
+ *        / fa.
+ *        in-order = the original sequence; min-heap on values (flip the
+ *        comparison for max-heap).
+ *        RMQ: min over [l, r] = a[lca(l, r)] (preprocess LCA on this tree).
+ *        largest rectangle: the subtree interval of x is the longest interval
+ *        where a[x] is the minimum, area = a[x] * sz[x].
+ *        a Treap with fixed keys (positions) and priorities (values) is exactly
+ *        a Cartesian tree.
+ * Principle: monotonic stack: each new element pops larger stack tops, the
+ *            popped chain becomes its left subtree, and it attaches right of
+ *            the new top
+ * Notes: equal values need a tiebreak (e.g. position order); the root is the
+ *        node with fa = 0; null nodes are 0
  * ============================================================
  */

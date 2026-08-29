@@ -47,35 +47,19 @@ pair<int, int> crt(vector<int> r, vector<int> m) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Chinese Remainder Theorem (merges non-coprime moduli, aligned with ACL crt)
- * Complexity: one merge O(log) (exgcd), total O(k log M) for k congruences
- * Usage: solve the system x = r[i] (mod m[i]) (moduli need not be coprime):
- *        returns {r, m}, the unique solution x = r (mod lcm(m)), 0 <= r < lcm;
- *        {0, 0} when unsolvable; i.e. a vectorized exCRT
- * Principle: merge (r0, m0) with (r1, m1) one by one: with g = gcd(m0, m1),
- *        (r1-r0) must be divisible by g, otherwise unsolvable; else
- *        t = (r1-r0)/g * inv(m0/g) (mod m1/g), new solution r0 += t*m0,
- *        new modulus lcm = m0*m1/g (nothing overflows long long)
+ * Complexity: one merge O(log) (exgcd); O(k log M) for k congruences
+ * Usage: solve x = r[i] (mod m[i]) with moduli that need not be coprime:
+ *        crt(r[], m[]) (equal-length arrays) returns {r, m},
+ *        the unique solution x = r (mod lcm(m)) with 0 <= r < lcm, or {0, 0}
+ *        when unsolvable — a vectorized exCRT. exgcd / inv_gcd are reusable.
+ * Principle: merge (r0, m0) with (r1, m1) one by one: with g = gcd(m0, m1), (r1
+ *            - r0) must be divisible by g, otherwise unsolvable; else t =
+ *            (r1-r0)/g * inv(m0/g) (mod m1/g), the new solution is r0 + t*m0
+ *            and the new modulus is lcm = m0*m1/g
  * Interface: crt(r[], m[]) (equal-length arrays); exgcd / inv_gcd are reusable
  * Source: ported from AtCoder Library math.hpp crt (same algorithm)
- * Notes: requires 1 <= m[i]; r[i] may be negative (safe_mod internally);
- *        the lcm must fit in long long (same constraint as ACL)
+ * Notes: requires 1 <= m[i]; r[i] may be negative (safe_mod internally); the
+ *        lcm must fit in long long (same constraint as ACL)
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   // classic: x%3==2, x%5==3, x%7==2 -> x = 23 (mod 105)
- *   auto res = crt({2, 3, 2}, {3, 5, 7});
- *   cout << res.first << ' ' << res.second << '\n';   // 23 105
- *   // non-coprime, solvable: x = 3 (mod 4), x = 5 (mod 6) -> x = 11 (mod 12)
- *   auto sol = crt({3, 5}, {4, 6});
- *   cout << sol.first << ' ' << sol.second << '\n';   // 11 12
- *   // non-coprime, unsolvable: x = 1 (mod 4) vs x = 2 (mod 6), parity conflict
- *   auto bad = crt({1, 2}, {4, 6});
- *   cout << bad.first << ' ' << bad.second << '\n';   // 0 0
- *   // non-coprime, solvable: x = 2 (mod 4), x = 4 (mod 10) -> x = 14 (mod 20)
- *   auto ok = crt({2, 4}, {4, 10});
- *   cout << ok.first << ' ' << ok.second << '\n';     // 14 20
- * }
  */

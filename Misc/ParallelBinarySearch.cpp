@@ -60,26 +60,22 @@ vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>
  * ============================================================
  * Name: parallel binary search
  * Complexity: O((n + q) log^2 n)
- * Usage: problems with many queries whose answers are monotone/bisectable and
- *        offline-able: binary-search all answers together. The classic is the
- *        static range k-th smallest (replacing tree-of-trees / persistent
- *        segment trees); also "k-th smallest with updates", "2D k-th
- *        smallest", etc. (treat updates as events too)
+ * Usage: problems with many queries whose answers are monotone / bisectable and
+ *        offline-able, so all answers are binary-searched together; the classic
+ *        is the static range k-th smallest
+ *        (replacing tree-of-trees / persistent segment trees), also k-th
+ *        smallest with updates and 2D k-th smallest (treat updates as events
+ *        too).
+ *        parallel_kth(n, a[1..n], {{l, r, k}, ...}) returns the k-th smallest
+ *        per query.
  * Interface: parallel_kth(n, a[1..n], {{l, r, k}, ...}) -> k-th smallest per query
  * Principle: recurse over the answer value domain [L, R]; each level inserts
- *        positions with values <= mid into a BIT; per query count c values
- *        <= mid inside [l, r]: c >= k goes left, otherwise k -= c goes right;
- *        roll back this level's BIT before recursing right
- * Notes: values must be compressible; k must be valid (1 <= k <= r-l+1);
- *        reset the BIT between test cases
+ *            the positions with values <= mid into a BIT, and per query the
+ *            count c of values <= mid inside [l, r] decides: c >= k goes left,
+ *            otherwise k -= c goes right; roll back this level's BIT before
+ *            recursing right
+ * Notes: values must be compressible; k must be valid (1 <= k <= r-l+1); reset
+ *        the BIT between test cases
  * Source: OI-Wiki "Parallel binary search" (https://oi-wiki.org/misc/parallel-binsearch/)
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   vector<int> a{0, 1, 5, 2, 4, 3};  // n = 5: {1,5,2,4,3}
- *   auto r = parallel_kth(5, a, {{2, 4, 2}, {1, 5, 1}, {1, 5, 5}});
- *   for (int x : r) cout << x << ' ';  // 4 1 5
- *   cout << '\n';
- * }
  * ============================================================
  */

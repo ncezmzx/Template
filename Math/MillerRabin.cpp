@@ -31,23 +31,10 @@ bool MillerRabin(int n) {
 }
 /*
  * ============================================================
- * ============================================================
  * Name: Miller-Rabin primality test (deterministic bases)
  * Complexity: O(k log^3 n), k = 7 bases
  * Usage: deterministic primality for the full int64 range; typically paired
  *        with Pollard-Rho for factorization.
  * Source: all.cpp lines 33194-33223 (kept verbatim)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   int tt;
- *   cin >> tt;
- *   while (tt--) {
- *     int n;
- *     cin >> n;
- *     cout << (MillerRabin(n) ? "Yes\n" : "No\n");
- *   }
- * }
  * ============================================================
  */

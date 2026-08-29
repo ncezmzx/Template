@@ -69,30 +69,20 @@ int count_arborescence(int n, const vector<pair<int, int>>& edges, int root) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Matrix-Tree theorem (spanning tree counting)
  * Complexity: O(n^3) (determinant elimination)
  * Usage: count_spanning(n, edges): spanning trees of an undirected graph
- *        (multi-edges allowed); count_arborescence(n, edges, root):
- *        out-arborescences rooted at root of a directed graph (for
- *        in-arborescences reverse all edges); both modulo 998244353
+ *        (multi-edges allowed);
+ *        count_arborescence(n, edges, root): out-arborescences rooted at root
+ *        of a directed graph (reverse all edges for in-arborescences); both
+ *        modulo 998244353.
  * Principle: undirected: the determinant of the Laplacian L = D - A with any
- *        one row and column removed = number of spanning trees (Kirchhoff);
- *        directed out-arborescences: the in-degree Laplacian (L[v][v] =
- *        indeg(v), edge u->v contributes L[v][u] -= 1) with root's row and
- *        column removed
- * Notes: self-loops are ignored; the modulus is fixed at 998244353 (change
- *        MOD and the inverse to switch); counting trees with exactly k
- *        special edges is a different problem (see KruskalWQS / polynomial
- *        Laplacians)
+ *            one row and column removed (Kirchhoff);
+ *            directed out-arborescences: the in-degree Laplacian (L[v][v] =
+ *            indeg(v), an edge u->v contributes L[v][u] -= 1) with the root's
+ *            row and column removed
+ * Notes: self-loops are ignored; the modulus is fixed at 998244353 (change MOD
+ *        and the inverse to switch); counting trees with exactly k special
+ *        edges is a different problem (see KruskalWQS / polynomial Laplacians)
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   // triangle 0-1-2 plus one parallel 0-1 edge: 5 spanning trees in total
- *   vector<pair<int,int>> es{{0, 1}, {1, 2}, {2, 0}, {0, 1}};
- *   cout << count_spanning(3, es) << '\n';   // 5（Laplacian [[3,-2],[-2,3]] det = 5）
- *   vector<pair<int,int>> es2{{0, 1}, {0, 2}, {1, 2}};
- *   cout << count_arborescence(3, es2, 0) << '\n';  // 2 ({0->1,0->2} and {0->1,1->2})
- * }
  */

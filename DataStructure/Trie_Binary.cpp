@@ -48,26 +48,16 @@ struct persistent_binary_trie {
 /*
  * ============================================================
  * Name: persistent 01-Trie (xor extrema / rank over a version range)
- * Complexity: insert O(B); qmax / count_le O(B); space O(nB)
- * Usage: maintain a version history of a multiset, query by "insertions l..r",
- *        wrapped as persistent_binary_trie<N, SP>: max range xor (prefix xor +
- *        qmax), count of values <= x in range, etc.; init(); insert(x) appends
- *        a version; qmax(l, r, x) (max x^y); count_le(l, r, x)
- * Principle: each version clones the insertion path (B+1 new nodes), sharing
- *        the rest; version r minus l-1 gives the set of insertions l..r;
- *        qmax greedily follows the non-empty branch opposite to x's bit
- * Notes: B must cover the highest bit (values < 2^B); qmax range non-empty;
- *        complements the persistent segment tree: no compression needed when
- *        the domain is a power of two
+ * Complexity: insert / qmax / count_le O(B); space O(nB)
+ * Usage: `persistent_binary_trie<N, SP>`: persistent 01-Trie over a multiset's
+ *        insertion history.
+ *        init(); insert(x) appends a version; qmax(l, r, x) max of x ^ y over
+ *        insertions l..r; count_le(l, r, x) count of values <= x.
+ * Principle: each version clones the insertion path (B + 1 new nodes) and
+ *            shares the rest; version r minus l-1 is the set of insertions
+ *            l..r; qmax greedily follows the non-empty branch opposite to x's
+ *            bit
+ * Notes: B must cover the highest bit (values < 2^B); the qmax range must be
+ *        non-empty; no compression needed when the domain is a power of two
  * ============================================================
- * Example (uncomment to compile):
- * static persistent_binary_trie<200009, 5200009> pbt;
- * signed main() {
- *   pbt.init();
- *   pbt.insert(5), pbt.insert(2), pbt.insert(8), pbt.insert(6);  // versions 1..4
- *   cout << pbt.qmax(2, 4, 9) << '\n';    // 15 (9^6 = 15, set {2,8,6})
- *   cout << pbt.qmax(1, 2, 1) << '\n';    // 4 (in {5,2}, 1^5=4 is maximal)
- *   cout << pbt.count_le(2, 4, 6) << '\n';  // 2 (values <= 6 in {2,8,6})
- *   cout << pbt.count_le(1, 4, 7) << '\n';  // 3 (values <= 7 in {5,2,8,6})
- * }
  */

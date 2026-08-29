@@ -50,25 +50,15 @@ struct persistent_segtree {
  * ============================================================
  * Name: persistent segment tree (static range k-th smallest)
  * Complexity: build O(n log n); query O(log n); space O(n log V)
- * Usage: online range k-th smallest / range rank / count of values <= x on a
- *        static array, wrapped as persistent_segtree<N, SP>:
+ * Usage: `persistent_segtree<N, SP>`: static range k-th smallest / rank / count
+ *        of values <= x.
  *        init(a) (a[0] placeholder, a[1..n] data, compressed internally);
- *        query_kth(l, r, k) k-th smallest (original value);
- *        query_le(l, r, x) count of values <= x
- * Principle: the value-domain tree is versioned by prefix — rt[i] adds a[i]
- *        on top of rt[i-1] (path cloning, everything else shared); subtracting
- *        two versions gives any range's value distribution, then descend
- * Notes: SP = N*20 (N = 2e5, log V ~ 18), adjust to data size;
+ *        query_kth(l, r, k) k-th smallest (original value); query_le(l, r, x)
+ *        count of values <= x.
+ * Principle: the value-domain tree is versioned by prefix: rt[i] adds a[i] on
+ *            top of rt[i-1] (path cloning); subtracting two versions gives the
+ *            range's value distribution
+ * Notes: SP = N * 20 for N = 2e5 (log V ~ 18), adjust to the data size;
  *        positions 1-indexed; values must be compressible (duplicates ok)
  * ============================================================
- * Example (uncomment to compile; Luogu P3834):
- * static persistent_segtree<200009, 4000009> pst;
- * signed main() {
- *   vector<int> a{0, 1, 5, 2, 4, 3};  // n = 5: {1,5,2,4,3}
- *   pst.init(a);
- *   cout << pst.query_kth(2, 4, 2) << '\n';  // 4 (2nd smallest of {5,2,4})
- *   cout << pst.query_kth(1, 5, 1) << '\n';  // 1
- *   cout << pst.query_le(1, 5, 3) << '\n';   // 3（1,2,3）
- *   cout << pst.query_le(2, 3, 2) << '\n';   // 1（2）
- * }
  */

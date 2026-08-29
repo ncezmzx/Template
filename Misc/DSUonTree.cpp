@@ -40,31 +40,18 @@ void dfs2(int x, int ff, bool keep) {
  * ============================================================
  * Name: DSU on tree (small-to-large subtree statistics)
  * Complexity: O(n log n)
- * Usage: subtree queries on a static tree, e.g.:
- *        1) sum of the most frequent color ids in each subtree (implemented
- *           here; CF 600E original problem);
- *        2) distinct colors in a subtree / k-th smallest / depth-related
- *           statistics, etc.
- *        Core idea: keep the heavy child's information, brute-force recompute
- *        the light children — O(n log n) total
- * Principle: first dfs finds heavy children; dfs2 processes all light
- *        children first (do not keep), then the heavy child (keep), then
- *        brute-force adds the light subtrees back, giving the complete
- *        statistic for the current subtree; add(x, ff, -1) clears a subtree
- * Notes: the statistics inside add (mx/sum) are problem-specific; cnt[] is
- *        indexed by color id; mx/sum reset on clear (handled in the !keep branch)
- * Usage pattern: dfs(1, 0); dfs2(1, 0, true); ans[x] is x's subtree answer
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> col[i];
- *   for (int i = 1, u, v; i < n; ++i) {
- *     cin >> u >> v;
- *     es[u].push_back(v), es[v].push_back(u);
- *   }
- *   dfs(1, 0), dfs2(1, 0, true);
- *   for (int i = 1; i <= n; ++i) cout << ans[i] << " \n"[i == n];
- * }
+ * Usage: subtree queries on a static tree: sum of the most frequent color ids
+ *        in each subtree (implemented here, CF 600E), distinct colors in a
+ *        subtree, k-th smallest, depth-related statistics, and friends.
+ *        Keep the heavy child's information and brute-force recompute the light
+ *        children. Call pattern: dfs(1, 0); dfs2(1, 0, true); ans[x] is x's
+ *        subtree answer.
+ * Principle: the first dfs finds the heavy children; dfs2 processes all light
+ *            children first (do not keep), then the heavy child (keep), then
+ *            brute-force adds the light subtrees back, giving the complete
+ *            statistic; add(x, ff, -1) clears a subtree
+ * Notes: the statistics maintained inside add (mx / sum) are problem-specific;
+ *        cnt[] is indexed by color id; mx / sum reset on clear (handled in the
+ *        !keep branch)
  * ============================================================
  */

@@ -53,27 +53,16 @@ struct du_sieve {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Du's sieve (prefix sums of mu / phi)
- * Complexity: O(n^{2/3}) (pre-sieve SN ~ n^{2/3} + division blocking + hash memoization)
- * Usage: wrapped as du_sieve<SN>: after one init(),
- *        sum_phi(n) = sum_{i<=n} phi(i), sum_mu(n) = sum_{i<=n} mu(i),
- *        n up to ~1e10 within 64 bits
- * Principle: with f * g = h, sum_d g(d) * S_f(n/d) = S_h(n) —
- *        phi * 1 = Id: S_phi(n) = n(n+1)/2 - sum_{d>=2} S_phi(floor(n/d));
- *        mu * 1 = eps: S_mu(n) = 1 - sum_{d>=2} S_mu(floor(n/d));
- *        division blocking enumerates floor(n/d), recursion + hash memo,
- *        small values answered from the linear-sieve prefix
- * Notes: SN arrays ~2e6 (two long long arrays ~ 32MB, tune as needed);
- *        derive other multiplicative functions the same way (find an easy h)
+ * Complexity: O(n^{2/3})
+ * Usage: `du_sieve<SN>`: after one init(), sum_phi(n) = sum_{i<=n} phi(i) and
+ *        sum_mu(n) = sum_{i<=n} mu(i), with n up to ~1e10 within 64 bits.
+ * Principle: from f * g = h, sum_d g(d) * S_f(n/d) = S_h(n); phi * 1 = Id and
+ *            mu * 1 = eps give the two recurrences, division blocking
+ *            enumerates floor(n/d), and recursion plus hash memoization reuse
+ *            the linear-sieve prefix for small values
+ * Notes: SN arrays ~2e6 (two long long arrays, ~32MB, tune as needed); other
+ *        multiplicative functions follow the same pattern once you find an easy
+ *        h
  * ============================================================
- * Example (uncomment to compile):
-
- * static du_sieve<2000009> ds;
- * signed main() {
- *   ds.init();
- *   cout << ds.sum_phi(10) << '\n';    // 32（1+1+2+2+4+2+6+4+6+4）
- *   cout << ds.sum_mu(10) << '\n';     // -1（1-1-1+0-1+1-1+0+0+1）
- *   cout << ds.sum_phi(10000000000LL) << '\n';  // n = 1e10, answers in ~1s
- * }
  */

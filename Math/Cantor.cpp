@@ -51,26 +51,16 @@ struct cantor {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Cantor expansion / inverse Cantor expansion
- * Complexity: both O(n log n)
- * Usage: permutation <-> lexicographic rank (0-based), wrapped as cantor<N>:
- *        expand(a, mod) = rank of permutation a modulo mod;
- *        unexpand(k, n) rebuilds the permutation of rank k (0 <= k < n!)
- * Principle: rank = sum_i (# unused values smaller than a_i before position i) * (n-1-i)!;
- *        a BIT maintains the unused set; the inverse expansion locates the
- *        (t+1)-th smallest unused value by BIT binary lifting (O(log n))
- * Notes: a is a permutation of 1..n (or distinct values, compared by order);
- *        unexpand needs n <= 20 (n! < 2^63); after taking ranks mod, the
- *        inverse needs the original k
+ * Complexity: both directions O(n log n)
+ * Usage: permutation <-> lexicographic rank (0-based), `cantor<N>`: expand(a,
+ *        mod) is the rank of permutation a modulo mod;
+ *        unexpand(k, n) rebuilds the permutation of rank k (0 <= k < n!).
+ * Principle: rank = sum_i (# unused values smaller than a_i before position i)
+ *            * (n-1-i)!; a BIT maintains the unused set, and the inverse
+ *            expansion binary-lifts to the (t+1)-th smallest unused value
+ * Notes: a must be a permutation of 1..n (or distinct values compared by
+ *        order); unexpand needs n <= 20 (n! < 2^63); after reducing ranks
+ *        modulo something, the inverse needs the original k
  * ============================================================
- * Example (uncomment to compile; Luogu P5367):
-
- * static cantor<1000005> ct;
- * signed main() {
- *   vector<int> a{3, 1, 2};                    // a permutation of n = 3
- *   cout << ct.expand(a, 998244353) << '\n';   // 4 (5th of {123,132,213,231,312,321} -> rank 4)
- *   auto b = ct.unexpand(4, 3);
- *   for (int i = 0; i < 3; ++i) cout << b[i] << " \n"[i == 2];  // 3 1 2
- * }
  */

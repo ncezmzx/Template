@@ -120,43 +120,16 @@ struct global_bst {
 /*
  * ============================================================
  * Name: Global balanced BST (static-tree path operations)
- * Complexity: preprocessing O(n log n); path add / path max / point set O(log n) amortized
- * Usage: path updates and queries on a static tree, wrapped as global_bst<N>:
- *        fill es and val, build(n), then path_add / path_max / point_set;
- *        compared to "HLD + segment tree" O(log^2 n), in-chain operations run
- *        in O(log n) via weighted balanced BSTs; change up/apply to maintain
- *        sums, xor, etc.
- * Principle: after HLD, each heavy chain is built into a weighted-median BST
- *        (weight = light-subtree-size sum + 1; in-order = chain order; subtrees
- *        cover contiguous dfn ranges stored in Lp/Rp); in-chain range ops
- *        recurse by subtree coverage (O(log n)); path ops = chain climbing +
- *        in-chain BST range ops; weighted medians guarantee O(log n) chain height
- * Notes: forests are handled (build runs dfs1/dfs2 for every root); vertex
- *        weights (edge weights can be pushed down to the child); up relies on
- *        "in-order == dfn order"
- * ============================================================
- * Example (uncomment to compile; path add + path max + point set):
- * static global_bst<200009> gb;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1; i <= n; ++i) cin >> gb.val[i];
- *   for (int i = 1, u, v; i < n; ++i) {
- *     cin >> u >> v;
- *     gb.es[u].push_back(v), gb.es[v].push_back(u);
- *   }
- *   gb.build(n);
- *   while (m--) {
- *     int o, u, v;
- *     cin >> o >> u >> v;
- *     if (o == 1) {
- *       int d;
- *       cin >> d;
- *       gb.path_add(u, v, d);
- *     }
- *     if (o == 2) cout << gb.path_max(u, v) << '\n';
- *     if (o == 3) gb.point_set(u, v);
- *   }
- * }
+ * Complexity: preprocessing O(n log n); path add / path max / point set
+ *             amortized O(log n)
+ * Usage: path updates and queries on a static tree, `global_bst<N>`: fill es
+ *        and val, build(n), then path_add / path_max / point_set.
+ *        O(log n) in-chain operations vs O(log^2 n) for HLD + segment tree;
+ *        change up / apply to maintain sum, xor, ...
+ * Principle: after HLD each heavy chain becomes a weighted-median BST (in-order
+ *            = chain order, subtrees cover contiguous dfn ranges); path ops =
+ *            chain climbing + in-chain range ops
+ * Notes: vertex weights (push edge weights down to the child); forests are
+ *        handled; up relies on in-order == dfn order
  * ============================================================
  */

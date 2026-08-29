@@ -37,28 +37,16 @@ void monoid_product(const std::vector<Mono> &vec,
  * ============================================================
  * Name: offline static range monoid products (cat-tree divide / topbit bucketing)
  * Complexity: O((n + q) log n) total, O(1) per query; space O(n + q)
- * Usage: static array, batch-answered associative range products (sum / max /
- *        gcd / matrices, ...). Queries are inclusive (l, r); l == r is
- *        answered with vec[l] directly; otherwise the callback receives the
- *        product: f(id, product), answer = dp[l] * dp[r]
- * Principle: with k = topbit(l ^ r) and mid = r's top n-k bits, l < mid <= r;
- *        dp stores prefix/suffix products outward from mid; mid only takes
- *        powers of two, giving O(log n) levels, one O(n) scan each
+ * Usage: static array, batch associative range products (sum / max / gcd /
+ *        matrices).
+ *        Queries are inclusive (l, r); l == r is answered with vec[l] directly;
+ *        otherwise the callback receives f(id, product) and the answer is dp[l]
+ *        * dp[r].
+ * Principle: with k = topbit(l ^ r), mid = the top n-k bits of r splits l < mid
+ *            <= r; dp stores prefix / suffix products outward from mid, O(log
+ *            n) levels of O(n) scans
  * Source: user-provided code (structured bindings rewritten as .first/.second
  *         for pure C++14)
- * ============================================================
- * Example (uncomment to compile; range minimum):
- * struct Mono { long long v; };
- * Mono operator*(Mono a, Mono b) { return Mono{min(a.v, b.v)}; }
- * signed main() {
- *   vector<Mono> a{{5}, {2}, {7}, {1}, {9}, {4}};
- *   vector<pair<int,int>> qs{{0, 3}, {1, 4}, {2, 5}, {0, 5}};
- *   long long ans[4];
- *   monoid_product(a, qs, [&](int id, Mono res) {
- *     ans[id] = res.v;
- *   });
- *   for (int i = 0; i < 4; ++i) cout << ans[i] << " \n"[i == 3];
- *   // ans = {1, 1, 4, 1}
- * }
+ * Notes: static only, and all queries must be known up front
  * ============================================================
  */
