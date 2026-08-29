@@ -65,7 +65,7 @@ Geometry 3) + Trash 23.
 | `YFastTrie.cpp` | y-fast trie (x-fast trie + blocking; O(log 64) find/pred/succ/insert/erase) — `yfast` |
 | `RangeSemigroup_ACK.cpp` | static range semigroup queries (Ackermann-function blocking, O(n) preprocessing, O(α(n)) query) — `uttree<...>` |
 | `MonoidOfflineQuery.cpp` | offline static range monoid products (cat-tree divide, O((n+q) log n) total / O(1) per query) — `monoid_product<Mono, F>` |
-| `RMQ_Linear.cpp` | linear RMQ (Cartesian tree + ±1 block RMQ, O(n) preprocessing / O(1) query) — `rmq_linear<N>` |
+| `RMQ_Linear.cpp` | static RMQ / FastST (in-block Cartesian-tree bitmask + sparse table over block extrema, O(1) query) — `FastST<U, Z, T>` |
 | `SqrtTree.cpp` | sqrt tree (static associative range query, generic monoid, O(log log n)) — `SqrtTree<S, op, e, N>` |
 | `LCT.cpp` | Link-Cut Tree (link/cut/makeroot/path max) — `link_cut_tree<N>` |
 | `LCT_Monoid.cpp` | generic-monoid LCT (any invertible monoid path product) — `LinkCutTree<Mono, N>` |
