@@ -33,21 +33,11 @@ matrix qpow(matrix a, int b) {
 }
 /*
  * ============================================================
- * ============================================================
  * Name: max-plus matrix fast exponentiation (generalized (max, +) matrices)
- * Complexity: multiplication O(n^3), fast power O(n^3 log b)
- * Usage: Floyd-style (max,+) path problems — maximum-weight paths of exactly
- *        k steps, longest-path counting, etc.
- *        Note: qpow requires b >= 1 (implemented as ret = a first, then --b).
+ * Complexity: multiplication O(n^3); fast power O(n^3 log b)
+ * Usage: Floyd-style (max, +) path problems: maximum-weight paths of exactly k
+ *        steps, longest-path counting, and friends.
  * Source: all.cpp lines 11324-11348 (kept verbatim, comments translated)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   matrix a(2, 2);
- *   a[0][0] = 1; a[0][1] = 2; a[1][0] = 3; a[1][1] = 4;
- *   matrix b = qpow(a, 2);  // (max,+) square: max_k a[i][k] + a[k][j]
- *   cout << b[0][0] << ' ' << b[0][1] << ' ' << b[1][0] << ' ' << b[1][1] << '\n';
- * }
+ * Notes: qpow requires b >= 1 (it is implemented as ret = a first, then --b)
  * ============================================================
  */

@@ -54,39 +54,16 @@ struct SqrtTree {
 /*
  * ============================================================
  * Name: Sqrt Tree (static associative range queries), generic monoid
- * Complexity: preprocessing O(n log log n) (block prefix/suffix aggregates +
- *             inter-block segment tree); query O(log log n)
- * Usage: static associative range queries (min/max/gcd/sum etc. via the
- *        op/e template parameters), wrapped as SqrtTree<S, op, e, N>:
- *        fill a 1-indexed array, sqt_build(n, arr), then sqt_query(l, r);
- *        smaller constants than a segment tree (log log n, no recursion on
- *        the hot path); this is the two-level form (block prefix/suffix +
- *        inter-block segment tree; recursive blocking reaches O(1), see
- *        OI-wiki)
- * Principle: blocks of size ~sqrt(n): each block precomputes prefix/suffix
- *        aggregates; a segment tree maintains the whole-block aggregates
- *        (~sqrt(n) blocks); a query = left block suffix + middle whole
- *        blocks via the tree + right block prefix
- * Notes: op must be associative; e() is the identity; static only (no
- *        updates; an update needs rebuilding a whole block in O(sqrt n))
- * ============================================================
- * Example (uncomment to compile; range minimum):
- * int op(int x, int y) { return min(x, y); }
- * int e() { return 0x3f3f3f3f; }
- * static SqrtTree<int, op, e, 200009> s;
- * static int a[200009];
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> a[i];
- *   s.sqt_build(n, a);
- *   int q;
- *   cin >> q;
- *   while (q--) {
- *     int l, r;
- *     cin >> l >> r;
- *     cout << s.sqt_query(l, r) << '\n';
- *   }
- * }
+ * Complexity: preprocessing O(n log log n); query O(log log n)
+ * Usage: static associative range queries (min / max / gcd / sum, ... via the
+ *        op / e template parameters), `SqrtTree<S, op, e, N>`:
+ *        fill a 1-indexed array, sqt_build(n, arr), then sqt_query(l, r).
+ * Principle: blocks of size ~sqrt(n) precompute prefix / suffix aggregates; a
+ *            segment tree maintains the ~sqrt(n) whole-block aggregates; a
+ *            query = left block suffix + middle blocks via the tree + right
+ *            block prefix
+ * Notes: op must be associative and e() the identity; static only (an update
+ *        would need a whole block rebuilt in O(sqrt n)); smaller constants than
+ *        a segment tree on the query hot path
  * ============================================================
  */

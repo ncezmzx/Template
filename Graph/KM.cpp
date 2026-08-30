@@ -48,27 +48,16 @@ struct km_matching {
  * ============================================================
  * Name: KM algorithm (maximum-weight perfect bipartite matching, slack optimization)
  * Complexity: O(n^3)
- * Usage: maximum-weight perfect matching on an n x n weighted bipartite
- *        graph, wrapped as km_matching<N>: fill w[1..n][1..n], solve(n)
- *        returns the total weight; match[i] = the left vertex matched to
- *        right vertex i (negative weights work: lx starts at -INF)
- * Principle: Kuhn-Munkres labels: keep left labels lx and right labels ly
- *        with lx[u]+ly[v] >= w[u][v]; find a perfect matching in the
- *        equality subgraph; augment adjusts labels along the alternating
- *        tree (min slack) and expands the equality subgraph, O(n) rounds
- * Notes: dense square matrices n <= 500; for unequal sides pad with
- *        zero-weight dummy vertices; for a minimum-weight perfect matching
- *        negate all weights
- * ============================================================
- * Example (uncomment to compile; full n x n weight matrix, weights may be negative):
- * static km_matching<505> km;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i)
- *     for (int j = 1; j <= n; ++j) cin >> km.w[i][j];
- *   cout << km.solve(n) << '\n';
- *   for (int i = 1; i <= n; ++i) cout << km.match[i] << ' ';
- * }
+ * Usage: `km_matching<N>`: maximum-weight perfect matching on an n x n weighted
+ *        bipartite graph.
+ *        fill w[1..n][1..n], solve(n) returns the total weight; match[i] is the
+ *        left vertex matched to right vertex i.
+ * Principle: Kuhn-Munkres labels lx / ly with lx[u] + ly[v] >= w[u][v]; find a
+ *            perfect matching in the equality subgraph, augmenting adjusts the
+ *            labels by the minimum slack and expands the subgraph over O(n)
+ *            rounds
+ * Notes: dense square matrices with n <= 500; negative weights work (lx starts
+ *        at -INF); for unequal sides pad with zero-weight dummy vertices; for a
+ *        minimum-weight perfect matching negate all weights
  * ============================================================
  */

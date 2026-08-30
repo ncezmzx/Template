@@ -85,25 +85,14 @@ struct wbst_seq {
 /*
  * ============================================================
  * Name: weight-balanced BST, sequence form (deterministic WBT with lazy reverse)
- * Complexity: split/merge/balance amortized O(log n); no random priorities —
- *             a full replacement for the implicit splay/treap
- * Usage: range reverse / range operations, wrapped as wbst_seq<N>:
- *        spl(x, k) splits into (first k, rest); mer(x, y) joins two trees;
- *        apply(x) tags a reversal (swaps children); balance(x) keeps balance;
- *        up/down/rotate/cut/erase/make/node/link are internal helpers
+ * Complexity: split / merge / balance amortized O(log n); deterministic, no
+ *             random priorities
+ * Usage: sequence form, `wbst_seq<N>`: spl(x, k) -> (first k, rest); mer(x, y)
+ *        joins; apply(x) tags a reversal; balance(x) rebalances.
+ *        up / down / rotate / cut / erase / make / node / link are internal
+ *        helpers.
  * Source: all.cpp lines 30725-30799 (namespace wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * static wbst_seq<100009> wb;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   wb.rt = wb.build(1, 5);              // 1 2 3 4 5
- *   auto p1 = wb.spl(wb.rt, 1);          // split off the first 1
- *   auto p2 = wb.spl(p1.second, 3);      // split off [2,4]
- *   wb.apply(p2.first);                  // reverse [2,4]
- *   wb.rt = wb.mer(wb.mer(p1.first, p2.first), p2.second);
- *   wb.print(wb.rt);                     // 1 4 3 2 5
- *   return 0;
- * }
+ * Notes: deterministic drop-in replacement for the implicit splay / treap;
+ *        reset between test cases
  * ============================================================
  */

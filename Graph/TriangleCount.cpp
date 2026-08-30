@@ -33,26 +33,13 @@ struct triangle_count {
  * Name: triangle counting (undirected graph, O(m sqrt m))
  * Complexity: O(m sqrt m) (after reorientation every vertex has out-degree
  *             O(sqrt m))
- * Usage: count length-3 cycles, wrapped as triangle_count<N, M>: fill
- *        e[1..m] and deg[], then count(); the idea extends to 4-cycles and
- *        other orientation tricks
+ * Usage: count length-3 cycles of an undirected graph, `triangle_count<N, M>`:
+ *        fill e[1..m] and deg[], then count().
  * Principle: orient each edge from lower degree to higher (ties by id),
- *        obtaining a DAG; every triangle is counted exactly once at its
- *        smallest-degree vertex: for each u mark its out-neighbors, then for
- *        each out-neighbor v scan v's out-neighbors w and count marked w
- * Notes: merge multi-edges first (assumed none here); e[1..m] is the
- *        undirected edge list; the tag clearing costs O(out-degree) per
- *        vertex, O(m) total
- * ============================================================
- * Example (uncomment to compile):
- * static triangle_count<100009, 200009> tc;
- * signed main() {
- *   cin >> tc.n >> tc.m;
- *   for (int i = 1; i <= tc.m; ++i) {
- *     cin >> tc.e[i].first >> tc.e[i].second;
- *     ++tc.deg[tc.e[i].first], ++tc.deg[tc.e[i].second];
- *   }
- *   cout << tc.count() << '\n';
- * }
+ *            obtaining a DAG; every triangle is counted exactly once at its
+ *            smallest-degree vertex: mark u's out-neighbors, then for each out-
+ *            neighbor v scan v's out-neighbors and count the marked ones
+ * Notes: merge multi-edges first (none are assumed here); the tag clearing
+ *        costs O(out-degree) per vertex, O(m) total
  * ============================================================
  */

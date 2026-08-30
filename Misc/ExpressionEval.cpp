@@ -81,26 +81,15 @@ struct expr_eval {
  * ============================================================
  * Name: expression evaluation (recursive descent: + - * / % ^ parentheses, unary minus, variables)
  * Complexity: O(expression length)
- * Usage: arithmetic expression parsing: four operations, modulo, power (^ right-
- *        associative), parentheses, unary +/-, letter variables (assigned via
- *        the var map)
+ * Usage: arithmetic expression parsing: the four operations, modulo, power (^,
+ *        right-associative), parentheses, unary +/-, and letter variables
+ *        (assigned via the var map).
  * Principle: recursive descent: expr -> term (+|-) term; term -> pow (*|/|%)
- *        pow; pow -> uni (^ pow) (right-associative); uni -> (+|-) uni | pri;
- *        pri -> (expr) | variable | number
+ *            pow; pow -> uni (^ pow), so ^ is right-associative; uni -> (+|-)
+ *            uni | pri; pri -> (expr) | variable | number
  * Notes: the expression must contain no spaces (strip them first); powers
- *        multiply step by step (large exponents overflow/timeout — use fast
- *        exponentiation); divide/modulo by zero is UB; undefined variables
- *        read as 0
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   expr_eval ev;
- *   ev.var["x"] = 3;
- *   cout << ev.solve("1+2*3") << '\n';        // 7
- *   cout << ev.solve("(1+2)*3") << '\n';      // 9
- *   cout << ev.solve("2^3^2") << '\n';        // 512 (right-associative)
- *   cout << ev.solve("-5%3") << '\n';         // -2
- *   cout << ev.solve("x*x+1") << '\n';        // 10
- * }
+ *        multiply step by step, so large exponents overflow or time out (use
+ *        fast exponentiation instead); divide / modulo by zero is UB; undefined
+ *        variables read as 0
  * ============================================================
  */

@@ -17,25 +17,17 @@ double integrate(double (*f)(double), double a, double b, double eps = 1e-8) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: adaptive Simpson integration
- * Complexity: depends on the function; usually O(log((b-a)/eps)) recursion levels
- * Usage: numerical definite integral of f over [a, b] (smooth f; classic
- *        problems: shaded areas, circle-vs-function areas, and other cases
- *        where analytic integration is hard)
- * Principle: Simpson's rule (b-a)/6*(f(a)+4f(m)+f(b)) is exact for cubics;
- *        after halving, when the error estimate |sl+sr-s| <= 15*eps holds,
- *        return the Richardson-extrapolated value, otherwise recurse
- *        (adaptive)
- * Notes: split manually around singularities/cusps; eps ~ 1e-6 to 1e-9
+ * Complexity: depends on the function; usually O(log((b-a)/eps)) recursion
+ *             levels
+ * Usage: numerical definite integral of a smooth f over [a, b]; classic
+ *        problems are shaded areas, circle-vs-function areas, and other cases
+ *        where analytic integration is hard.
+ * Principle: Simpson's rule (b-a)/6*(f(a) + 4f(m) + f(b)) is exact for cubics;
+ *            after halving, when |sl + sr - s| <= 15*eps return the Richardson-
+ *            extrapolated value, otherwise recurse (adaptive)
+ * Notes: split manually around singularities / cusps; eps ~ 1e-6 to 1e-9 is
  *        recommended (too small may recurse too deep); f is a plain function
- *        (or switch to a lambda + template)
+ *        (switch to a lambda + template if needed)
  * ============================================================
- * Example (uncomment to compile):
-
- * double f(double x) { return sqrt(4 - x * x); }  // upper half-circle of radius 2
- * signed main() {
- *   cout << integrate(f, 0, 2) << '\n';           // 3.14159 (= pi, quarter of the circle area)
- *   cout << integrate([](double x) { return x * x * x; }, 0, 1) << '\n';  // 0.25 (exact for cubics)
- * }
  */

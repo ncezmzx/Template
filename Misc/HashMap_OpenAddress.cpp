@@ -79,9 +79,10 @@ class HashMap {
 /*
  * ============================================================
  * Name: open-addressing hash table (linear probing + backward-shift deletion)
- * Complexity: expected O(1) lookup/insert/delete (keep load factor < 0.7; tune B per data volume)
+ * Complexity: expected O(1) lookup / insert / delete (keep the load factor <
+ *             0.7, and tune B per data volume)
  * Usage: operator[] / contains / erase / clear / size; key types need a
- *        custom_hash specialization (i64 / u64 / string provided)
+ *        custom_hash specialization (i64 / u64 / string are provided).
  * Source: user-provided code; two issues fixed:
  *        1) added the missing primary template declaration and M0/M1
  *           constants (the original only had the hash<i64> specialization
@@ -93,18 +94,7 @@ class HashMap {
  *        smaller constants and is more cache-friendly (see README
  *        benchmarks); the chained version supports counting semantics (ins
  *        cancels +/- and recycles). Pick as needed
- * Notes: B=20 means 2^20 slots (~12MB per object); performance degrades once
+ * Notes: B = 20 means 2^20 slots (~12MB per object); performance degrades once
  *        the element count exceeds 0.7 * 2^B
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   HashMap<long long, int> mp;   // B=20; for small data try HashMap<long long, int, 17>
- *   mp[3] = 30, mp[1000000007] = 7;
- *   mp.erase(3);
- *   cout << mp.contains(3) << ' ' << mp[1000000007] << ' ' << mp.size() << '\n';
- *   HashMap<string, int> cnt;
- *   cnt["abc"] += 1, cnt["abd"] += 2;
- *   cout << cnt["abc"] << ' ' << cnt.size() << '\n';
- * }
  * ============================================================
  */

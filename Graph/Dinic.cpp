@@ -52,25 +52,11 @@ template <class T> struct dinic {
  * ============================================================
  * Name: Dinic maximum flow (current-arc optimization)
  * Complexity: O(V^2 E) worst case, much faster in practice
- * Usage: wrapped as dinic<T>: construct dinic<T>(n, m) (m = number of add
- *        calls), add(u, v, w), then calc(s, t); T = long long for large
- *        capacities
+ * Usage: `dinic<T>`: construct dinic<T>(n, m) (m = number of add calls), add(u,
+ *        v, w), then calc(s, t);
+ *        use T = long long for large capacities.
  * Implementation: BFS layers + DFS blocking flow with current-arc pointers;
  *        a flat array queue replaces std::queue
  * Source: all.cpp (vector version dinic<T>; wrapped, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m, s, t;
- *   cin >> n >> m >> s >> t;
- *   dinic<long long> f(n, m);   // second argument m = edge count (add calls)
- *   for (int i = 1; i <= m; ++i) {
- *     int u, v, w;
- *     cin >> u >> v >> w;
- *     f.add(u, v, w);
- *   }
- *   cout << f.calc(s, t) << '\n';
- * }
  * ============================================================
  */

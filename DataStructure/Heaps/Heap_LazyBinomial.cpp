@@ -42,29 +42,15 @@ struct heap_lazy_binomial {
 /*
  * ============================================================
  * Name: lazy binomial heap (mergeable), min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key/erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_lazy_binomial<N>;
- *        heaps identified by their container index
+ * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
+ *             n) amortized
+ * Usage: `heap_lazy_binomial<N>`: newnode / top / join / decrease_key / erase;
+ *        heaps are identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 11, wrapped into a struct
- * Notes: join only concatenates root lists (lazy; binomial structure is not
- *        maintained immediately); decrease_key bubbles up swapping msk/pos/vl;
- *        erase uses the LLONG_MIN sentinel then re-consolidates; tp uses the
- *        LLONG_MAX sentinel; empty-heap / self-merge boundaries not handled
- * ============================================================
- * Example (uncomment to compile):
- * static heap_lazy_binomial<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: join only concatenates root lists (lazy, the binomial structure is not
+ *        maintained immediately); decrease_key bubbles up swapping msk / pos /
+ *        vl; erase uses the LLONG_MIN sentinel then re-consolidates; tp uses
+ *        the LLONG_MAX sentinel; empty-heap / self-merge not handled
  * ============================================================
  */

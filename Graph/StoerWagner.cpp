@@ -48,36 +48,18 @@ struct stoer_wagner {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Stoer-Wagner global minimum cut
  * Complexity: O(nm + n^2 log n) (naive form O(n^3); fine for n <= 600)
- * Usage: global min cut of an undirected positive-weight graph without
- *        fixing source/sink, wrapped as stoer_wagner<N>: init(n),
- *        add(u, v, w) (multi-edges accumulate), solve() returns the global
- *        min cut; much faster than running max flow for all source/sink
- *        pairs; disconnected graphs answer 0
- * Principle: any two vertices s, t are either on the same side of a cut or
- *        separated by some s-t cut. Each phase runs a maximum-adjacency
- *        ordering (Prim-like greedy by w(A, .)) to obtain the cut-of-phase,
- *        then merges t into s (edge weights add up); the answer is the
- *        minimum over all n-1 phases
- * Notes: 1-indexed; weights must be non-negative (a 0 cut returns early);
- *        size N per vertex count; n < 2 is meaningless
+ * Usage: global min cut of an undirected non-negative-weight graph without
+ *        fixing a source / sink, `stoer_wagner<N>`: init(n), add(u, v, w)
+ *        (multi-edges accumulate), solve() returns the global min cut;
+ *        much faster than running max flow for all source / sink pairs;
+ *        disconnected graphs answer 0.
+ * Principle: each phase runs a maximum-adjacency ordering (Prim-like greedy on
+ *            w(A, .)) to obtain the cut-of-phase, then merges t into s (edge
+ *            weights add up); the answer is the minimum over all n-1 phases
+ * Notes: 1-indexed; weights must be non-negative (a 0 cut returns early); size
+ *        N per vertex count; n < 2 is meaningless
  * Source: OI-Wiki "Stoer-Wagner" (https://oi-wiki.org/graph/stoer-wagner/)
- * ============================================================
- * Example (uncomment to compile; Luogu P5632):
-
- * static stoer_wagner<605> sw;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   sw.init(n);
- *   for (int i = 0; i < m; ++i) {
- *     int u, v, w;
- *     cin >> u >> v >> w;
- *     sw.add(u, v, w);
- *   }
- *   cout << sw.solve() << '\n';
- * }
  * ============================================================
  */

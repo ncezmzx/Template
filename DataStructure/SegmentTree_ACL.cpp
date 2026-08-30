@@ -138,51 +138,29 @@ struct lazy_segtree {
 /*
  * ============================================================
  * Name: lazy segment tree, ACL style (static full tree, generic op/mapping, fully iterative)
- * Complexity: build O(n); set/get/prod/apply/max_right/min_left all O(log n)
- * Usage: a general segment tree fully isomorphic to AtCoder Library's
- *        lazy_segtree: op/e maintain the monoid info S;
- *        mapping/composition/id maintain the monoid action F; template
- *        parameters and interface align with ACL one by one (0-indexed,
- *        half-open [l, r)): set(p,x) get(p) prod(l,r) all_prod() apply(p,f)
- *        apply(l,r,f) max_right(l,g) min_left(r,g) (g must satisfy g(e())
- *        true; the semantics are greedy over canonical blocks — a whole block
- *        passing means skip it; best for g that fails monotonically as the
- *        range grows)
- * Trade-offs vs SegmentTree_Semigroup.cpp (dynamic-node version):
- *        this version: static full tree (n must be fully buildable), does NOT
- *             require mapping(f, e()) == e(), so segment-length-dependent
- *             actions like "range affine + range sum" work — ACL semantics;
- *        dynamic version: value domain up to ~1e9, but the action must be
- *             correct on the "implicit empty segment e()"
- * Principle: leaves at [size, 2*size) (size = least power of two >= n), full
- *        binary tree in an array; prod/apply first push lazy tags down along
- *        both boundaries from level log, then fold/tag bottom-up; set/get
- *        push along the single path then write/read directly; max_right/
- *        min_left greedily walk canonical blocks from the leaf, binary-
- *        descending inside the failing block (no recursion)
- * Notes: for point-only updates degenerate to the identity action (or use the
- *        zkw-style IterativeLazy); with n == 0 only all_prod/prod(l,l) are
+ * Complexity: build O(n); set / get / prod / apply / max_right / min_left O(log
+ *             n)
+ * Usage: `lazy_segtree<...>`: lazy segment tree isomorphic to AtCoder Library's
+ *        lazy_segtree.
+ *        op / e maintain the monoid info S, mapping / composition / id maintain
+ *        the monoid action F.
+ *        0-indexed, half-open [l, r): set(p, x), get(p), prod(l, r),
+ *        all_prod(), apply(p, f), apply(l, r, f),
+ *        max_right(l, g), min_left(r, g).
+ * Principle: full binary array tree with leaves at [size, 2*size) (size = least
+ *            power of two >= n); prod / apply push lazy tags down along both
+ *            boundaries from level log, then fold / tag bottom-up; max_right /
+ *            min_left greedily walk canonical blocks from the leaf and binary-
+ *            descend inside the failing block (no recursion)
+ * Notes: g must satisfy g(e()); the block-greedy semantics skip a whole passing
+ *        block, so g should fail monotonically as the range grows.
+ *        Trade-off vs SegmentTree_Semigroup.cpp: this is a static full tree (n
+ *        must be buildable) but does NOT require mapping(f, e()) == e(), so
+ *        length-dependent actions such as range affine + range sum work; the
+ *        dynamic-node version allows a domain up to ~1e9 but the action must be
+ *        correct on the implicit empty segment.
+ *        For point-only updates degenerate to the identity action (or use the
+ *        zkw-style IterativeLazy); with n == 0 only all_prod / prod(l, l) are
  *        legal; prod on an empty range returns e()
  * ============================================================
- * Example (uncomment to compile; range affine + range sum, the classic case the dynamic version cannot do):
- * using S = pair<long long, long long>;  // (sum, length)
- * using F = pair<long long, long long>;  // a*x + b
- * S op(S a, S b) { return {a.first + b.first, a.second + b.second}; }
- * S e() { return {0, 0}; }
- * F id() { return {1, 0}; }
- * S mapping(F f, S s) { return {f.first * s.first + f.second * s.second, s.second}; }
- * F composition(F f, F g) {  // g first, then f: f.(g.x) = f.a*(g.a*x+g.b)+f.b
- *   return {f.first * g.first, f.first * g.second + f.second};
- * }
- * lazy_segtree<S, op, e, F, mapping, composition, id> st;
- * signed main() {
- *   vector<S> a{{1, 1}, {2, 1}, {3, 1}};    // {1,2,3}
- *   st = lazy_segtree<S, op, e, F, mapping, composition, id>(a);
- *   st.apply(1, 3, {2, 1});                 // a = {1,5,7}
- *   cout << st.prod(0, 3).first << '\n';    // 13
- *   st.set(0, {10, 1});                     // a = {10,5,7}
- *   cout << st.get(0).first << ' ' << st.prod(2, 3).first << '\n';  // 10 7
- *   cout << st.max_right(0, [](S s) { return s.first <= 11; }) << '\n';  // 1 (prefix sum 15 exceeds)
- *   cout << st.min_left(3, [](S s) { return s.first <= 11; }) << '\n';   // 2 (suffix sum 12 exceeds)
- * }
  */

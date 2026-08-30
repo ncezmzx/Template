@@ -91,31 +91,15 @@ struct heap_quake {
 /*
  * ============================================================
  * Name: quake heap (mergeable), min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key O(1) amortized;
+ * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
  *             erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_quake<N>;
- *        heaps identified by their container index
+ * Usage: `heap_quake<N>`: newnode / top / join / decrease_key / erase; heaps
+ *        are identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 13, wrapped into a struct
- * Notes: alpha = 0.75 triggers the "quake": when per-level counts bel[] get
+ * Notes: alpha = 0.75 triggers the quake: when the per-level counts bel[] get
  *        unbalanced, whole levels are destroyed and rebuilt; merge nodes come
- *        from the stk recycle pool or fresh allocation (tot up to ~2N);
- *        frm/pos track the subtree-minimum representative; tp uses the
- *        LLONG_MAX sentinel; empty-heap / self-merge not handled
- * ============================================================
- * Example (uncomment to compile):
- * static heap_quake<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ *        from the stk recycle pool or fresh allocation (tot up to ~2N); tp uses
+ *        the LLONG_MAX sentinel; empty-heap / self-merge not handled
  * ============================================================
  */

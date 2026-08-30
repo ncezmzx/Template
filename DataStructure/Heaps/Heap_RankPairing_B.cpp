@@ -58,26 +58,17 @@ struct heap_rank_pairing_b {
 /*
  * ============================================================
  * Name: rank-pairing heap type B (multi-way tree form), mergeable min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key/erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_rank_pairing_b<N>;
- *        heaps identified by their container index
+ * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
+ *             n) amortized
+ * Usage: `heap_rank_pairing_b<N>`: newnode / top / join / decrease_key / erase;
+ *        heaps are identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 6 (type B + multi-way tree), wrapped into a struct
- * Notes: child lists sn[] are std::lists; getls/getrs/getfa derive left/right
- *        siblings from it[] iterators and list order; KNOWN ISSUE: the erase
- *        rebuild (nd[h].clear() + re-insert) occasionally misbehaves/crashes
- *        on some operation sequences (suspected iterator invalidation) —
- *        validate with stress tests; empty-heap / self-merge not handled
- * ============================================================
- * Example (uncomment to compile; join/top only — see the known-issue note above):
- * static heap_rank_pairing_b<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: child lists sn[] are std::lists; getls / getrs / getfa derive left /
+ *        right siblings from it[] iterators and list order.
+ *        KNOWN ISSUE: the erase rebuild (nd[h].clear() + re-insert)
+ *        occasionally misbehaves or crashes on some sequences (suspected
+ *        iterator invalidation) — validate with stress tests; empty-heap /
+ *        self-merge not handled
  * ============================================================
  */

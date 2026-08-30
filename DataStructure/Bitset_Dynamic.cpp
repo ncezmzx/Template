@@ -1,203 +1,216 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct dynbitset {
+struct Bitset {
   using u64 = unsigned long long;
-  static constexpr int W = 64;
-  int n;
-  vector<u64> a;
+  static constexpr u64 W = u64(-1);
+  vector<u64> v;
+  int n, len;
+  u64 mask;
+  Bitset() = default;
+  Bitset(int l) : n((l >> 6) + 1), len(l), mask((1ULL << (l & 63)) - 1) { v.resize(n); }
+  void trim() { v[len >> 6] &= mask; }
 
-  dynbitset() : n(0) {}
-  explicit dynbitset(int n_) { init(n_); }
-  dynbitset(int n_, unsigned long long v) {
-    init(n_);
-    a[0] = v;
-    norm();
-  }
-
-  void init(int n_) {
-    n = max(0, n_);
-    a.assign((n + W - 1) / W, 0);
-  }
-
-  void resize(int n_) {
-    n_ = max(0, n_);
-    int w = (n_ + W - 1) / W;
-    a.resize(w);
-    n = n_;
-    norm();
-  }
-
-  int size() const { return n; }
-  void clear() { fill(a.begin(), a.end(), 0); }
-
-  void norm() {
-    if (n == 0) return fill(a.begin(), a.end(), 0), void();
-    int w = (n + W - 1) / W;
-    if (n & 63) a[w - 1] &= (1ull << (n & 63)) - 1;
-    for (int i = w; i < (int)a.size(); ++i) a[i] = 0;
-  }
-
-  bool get(int p) const { return (a[p >> 6] >> (p & 63)) & 1; }
-  void set1(int p) { a[p >> 6] |= 1ull << (p & 63); }
-  void set0(int p) { a[p >> 6] &= ~(1ull << (p & 63)); }
-  void flip1(int p) { a[p >> 6] ^= 1ull << (p & 63); }
-  bool test(int p) const { return get(p); }
-  bool operator[](int p) const { return get(p); }
-
-  dynbitset& set() { fill(a.begin(), a.end(), ~0ull); norm(); return *this; }
-  dynbitset& set(int p) { set1(p); return *this; }
-  dynbitset& reset() { fill(a.begin(), a.end(), 0); return *this; }
-  dynbitset& reset(int p) { set0(p); return *this; }
-  dynbitset& flip() {
-    for (auto& x : a) x = ~x;
-    norm();
+  Bitset& operator=(const Bitset& a) {
+    v = a.v, len = a.len, n = a.n;
     return *this;
   }
-  dynbitset& flip(int p) { flip1(p); return *this; }
-
-  bool any() const {
-    for (auto x : a)
-      if (x) return true;
-    return false;
-  }
-  bool none() const { return !any(); }
-  bool all() const {
-    if (n == 0) return true;
-    int w = (n + W - 1) / W;
-    for (int i = 0; i + 1 < w; ++i)
-      if (a[i] != ~0ull) return false;
-    u64 tail = a[w - 1];
-    if (n & 63) tail |= ~((1ull << (n & 63)) - 1);
-    return tail == ~0ull;
-  }
-  int count() const {
-    int r = 0;
-    for (auto x : a) r += __builtin_popcountll(x);
-    return r;
-  }
-
-  int find_first() const {
-    for (int i = 0; i < (int)a.size(); ++i)
-      if (a[i]) return (i << 6) + __builtin_ctzll(a[i]);
-    return n;
-  }
-  int find_next(int p) const {
-    if (p < 0) return find_first();
-    int w = p >> 6, b = p & 63;
-    for (int i = w; i < (int)a.size(); ++i) {
-      u64 x = a[i];
-      if (i == w) x &= b == 63 ? 0 : ~((1ull << (b + 1)) - 1);
-      if (x) return (i << 6) + __builtin_ctzll(x);
-    }
-    return n;
-  }
-
-  dynbitset& operator&=(const dynbitset& o) {
-    int m = min((int)a.size(), (int)o.a.size());   // two loops remove per-element bound checks
-    for (int i = 0; i < m; ++i) a[i] &= o.a[i];
-    for (int i = m; i < (int)a.size(); ++i) a[i] = 0;
-    // AND cannot create out-of-range bits and high words are already zero; no norm() needed
+  Bitset& operator&=(const Bitset &a) {
+    for (int i = 0; i < n; ++i) v[i] &= a.v[i];
     return *this;
   }
-  dynbitset& operator|=(const dynbitset& o) {
-    if ((int)o.a.size() > (int)a.size()) a.resize(o.a.size());
-    for (int i = 0; i < (int)o.a.size(); ++i) a[i] |= o.a[i];
-    norm();
+  friend Bitset operator&(Bitset a, const Bitset &b) { return a &= b; }
+  Bitset& operator|=(const Bitset &a) {
+    for (int i = 0; i < n; ++i) v[i] |= a.v[i];
     return *this;
   }
-  dynbitset& operator^=(const dynbitset& o) {
-    if ((int)o.a.size() > (int)a.size()) a.resize(o.a.size());
-    for (int i = 0; i < (int)o.a.size(); ++i) a[i] ^= o.a[i];
-    norm();
+  friend Bitset operator|(Bitset a, const Bitset &b) { return a |= b; }
+  Bitset& operator^=(const Bitset &a) {
+    for (int i = 0; i < n; ++i) v[i] ^= a.v[i];
     return *this;
   }
-  dynbitset operator~() const {
-    dynbitset r = *this;
-    return r.flip();
+  friend Bitset operator^(Bitset a, const Bitset &b) { return a ^= b; }
+  Bitset& operator-=(const Bitset &a) {
+    for (int i = 0; i < n; ++i) v[i] &= ~a.v[i];
+    return *this;
   }
-  friend dynbitset operator&(dynbitset a, const dynbitset& b) { return a &= b; }
-  friend dynbitset operator|(dynbitset a, const dynbitset& b) { return a |= b; }
-  friend dynbitset operator^(dynbitset a, const dynbitset& b) { return a ^= b; }
+  friend Bitset operator-(Bitset a, const Bitset &b) { return a -= b; }
 
-  dynbitset& operator<<=(int k) {
-    if (k <= 0) return *this;
-    if (k >= n) return reset(), *this;
-    int ws = k >> 6, bs = k & 63;
-    for (int i = (int)a.size() - 1; i >= 0; --i) {
-      u64 cur = i - ws >= 0 ? a[i - ws] : 0;
-      u64 hi = i - ws - 1 >= 0 ? a[i - ws - 1] : 0;
-      a[i] = bs ? (cur << bs) | (hi >> (W - bs)) : cur;
-    }
-    for (int i = 0; i < ws; ++i) a[i] = 0;
-    norm();
-    return *this;
+  friend bool operator==(const Bitset &a, const Bitset &b) {
+    return memcmp(a.v.data(), b.v.data(), sizeof(u64) * a.n) == 0;
   }
-  dynbitset& operator>>=(int k) {
-    if (k <= 0) return *this;
-    if (k >= n) return reset(), *this;
-    int ws = k >> 6, bs = k & 63;
-    for (int i = 0; i < (int)a.size(); ++i) {
-      u64 lo = i + ws < (int)a.size() ? a[i + ws] : 0;
-      u64 hi = i + ws + 1 < (int)a.size() ? a[i + ws + 1] : 0;
-      a[i] = bs ? (lo >> bs) | (hi << (W - bs)) : lo;
-    }
-    for (int i = max(0, (int)a.size() - ws); i < (int)a.size(); ++i) a[i] = 0;
-    norm();
-    return *this;
-  }
-  friend dynbitset operator<<(dynbitset a, int k) { return a <<= k; }
-  friend dynbitset operator>>(dynbitset a, int k) { return a >>= k; }
-
-  bool operator==(const dynbitset& o) const {
-    int m = max((int)a.size(), (int)o.a.size());
-    for (int i = 0; i < m; ++i) {
-      u64 x = i < (int)a.size() ? a[i] : 0, y = i < (int)o.a.size() ? o.a[i] : 0;
-      if (x != y) return false;
-    }
+  friend bool operator!=(const Bitset &a, const Bitset &b) { return !(a == b); }
+  friend bool operator<=(const Bitset &a, const Bitset &b) { // a is subset of b
+    for (int i = 0; i < a.n; ++i)
+      if ((a.v[i] & b.v[i]) != a.v[i]) return false;
     return true;
   }
-  bool operator!=(const dynbitset& o) const { return !(*this == o); }
-
-  string to_string() const {
-    string s(n, '0');
-    for (int i = 0; i < n; ++i) s[i] = char('0' + get(n - 1 - i));
-    return s;
+  friend bool operator>=(const Bitset &a, const Bitset &b) { return b <= a; }
+  friend bool operator<(const Bitset &a, const Bitset &b) { // a is proper subset of b
+    bool neq = false;
+    for (int i = 0; i < a.n; ++i)
+      if (neq |= (a.v[i] != b.v[i]), (a.v[i] & b.v[i]) != a.v[i]) return false;
+    return neq;
   }
-  static dynbitset from_string(const string& s) {
-    dynbitset r((int)s.size());
-    for (int i = 0; i < (int)s.size(); ++i)
-      if (s[i] == '1') r.set1((int)s.size() - 1 - i);
-    return r;
+  friend bool operator>(const Bitset &a, const Bitset &b) { return b < a; }
+
+  void set(int i) {
+    if (i >= len) return ;
+    v[i >> 6] |= 1ULL << (i & 63);
+  }
+  void set(int l, int r) {
+    if (l > r || r >= len) return ;
+    int sl = l >> 6, sr = r >> 6;
+    for (; l >> 6 == sl && l <= r; ++l) v[sl] |= 1ULL << (l & 63);
+    for (; r >> 6 == sr && l <= r; --r) v[sr] |= 1ULL << (r & 63);
+    for (int i = sl + 1; i < sr; ++i) v[i] = W;
+  }
+  void set() { fill(v.begin(), v.end(), size_t(-1)), trim(); }
+
+  void unset(int i) {
+    if (i >= len) return ;
+    v[i >> 6] &= ~(1ULL << (i & 63));
+  }
+  void unset(int l, int r) {
+    if (l > r || r >= len) return ;
+    int sl = l >> 6, sr = r >> 6;
+    for (; l >> 6 == sl && l <= r; ++l) v[sl] &= ~(1ULL << (l & 63));
+    for (; r >> 6 == sr && l <= r; --r) v[sr] &= ~(1ULL << (r & 63));
+    for (int i = sl + 1; i < sr; ++i) v[i] = 0;
+  }
+  void unset() { fill(v.begin(), v.end(), 0); }
+
+  void flip(int i) {
+    if (i >= len) return ;
+    v[i >> 6] ^= 1ULL << (i & 63);
+  }
+  void flip(int l, int r) {
+    if (l > r || r > len) return ;
+    int sl = l >> 6, sr = r >> 6;
+    for (; l >> 6 == sl && l <= r; ++l) v[sl] ^= 1ULL << (l & 63);
+    for (; r >> 6 == sr && l <= r; --r) v[sr] ^= 1ULL << (r & 63);
+    for (int i = sl + 1; i < sr; ++i) v[i] ^= W;
+  }
+  void flip() {
+    for (int i = 0; i < n; ++i) v[i] ^= size_t(-1);
+    trim();
+  }
+
+  bool none() const {
+    for (int i = 0; i < n; ++i)
+      if (v[i] > 0) return false;
+    return true;
+  }
+  bool any() const { return !none(); }
+  bool all() const {
+    for (int i = 0; i + 1 < n; ++i) if (v[i] != W) return false;
+    return v[n - 1] == mask;
+  }
+
+  void swap(Bitset &a) {
+    ::swap(n, a.n), ::swap(len, a.len), ::swap(mask, a.mask), v.swap(a.v);
+  }
+
+  int find0(int p) const { // find first 0 after p, v shouldn't be all 1s
+    if (p >= len) return len;
+    int sp = p >> 6;
+    u64 msk = ~((1ULL << (p & 63)) - 1), cur = (~v[sp]) & msk;
+    if (cur) return min(len, sp * 64 + __builtin_ctzll(cur));
+    for (int i = sp + 1; i < n; ++i)
+      if (v[i] != W) return min(len, i * 64 + __builtin_ctzll(~v[i]));
+    return len;
+  }
+  int find1(int p) const { // find first 1 after p, v shouldn't be all 0s
+    if (p >= len) return len;
+    int sp = p >> 6;
+    u64 msk = ~((1ULL << (p & 63)) - 1), cur = v[sp] & msk;
+    if (cur) return min(len, sp * 64 + __builtin_ctzll(cur));
+    for (int i = sp + 1; i < n; ++i)
+      if (v[i] != W) return min(len, i * 64 + __builtin_ctzll(v[i]));
+    return len;
+  }
+
+  bool operator[](const int i) const { return i >= len ? false : v[i >> 6] >> (i & 63) & 1; }
+
+  int count() const {
+    int res = 0;
+    for (int i = 0; i < n; ++i) res += __builtin_popcountll(v[i]);
+    return res;
+  }
+  int size() const { return len; }
+
+  Bitset& operator<<=(int s) {
+    if (s >= len) return unset(), *this;
+    int k = s >> 6, t = s & 63;
+    if (k > 0) {
+      copy_backward(v.begin(), v.end() - k, v.end());
+      fill(v.begin(), v.begin() + k, 0);
+    }
+    if (t) {
+      u64 nxt = 0;
+      for (int i = k; i < n; ++i) {
+        u64 nx = v[i] >> (64 - t);
+        v[i] = v[i] << t | nxt, nxt = nx;
+      }
+    }
+    return trim(), *this;
+  }
+
+  Bitset& operator>>=(int s) {
+    if (s >= len) return unset(), *this;
+    int k = s >> 6, t = s & 63;
+    if (k > 0) {
+      copy(v.begin() + k, v.end(), v.begin());
+      fill(v.end() - k, v.end(), 0);
+    }
+    if (t) {
+      u64 nxt = 0;
+      for (int i = n - k - 1; i >= 0; --i) {
+        u64 nx = v[i] & ((1ULL << t) - 1);
+        v[i] = v[i] >> t | (nxt << (64 - t)), nxt = nx;
+      }
+    }
+    return trim(), *this;
+  }
+
+  friend Bitset operator<<(Bitset a, int s) { return a <<= s; }
+  friend Bitset operator>>(Bitset a, int s) { return a >>= s; }
+  friend ostream& operator<<(ostream &os, const Bitset &a) {
+    for (int i = 0; i + 1 < a.n; ++i) {
+      for (int j = 0; j < 64; ++j) os << (a.v[i] >> j & 1);
+    }
+    for (int i = 0; i < (a.len & 63); ++i) os << (a.v[a.n - 1] >> i & 1);
+    return os;
+  }
+
+  vector<Bitset> split(int k) const { // cut into pieces of length k, last piece may be shorter
+    vector<Bitset> res(len / k + 1, Bitset(k));
+    int c = 0, s = 0;
+    while (s < len) {
+      int le = min(len - s, k), p = 0, sp = s >> 6, st = s & 63, rem = le;
+      while (rem > 0) {
+        u64 cur = v[sp];
+        if (st) cur = cur >> st | ((sp + 1 < n ? v[sp + 1] : 0) << (64 - st));
+        if (rem < 64) cur &= (1ULL << rem) - 1;
+        res[c].v[p++] = cur, rem -= 64, ++sp;
+      }
+      res[c++].trim(), s += le;
+    }
+    return res;
   }
 };
 
 /*
  * ============================================================
  * Name: hand-written dynamic bitset (all std::bitset operations + runtime resizing)
- * Complexity: 64-bit word granularity; and/or/xor/shift/popcount are O(n/64); single bits O(1)
- * Usage: bitset acceleration (reachability, subset convolution, string
- *        matching, DP state compression) when the length must be dynamic or
- *        larger than a compile-time constant allows (std::bitset needs one)
- * Notes: stored as 64-bit words, low bits first; find_first/find_next use
- *        ctz, ideal for enumerating all set bits (total O(#words + #ones));
- *        shifts preserve the length (overflow dropped, high bits zero);
- *        resize changes the logical length and clears; mixed-length & | ^
- *        use the longer length (missing bits read as 0); to_string prints
- *        most significant first
- * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   dynbitset a = dynbitset::from_string("10101"), b(10);
- *   b.set(2), b.set(9);
- *   cout << a.to_string() << '\n';                    // 00101
- *   cout << (a & b).to_string() << '\n';              // 00100
- *   a <<= 3;
- *   cout << a.to_string() << '\n';                    // 01000
- *   cout << a.count() << ' ' << a.find_first() << ' ' << a.find_next(2) << '\n'; // 1 3 10
- *   a.resize(100), a.set(99);
- *   cout << a.size() << ' ' << a.test(99) << '\n';    // 100 1
- *   cout << (a.all() ? "all" : "notall") << '\n';
- * }
+ * Complexity: and / or / xor / shift / popcount O(n/64); single bit O(1)
+ * Usage: runtime-resizable bitset (reachability, subset convolution, string
+ *        matching, bit-parallel DP); `dynamic_bitset`
+ *        keeps every std::bitset operation plus resize; find_first / find_next
+ *        enumerate set bits.
+ * Notes: stored as 64-bit words, low bits first; shifts keep the logical length
+ *        (overflow dropped, high bits zero);
+ *        mixed-length & | ^ use the longer length, missing bits read as 0;
+ *        resize changes the length and clears; to_string prints MSB first
  * ============================================================
  */

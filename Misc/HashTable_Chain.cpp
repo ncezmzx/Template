@@ -37,37 +37,20 @@ struct Hash {
  * ============================================================
  * Name: random-weight xor hashing (multiset hashing) + reference-counting hash table
  * Complexity: assigning a random weight to each distinct value O(1); prefix xor
- *             O(1)/step; hash-table insert/lookup expected O(1)
- * Usage: count subarrays where "every element appears an even number of
- *        times" / decide whether two multisets are equal: assign each
- *        distinct value a random u64 weight w[x]; the multiset xor hash of
- *        [l,r] is w[a[l]]^...^w[a[r]]; all counts even <=> that xor is 0
- *        (random weights avoid collisions); tree isomorphism / subtree
- *        hashing work the same way (random weights merged upward).
- * Notes: HashTable_PBDS.cpp and HashTable_Chain.cpp are two implementations
- *        of "hash tables": the former uses __gnu_pbds::gp_hash_table +
- *        splitmix64 (anti-hack), the latter a hand-written chained
- *        reference-counting table (slot-pool recycling). Pick as needed.
+ *             O(1) per step; hash-table insert / lookup expected O(1)
+ * Usage: count subarrays where every element appears an even number of times,
+ *        and decide whether two multisets are equal: assign each distinct value
+ *        a random u64 weight w[x],
+ *        so the multiset xor hash of [l, r] is w[a[l]] ^ ... ^ w[a[r]] and all
+ *        counts are even iff that xor is 0 (random weights avoid collisions);
+ *        tree isomorphism / subtree hashing work the same way, merging random
+ *        weights upward.
+ *        Also provides a hand-written chained reference-counting hash table
+ *        (slot-pool recycling).
+ * Notes: HashTable_PBDS.cpp and HashTable_Chain.cpp are two implementations of
+ *        "hash tables": the former uses __gnu_pbds::gp_hash_table + splitmix64
+ *        (anti-hack), the latter this hand-written chained table. Pick as
+ *        needed
  * Source: all.cpp lines 37044, 37048, 37050-37078, 37101 (kept verbatim, comments translated)
- * ============================================================
- * Example (uncomment to compile):
- * int main() {
- *   int n;
- *   cin >> n;
- *   unordered_map<u64, u64> w;
- *   static Hash<u64, 100000> cnt;
- *   cnt.ins(0, 1);
- *   long long ans = 0;
- *   u64 s = 0;
- *   for (int i = 1; i <= n; ++i) {
- *     int x;
- *     cin >> x;
- *     if (!w.count(x)) w[x] = rng();
- *     s ^= w[x];
- *     ans += cnt.query(s);
- *     cnt.ins(s, 1);
- *   }
- *   cout << ans << '\n';
- * }
  * ============================================================
  */

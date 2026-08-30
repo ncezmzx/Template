@@ -69,29 +69,18 @@ void factorize(int n, vector<int>& fac) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Pollard-Rho factorization (Floyd cycle detection, pairs with Miller-Rabin)
  * Complexity: expected O(n^{1/4}) to find a non-trivial factor; full
  *             factorization O(n^{1/4} log n)
- * Usage: factor 64-bit composites (e.g. ~1e18); typically combined with
- *        Miller-Rabin (is_prime embedded): primality first, then split with
- *        Pollard-Rho
- * Principle: the pseudo-random map f(x) = (x^2 + c) mod n eventually cycles
- *        modulo n; Floyd cycle detection takes differences and gcds them
- *        with n to hit a non-trivial factor; on failure (d == n) retry with
- *        a new random seed
- * Notes: #define int long long makes int 64-bit; mul_mod uses __int128
- *        against overflow; relies on __gcd (GNU extension, C++14-compatible)
- * Usage pattern: after factorize(n, fac), fac holds all prime factors of n
- *        (with multiplicity, unordered)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   int n = 1024;                          // try any 64-bit composite
- *   vector<int> fac;
- *   factorize(n, fac);
- *   for (int x : fac) cout << x << ' ';    // ten 2s
- * }
+ * Usage: factor 64-bit composites (e.g. ~1e18); check primality first (is_prime
+ *        is embedded), then split with Pollard-Rho.
+ *        After factorize(n, fac), fac holds every prime factor of n, with
+ *        multiplicity and unordered.
+ * Principle: the pseudo-random map f(x) = (x^2 + c) mod n eventually cycles;
+ *            Floyd cycle detection takes differences and gcds them with n to
+ *            hit a non-trivial factor; on failure (d == n) retry with a new
+ *            random seed
+ * Notes: #define int long long makes int 64-bit; mul_mod uses __int128 against
+ *        overflow; relies on __gcd (a GNU extension, C++14-compatible)
  * ============================================================
  */

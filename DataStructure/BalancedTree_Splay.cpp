@@ -64,32 +64,14 @@ struct splay {
  * ============================================================
  * Name: splay tree (sequence operations: range reverse etc.)
  * Complexity: amortized O(log n) per operation
- * Usage: sequence maintenance, wrapped as splay<N>: range reverse, range
- *        insert/delete, range moves; kth both endpoints around [l, r], splay
- *        them to the root and the root's right child, and the interval
- *        becomes the left subtree of the root's right child — tag it or
- *        operate on it wholesale
- * Principle: every access rotates the node to the root (splay); amortized
- *        analysis gives O((n+q) log n) overall
- * Notes: alternative implementations of the same balanced-tree job live in
- *        BalancedTree_Treap.cpp and BalancedTree_WBST_*.cpp; this file is
- *        the sequence version (with sentinels: building 1..n wrapped by 0
- *        and n+1 avoids kth overflow — the example builds 0..n+1 directly,
- *        kth positions shift by +1)
- * Usage pattern: rt = build(0, n + 1); reverse(l, r) reverses [l, r] (real positions)
- * ============================================================
- * Example (uncomment to compile; range reverse):
- * static splay<100009> sp;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   sp.rt = sp.build(0, n + 1);
- *   while (m--) {
- *     int l, r;
- *     cin >> l >> r;
- *     sp.reverse(l, r);
- *   }
- *   sp.print(sp.rt);
- * }
+ * Usage: sequence maintenance (range reverse / insert / delete / move):
+ *        `splay<N>`; build(l, r) balanced build; kth(k) node at 1-indexed
+ *        position k; reverse(l, r); print(x) in-order dump.
+ *        Sentinel convention: build(0, n + 1) around a length-n sequence, then
+ *        kth positions shift by +1.
+ * Principle: every access rotates the node to the root; amortized O((n + q) log
+ *            n) overall
+ * Notes: reset rt / tot between test cases; alternatives:
+ *        BalancedTree_Treap.cpp, BalancedTree_WBST_*.cpp
  * ============================================================
  */

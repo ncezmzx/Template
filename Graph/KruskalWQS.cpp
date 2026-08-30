@@ -47,32 +47,14 @@ struct wqs_mst {
 
 /*
  * ============================================================
- * ============================================================
  * Name: WQS binary search + Kruskal (MST with exactly k special edges)
  * Complexity: O(m log m * logV); each calc(x) runs one linear-merge Kruskal
- * Usage: minimum spanning tree using exactly k special edges, wrapped as
- *        wqs_mst<N>: fill es[1..m] (c = 0 marks special edges), set n, m,
- *        then binary-search the penalty: subtract x from every special edge
- *        in calc(x), find the largest penalty l with q >= k special edges,
- *        answer = p(l) + l * k; for negative weights adjust the search
- *        bounds; ties prefer the special edge (c=0); fa is 0-indexed
+ * Usage: MST using exactly k special edges, `wqs_mst<N>`: fill es[1..m] (c = 0
+ *        marks a special edge), set n and m, then binary-search the penalty:
+ *        subtract x from every special edge in calc(x), find the largest
+ *        penalty l with q >= k special edges, and the answer is p(l) + l * k.
  * Source: all.cpp lines 28716-28755 (wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
-
- * static wqs_mst<100009> wq;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   cin >> wq.n >> wq.m >> wq.k;
- *   for (int i = 1; i <= wq.m; ++i) cin >> wq.es[i].x >> wq.es[i].y >> wq.es[i].z >> wq.es[i].c;
- *   int l = -1000, r = 1000;                 // penalty bounds, adjust to the edge weights
- *   while (l < r) {
- *     int mid = (l + r) >> 1;
- *     if (wq.calc(mid).second >= wq.k) r = mid;    // too many special edges -> raise the penalty
- *     else l = mid + 1;
- *   }
- *   auto res = wq.calc(l);
- *   cout << res.first + l * wq.k;            // restore: each special edge in p carried -l, k of them
- * }
+ * Notes: ties prefer the special edge (c = 0); fa is 0-indexed; for negative
+ *        weights adjust the search bounds
  * ============================================================
  */

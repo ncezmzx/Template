@@ -70,40 +70,17 @@ struct centroid_tree {
 
 /*
  * ============================================================
- * ============================================================
  * Name: centroid decomposition (dynamic centroid tree)
- * Complexity: centroid-tree build O(n log n) (each level O(current component size));
- *             one query/update O(log^2 n)
- * Usage: distance-based statistics on a tree with point updates (e.g. sum of
- *        weights within distance k of x), wrapped as centroid_tree<N>:
- *        es holds the tree, dfs(1, 0) builds the Euler order (the LCA sparse
- *        table is built lazily), build(1, 0) builds the centroid tree,
- *        update(x, w) adds weight, query(x, k) sums weights within distance
- *        k of x; each centroid rt owns two BITs c[0][rt] (per-distance
- *        contributions) and c[1][rt] (toward the parent centroid, for
- *        inclusion-exclusion)
+ * Complexity: centroid-tree build O(n log n); one query / update O(log^2 n)
+ * Usage: distance-based statistics on a tree with point updates (e.g. the sum
+ *        of weights within distance k of x), `centroid_tree<N>`:
+ *        es holds the tree; dfs(1, 0) builds the Euler order (the LCA sparse
+ *        table is built lazily); build(1, 0) builds the centroid tree;
+ *        update(x, w) adds weight; query(x, k) sums the weights within distance
+ *        k of x.
  * Source: all.cpp lines 7965-8041 (wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
-
- * static centroid_tree<100009> cd;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1; i <= n; ++i) cin >> cd.a[i];
- *   for (int i = 1, x, y; i < n; ++i) {
- *     cin >> x >> y, cd.es[x].push_back(y), cd.es[y].push_back(x);
- *   }
- *   cd.dfs(1, 0);
- *   cd.build(1, 0);
- *   for (int i = 1; i <= n; ++i) cd.update(i, cd.a[i]);   // initialize weights
- *   while (m--) {
- *     int o, x, y;
- *     cin >> o >> x >> y;
- *     if (o == 0) cout << cd.query(x, y) << '\n';          // sum of weights within distance y of x
- *     else cd.update(x, y - cd.a[x]), cd.a[x] = y;         // set x's weight to y
- *   }
- * }
+ * Notes: each centroid rt owns two BITs: c[0][rt] for per-distance
+ *        contributions and c[1][rt] toward the parent centroid, for inclusion-
+ *        exclusion
  * ============================================================
  */

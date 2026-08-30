@@ -38,31 +38,16 @@ struct leftist_heap {
 /*
  * ============================================================
  * Name: leftist heap (mergeable min-heap)
- * Complexity: merge O(log n), pop/build amortized O(log n); find climbs fa
- * Usage: mergeable priority queue, wrapped as leftist_heap<N>:
- *        node(v) makes a singleton heap, merge(h1, h2) melds, pop(h) removes
- *        the root, find(x) locates the root of x's heap; often combined with
- *        DSU-style "one heap per set" tricks (MST variants, greedy problems)
- * Principle: maintains dist (distance to the nearest null child) and always
- *        keeps the heavier side on the left (dis[left] >= dis[right]), so
- *        each merge recurses along one right spine of length O(log n)
- * Notes: find does no path compression (after melds, fa is the heap tree
- *        itself; compression would break pop's parent links); complements
- *        the STL priority_queue (not mergeable); the root holds the smallest
- *        val (min-heap; negate values for a max-heap)
- * ============================================================
- * Example (uncomment to compile):
- * static leftist_heap<100009> lh;
- * signed main() {
- *   vector<int> h;
- *   for (int x : {5, 2, 8, 3, 7}) h.push_back(lh.node(x));
- *   while (h.size() > 1) {
- *     sort(h.begin(), h.end(), [&](int a, int b) { return lh.val[a] > lh.val[b]; });
- *     int a = h.back(); h.pop_back();
- *     int b = h.back(); h.pop_back();
- *     h.push_back(lh.merge(a, b));
- *   }
- *   cout << lh.val[h[0]] << '\n';   // 2 (the overall minimum)
- * }
+ * Complexity: merge O(log n); pop / build amortized O(log n); find climbs fa
+ * Usage: mergeable min-heap, `leftist_heap<N>`: node(v) singleton; merge(h1,
+ *        h2) melds; pop(h) removes the root; find(x) root of x's heap.
+ *        A heap is identified by its root node (h is passed by reference);
+ *        empty heap = 0.
+ * Principle: keeps dis[left] >= dis[right], so a merge only recurses down one
+ *            right spine of length O(log n)
+ * Notes: find does no path compression (after melds fa is the heap tree itself,
+ *        compression would break pop's parent links);
+ *        the root holds the smallest val (negate values for a max-heap);
+ *        complements std::priority_queue, which is not mergeable
  * ============================================================
  */

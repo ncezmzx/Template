@@ -17,28 +17,14 @@ struct pbds_heap {
 /*
  * ============================================================
  * Name: pbds pairing heap (__gnu_pbds implementation, mergeable)
- * Complexity: newnode/top/join O(1) amortized; decrease_key/erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase; min-heap (greater<int>),
- *        wrapped as pbds_heap<N>; heaps are identified by their index
+ * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
+ *             n) amortized
+ * Usage: `pbds_heap<N>`: newnode / top / join / decrease_key / erase; min-heap
+ *        (greater<int>); heaps are identified by their index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 1, wrapped into a struct
- * Notes: requires pb_ds (#include <ext/pb_ds/priority_queue.hpp>); its[]
- *        holds iterators, invalidated after erase/modify; after join(x, y)
- *        heap y is empty; element type fixed to int
- * ============================================================
- * Example (uncomment to compile):
- * static pbds_heap<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: requires #include <ext/pb_ds/priority_queue.hpp>; its[] holds
+ *        iterators, invalidated after erase / modify; after join(x, y) heap y
+ *        is empty; element type fixed to int
  * ============================================================
  */

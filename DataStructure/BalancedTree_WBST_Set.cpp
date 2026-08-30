@@ -90,24 +90,13 @@ struct wbst_set {
 /*
  * ============================================================
  * Name: weight-balanced BST, set form (ordered multiset via deterministic WBT)
- * Complexity: ins/remove/rnk/kth amortized O(log n); no random priorities, very stable
- * Usage: dynamic ordered set, wrapped as wbst_set<N>:
- *        ins inserts, remove deletes, rnk counts values < v, kth gives the
- *        k-th smallest; mer(x, y) joins two trees, balance(x) rotates when
- *        subtrees get skewed; up/rotate/cut/erase/make/node/link are
- *        internal helpers
+ * Complexity: ins / remove / rnk / kth amortized O(log n); deterministic, no
+ *             random priorities
+ * Usage: ordered multiset, `wbst_set<N>`: ins(v); remove(v); rnk(v) = count of
+ *        values < v; kth(k) = k-th smallest; mer(x, y) joins; balance(x)
+ *        rotates when skewed.
+ *        up / rotate / cut / erase / make / node / link are internal helpers.
  * Source: all.cpp lines 30633-30722 (namespace wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * static wbst_set<100009> wb;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   wb.ins(wb.rt, 3), wb.ins(wb.rt, 1), wb.ins(wb.rt, 4), wb.ins(wb.rt, 1), wb.ins(wb.rt, 5);
- *   cout << wb.rnk(wb.rt, 4) + 1 << '\n';   // rank of 4 = 3
- *   cout << wb.kth(wb.rt, 3) << '\n';       // 3rd smallest = 3
- *   wb.remove(wb.rt, 1);                    // remove one copy of 1
- *   cout << wb.kth(wb.rt, 2) << '\n';       // 2nd smallest = 3
- *   return 0;
- * }
+ * Notes: deterministic; reset between test cases
  * ============================================================
  */

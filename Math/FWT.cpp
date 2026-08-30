@@ -55,26 +55,15 @@ void fwt_xor(int a[], int n, bool inv) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: fast Walsh-Hadamard transform (FWT: or / and / xor subset convolutions)
  * Complexity: O(n log n), n a power of two (array length)
  * Usage: three bitwise convolutions: c[k] = sum_{i|j=k} a[i]*b[j] (or),
- *        c[k] = sum_{i&j=k} ... (and), c[k] = sum_{i^j=k} ... (xor)
- * Usage pattern: pad a, b to length n (power of two);
- *        fwt_or(a, n, 0), fwt_or(b, n, 0); pointwise multiply; fwt_or(a, n, 1) -> a is the convolution;
- *        and / xor analogous; the xor inverse transform divides by n itself
- * Notes: complements NTT.cpp: NTT for additive convolution, FWT for bitwise;
- *        the modulus is swappable — the inverse needs the inverse of 2
- *        (xor handles it via qpow(n))
- * ============================================================
- * Example (uncomment to compile; xor convolution c = a (x) b):
-
- * signed main() {
- *   int n = 1 << 3, a[8] = {1, 2, 0, 0, 0, 0, 0, 0}, b[8] = {3, 4, 0, 0, 0, 0, 0, 0};
- *   fwt_xor(a, n, 0), fwt_xor(b, n, 0);
- *   for (int i = 0; i < n; ++i) a[i] = a[i] * b[i] % md;
- *   fwt_xor(a, n, 1);
- *   for (int i = 0; i < n; ++i) cout << a[i] << ' ';
- * }
+ *        sum_{i&j=k} (and), sum_{i^j=k} (xor).
+ *        pad a, b to a power of two n; fwt_or(a, n, 0) and fwt_or(b, n, 0);
+ *        multiply pointwise; fwt_or(a, n, 1) leaves the convolution in a; and /
+ *        xor are analogous.
+ * Notes: the xor inverse transform divides by n itself; the modulus is
+ *        swappable, but the inverse needs the inverse of 2 (xor handles it via
+ *        qpow(n)); complements NTT.cpp, which does additive convolution
  * ============================================================
  */

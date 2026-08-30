@@ -67,27 +67,20 @@ int kth_term(const vector<int>& s, int k, int mod) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Berlekamp-Massey + Kitamasa (k-th term of a linear recurrence)
  * Complexity: BM O(n^2); kth_term O(d^2 log k) (d = recurrence order)
- * Usage: given the first terms of a sequence s (modulo a prime), BM finds
- *        the shortest linear recurrence automatically, then the k-th term
- *        costs O(d^2 log k) (k up to 1e18); a typical alternative to matrix
- *        fast exponentiation (smaller constants when the data is recurrent)
- * Principle: BM incrementally maintains two polynomials C (characteristic)
- *        and B (last discrepancy); on a discrepancy, C is corrected by B/b
- *        and B updated when the length more than doubles; the k-th term is
- *        x^k mod f(x) (f = characteristic polynomial x^d - sum ci*x^{d-i});
- *        answer = sum (x^k mod f)_i * s_i
- * Notes: mod must be prime (BM uses inverses); reduce s entries to
- *        [0, mod) first; s needs at least 2d terms for correctness;
- *        polymul convention: rec[i-1] is the coefficient of x^{d-i} (i.e. c_i)
+ * Usage: given the first terms of a sequence s (modulo a prime), BM finds the
+ *        shortest linear recurrence automatically, then the k-th term costs
+ *        O(d^2 log k) for k up to 1e18;
+ *        a typical alternative to matrix fast exponentiation (smaller constants
+ *        when the data is recurrent).
+ * Principle: BM incrementally maintains the characteristic polynomial C and the
+ *            last discrepancy B, correcting C by B/b on a discrepancy and
+ *            updating B when the length more than doubles; the k-th term is x^k
+ *            mod f(x) with f = x^d - sum ci*x^{d-i}, and the answer is sum (x^k
+ *            mod f)_i * s_i
+ * Notes: mod must be prime (BM uses inverses); reduce s entries to [0, mod)
+ *        first; s needs at least 2d terms for correctness; rec[i-1] is the
+ *        coefficient of x^{d-i}, i.e. c_i
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   vector<int> s{1, 1, 2, 3, 5, 8, 13, 21};  // Fibonacci
- *   cout << kth_term(s, 10, 1e9 + 7) << '\n';  // 89
- *   cout << kth_term(s, 50, 1e9 + 7) << '\n';  // 365010934（s[50] = fib(51) = 20365011074）
- * }
  */

@@ -58,27 +58,21 @@ long long count_3d(vector<array<int, 3>> pts) {
  * ============================================================
  * Name: CDQ divide & conquer (3D partial order)
  * Complexity: O(n log^2 n) (divide levels x BIT)
- * Usage: count comparable pairs in a 3D partial order (classic: Luogu P3810
- *        asks per point how many points dominate it; this file is the total-
- *        count form — an unordered pair {u,v} counts once whenever u <= v
- *        dimensionwise); the CDQ idea generalizes to "left-half updates
- *        contribute to right-half queries" style 2D problems
+ * Usage: count comparable pairs in a 3D partial order (this file is the total-
+ *        count form: an unordered pair {u, v} counts once whenever u <= v
+ *        dimensionwise);
+ *        the CDQ idea generalizes to "left-half updates contribute to right-
+ *        half queries" style 2D problems. Method list: see Interface below.
  * Interface: count_3d({{a, b, c}, ...}) counts unordered pairs {u, v} whose
  *        min dominates the max dimensionwise (equal triples counted once in
  *        input order)
- * Principle: first dimension sorted by full (a, b, c) order (dominators
- *        always precede); second dimension handled by divide-and-conquer
- *        merging — during the merge the left half enters the BIT keyed by c
- *        (a already guaranteed by sorting), the right half queries prefix
- *        sums; O(n log n) per level, log n levels
- * Notes: to count "strictly distinct in all 3 dimensions", deduplicate equal
- *        triples first (combining counts inside a group separately); for
- *        mixed update/query CDQ, put the queries into v_ as elements too
+ * Principle: the first dimension is sorted by full (a, b, c) order, so
+ *            dominators always precede; the second dimension is handled by
+ *            divide-and-conquer merging — during a merge the left half enters
+ *            the BIT keyed by c (a is already guaranteed by the sorting) and
+ *            the right half queries prefix sums
+ * Notes: to count pairs strictly distinct in all 3 dimensions, deduplicate
+ *        equal triples first (combining counts inside a group separately); for
+ *        mixed update / query CDQ, put the queries into v_ as elements too
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   cout << count_3d({{1, 1, 1}, {2, 2, 2}, {3, 3, 3}}) << '\n';   // 3 (all comparable)
- *   cout << count_3d({{2, 1, 1}, {1, 2, 2}, {3, 3, 3}}) << '\n';   // 2 ((2,1,1)<(3,3,3) and (1,2,2)<(3,3,3); the first two are a-descending, not comparable)
- *   cout << count_3d({{1, 1, 1}, {1, 1, 1}}) << '\n';              // 1 (equal triples count once in input order)
- * }
  */

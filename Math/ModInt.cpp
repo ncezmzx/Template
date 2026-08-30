@@ -67,21 +67,13 @@ struct modint {
 using mint = modint<md>;
 /*
  * ============================================================
- * ============================================================
  * Name: fast modular wrapper (Montgomery modint, fixed modulus)
- * Complexity: arithmetic O(1) (one Montgomery reduction per multiply); qpow O(log b)
- * Usage: general-purpose arithmetic modulo a prime, replacing plain % with
- *        faster operations; division goes through the inverse automatically
- *        (modulus must be prime).
+ * Complexity: arithmetic O(1) (one Montgomery reduction per multiply); qpow
+ *             O(log b)
+ * Usage: general-purpose arithmetic modulo a fixed prime, replacing plain %
+ *        with faster operations; division goes through the inverse
+ *        automatically.
  * Source: all.cpp lines 5615-5678 (kept verbatim, comments translated)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   mint a = 123456789, b = 987654321;
- *   cout << a + b << ' ' << a - b << ' ' << a * b << '\n';
- *   cout << qpow(a, 10) << '\n';
- *   cout << a / b << '\n';  // division via modular inverse (prime modulus)
- * }
+ * Notes: the modulus must be prime
  * ============================================================
  */

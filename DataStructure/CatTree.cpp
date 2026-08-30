@@ -23,21 +23,10 @@ template<class T, size_t N> struct cattree {
 /*
  * ============================================================
  * Name: cat tree (static O(1) associative range queries)
- * Complexity: preprocessing O(n log n), query O(1)
- * Usage: static arrays with an associative query operator (+, max, min, gcd,
- *        xor etc., expressed via operator+)
+ * Complexity: preprocessing O(n log n); query O(1)
+ * Usage: static associative range queries (+, max, min, gcd, xor, ... expressed
+ *        as operator+), `cattree<T, N>`: build, then query(l, r).
  * Source: all.cpp lines 814-833 (kept verbatim, comments translated)
- * ============================================================
- * Example (uncomment to compile):
- *   signed main() {
- *     cin.tie(nullptr)->sync_with_stdio(false);
- *     int a[6] = {1, 3, 5, 2, 4, 6};
- *     cattree<int, 100> ct;
- *     ct.build(6, a);
- *     cout << ct.query(1, 3) << '\n';  // 3+5+2 = 10
- *     cout << ct.query(0, 5) << '\n';  // 21
- *     cout << ct.query(2, 2) << '\n';  // 5
- *     return 0;
- *   }
+ * Notes: static only; op must be associative
  * ============================================================
  */

@@ -39,24 +39,16 @@ int sqrt_mod(int a, int p) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: quadratic residues (Cipolla square root mod p)
  * Complexity: expected O(log^2 p) (finding b takes ~2 tries)
- * Usage: sqrt_mod(a, p) finds x with x^2 = a (mod p) (p an odd prime),
- *        returning the smaller root; -1 when a is a non-residue; a = 0 -> 0
- * Principle: Euler's criterion a^{(p-1)/2} = 1 decides solvability; pick b
- *        (increasing here) with w = b^2 - a a non-residue, then in
- *        F_p(sqrt w) (the field of size p^2), (b + sqrt w)^p = b - sqrt w
- *        (Frobenius), so (b+sqrt w)^{p+1} = b^2 - w = a and its (p+1)/2-th
- *        power is the root (imaginary part 0)
- * Notes: odd primes only (for p = 2 the root is a mod 2); the two roots are
- *        x and p - x; the only root of 0 is 0
+ * Usage: sqrt_mod(a, p) finds x with x^2 = a (mod p) for an odd prime p,
+ *        returning the smaller root, or -1 when a is a non-residue; a = 0 gives
+ *        0.
+ * Principle: Euler's criterion a^{(p-1)/2} = 1 decides solvability; pick b with
+ *            w = b^2 - a a non-residue, then in F_p(sqrt w) Frobenius gives (b
+ *            + sqrt w)^p = b - sqrt w, so (b + sqrt w)^{p+1} = b^2 - w = a and
+ *            its (p+1)/2-th power is the root
+ * Notes: odd primes only (for p = 2 the root is a mod 2); the two roots are x
+ *        and p - x; 0 has only the root 0
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   cout << sqrt_mod(2, 7) << '\n';          // 3 (3^2 = 9 = 2 mod 7; the other root is 4)
- *   cout << sqrt_mod(3, 7) << '\n';          // -1 (3 is a non-residue mod 7)
- *   cout << sqrt_mod(4, 998244353) << '\n';  // 2
- * }
  */

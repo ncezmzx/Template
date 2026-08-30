@@ -43,30 +43,21 @@ struct palindromic_tree {
  * ============================================================
  * Name: palindromic tree / eertree (PAM)
  * Complexity: build O(n) (alphabet amortized); tally O(n); space O(n*26)
- * Usage: online maintenance of distinct palindromic substrings (total =
- *        tot-1), occurrence counts per palindrome (cnt_ after tally), and
- *        the longest palindromic suffix ending at each position (last_ chain
- *        after extend); more structured than Manacher. Wrapped as
- *        palindromic_tree<N>
+ * Usage: `palindromic_tree<N>`: online maintenance of distinct palindromic
+ *        substrings (total = tot - 1), occurrence counts per
+ *        palindrome (cnt_ after tally) and the longest palindromic suffix
+ *        ending at each position (the last_ chain after extend);
+ *        more structured than Manacher. Method list: see Interface below.
  * Interface: build(s) (s[0] is a non-letter sentinel, e.g. '#' + the string);
  *        tot - 1 = number of distinct palindromes; after tally(), cnt_[u] is
  *        the occurrence count of u's palindrome; len_[u] its length
- * Principle: two roots (even root = empty string, odd root = virtual len -1)
- *        absorb both parities; each new position walks last's fail chain to
- *        the longest extendable palindromic suffix; the new palindrome's fail
- *        comes from the parent's fail chain; subtree sums on the fail tree
- *        give occurrence counts
- * Notes: at most n distinct palindromes (classic bound); rebuild between
- *        uses; cnt_ is only complete after tally()
+ * Principle: two roots (even root = the empty string, odd root = virtual length
+ *            -1) absorb both parities; each new position walks last's fail
+ *            chain to the longest extendable palindromic suffix, the new
+ *            palindrome's fail comes from the parent's fail chain, and subtree
+ *            sums on the fail tree give the occurrence counts
+ * Notes: build(s) expects s[0] to be a non-letter sentinel, e.g. "#" + s; at
+ *        most n distinct palindromes (the classic bound); rebuild between uses;
+ *        cnt_ is only complete after tally()
  * ============================================================
- * Example (uncomment to compile):
- * static palindromic_tree<1000005> pam;
- * signed main() {
- *   pam.build("#abba");                   // the string "abba" (s_[0] = '#' sentinel)
- *   cout << pam.tot - 1 << '\n';          // 4（a, b, bb, abba）
- *   pam.tally();
- *   // nodes 2..tot: print each palindrome's length and count
- *   for (int u = 2; u <= pam.tot; ++u) cout << pam.len_[u] << ':' << pam.cnt_[u] << ' ';
- *   cout << '\n';                         // 1:2 1:2 2:1 4:1（a×2, b×2, bb, abba）
- * }
  */

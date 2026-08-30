@@ -22,24 +22,14 @@ struct odt_tree {
 /*
  * ============================================================
  * Name: Chtholly tree / ODT (std::map-based interval assignment)
- * Complexity: amortized O(n log n) total on random data; best for
- *             assignment-dominated workloads
- * Usage: interval assignment (assign) + per-segment statistics (e.g. sum of
- *        value * segment length), wrapped as odt_tree: seed sentinel
- *        segments first (e.g. seg[1] = v, seg[n+1] = 0), then split /
- *        assign / query
+ * Complexity: amortized O(n log n) on random data; best for assignment-
+ *             dominated workloads
+ * Usage: interval assignment plus per-segment statistics (e.g. sum of value *
+ *        length), `odt_tree`:
+ *        seed sentinel segments first (seg[1] = v, seg[n + 1] = 0), then split
+ *        / assign / query.
  * Source: all.cpp lines 46715-46741 (wrapped into a struct, logic unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * odt_tree odt;
- * signed main() {
- *   int n = 5;
- *   odt.seg[1] = 1, odt.seg[n + 1] = 0;
- *   odt.assign(2, 4, 0);
- *   cout << odt.query() << '\n'; // 1+0+0+0+1 = 2
- *   odt.assign(3, 5, 2);
- *   cout << odt.query() << '\n'; // 1+0+2+2+2 = 7
- *   return 0;
- * }
+ * Notes: the amortized bound assumes random data; degenerate inputs degrade to
+ *        brute force
  * ============================================================
  */

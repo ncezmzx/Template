@@ -43,29 +43,14 @@ struct heap_binomial {
 /*
  * ============================================================
  * Name: binomial heap (mergeable, no amortized-constant insert), min-heap
- * Complexity: newnode/top O(1); join/erase/decrease_key O(log n) worst case
- *             (join has no amortized constant)
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_binomial<N>;
- *        heaps identified by their container index
+ * Complexity: newnode / top O(1); join / erase / decrease_key O(log n) worst
+ *             case (join has no amortized constant)
+ * Usage: `heap_binomial<N>`: newnode / top / join / decrease_key / erase; heaps
+ *        are identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 4, wrapped into a struct
  * Notes: tp uses the LLONG_MAX empty sentinel; after join(x, y) heap y's root
  *        list is emptied; erase decreases to LLONG_MIN then re-joins the child
  *        list; empty-heap / self-merge boundaries not handled
- * ============================================================
- * Example (uncomment to compile):
- * static heap_binomial<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- *   hp.decrease_key(h, 2, 0);       // 3 -> 0
- *   cout << hp.top(h) << '\n';      // 0
- *   hp.erase(h, 2);                 // remove the 0
- *   cout << hp.top(h) << '\n';      // 1
- * }
  * ============================================================
  */

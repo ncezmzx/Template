@@ -48,26 +48,17 @@ struct heap_rank_pairing_a {
 /*
  * ============================================================
  * Name: rank-pairing heap type A (half-tree form), mergeable min-heap
- * Complexity: newnode/top/join O(1) amortized; decrease_key/erase O(log n) amortized
- * Usage: newnode/top/join/decrease_key/erase, wrapped as heap_rank_pairing_a<N>;
- *        heaps identified by their container index
+ * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
+ *             n) amortized
+ * Usage: `heap_rank_pairing_a<N>`: newnode / top / join / decrease_key / erase;
+ *        heaps are identified by their container index.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 6 (type A + half-tree), wrapped into a struct
  * Notes: newnode only registers into the root list nd[] (no parent-child tree
- *        until decrease_key); KNOWN DEFECTS (article original): erase-rebuild
- *        fa semantics conflict with decrease_key unlinking, non-first-child
- *        unlink is wrong, erase may leave LLONG_MIN ghost nodes. Reference
- *        implementation only — do not use in contests
- * ============================================================
- * Example (uncomment to compile; join/top only — see the known-defects note above):
- * static heap_rank_pairing_a<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ *        until decrease_key).
+ *        KNOWN DEFECTS (from the source article): erase-rebuild fa semantics
+ *        conflict with decrease_key unlinking, non-first-child unlink is wrong,
+ *        erase may leave LLONG_MIN ghost nodes. Reference only, do not use in
+ *        contests
  * ============================================================
  */

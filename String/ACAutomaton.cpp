@@ -71,43 +71,22 @@ struct ac_automaton {
 /*
  * ============================================================
  * Name: Aho-Corasick automaton (multi-pattern matching, Trie + fail pointers)
- * Complexity: build O(total pattern length); matching O(text length); count topo O(#nodes)
- * Usage: matching statistics of many patterns in a long text, wrapped as
- *        ac_automaton<N>, two modes (ed/cnt separated):
- *        1) query: number of distinct patterns hit by the text (deduplicated —
- *           inserting the same pattern twice still counts 1; after walking the
- *           fail chain, ed is set to -1 to prevent double counting);
- *        2) count: occurrences of each pattern: insert records ed[u] =
- *           terminal multiplicity, matching increments cnt[current node] per
- *           step, then a topological pass over the fail tree accumulates
- *           cnt[fail[u]] += cnt[u]; pattern p's occurrences = cnt[its terminal]
- * Principle: Trie builds the patterns; BFS builds fail (failure pointers,
- *        also patching missing children to fail's corresponding child so each
- *        match step is O(1)); fail forms a tree; counts accumulate bottom-up
+ * Complexity: build O(total pattern length); matching O(text length); count
+ *             topo O(#nodes)
+ * Usage: statistics of many patterns in a long text, `ac_automaton<N>`, two
+ *        modes (ed / cnt separated):
+ *        query: number of distinct patterns hit by the text (deduplicated, so
+ *        inserting a pattern twice still counts 1);
+ *        count: occurrences per pattern — insert records ed[u] = terminal
+ *        multiplicity, matching increments cnt[current node] per step, then a
+ *        topological pass over the fail tree accumulates cnt[fail[u]] +=
+ *        cnt[u], so a pattern's occurrences are cnt[its terminal].
+ * Principle: a Trie holds the patterns and BFS builds the fail pointers, also
+ *            patching missing children to fail's corresponding child so every
+ *            match step is O(1); fail forms a tree and counts accumulate
+ *            bottom-up
  * Notes: lowercase alphabet (resize ch's second dimension and x for others);
- *        max nodes = total pattern length + 1; init() between test cases;
- *        query mutates ed
- * ============================================================
- * Example (uncomment to compile; count occurrences of each pattern):
- * static ac_automaton<1000005> ac;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   ac.init();
- *   vector<int> term(n + 1);
- *   for (int i = 1; i <= n; ++i) {
- *     string s;
- *     cin >> s;
- *     ac.insert(s);
- *     int u = 0;
- *     for (char c : s) u = ac.ch[u][c - 'a'];
- *     term[i] = u;
- *   }
- *   ac.build();
- *   string t;
- *   cin >> t;
- *   ac.count(t);
- *   for (int i = 1; i <= n; ++i) cout << ac.cnt[term[i]] << '\n';
- * }
+ *        max nodes = total pattern length + 1; init() between test cases; query
+ *        mutates ed (it sets ed to -1 to prevent double counting)
  * ============================================================
  */

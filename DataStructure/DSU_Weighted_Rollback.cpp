@@ -59,36 +59,20 @@ struct rdsu {
 /*
  * ============================================================
  * Name: weighted DSU / rollback DSU
- * Complexity: wdsu.merge/find amortized O(alpha); rdsu.find O(log n) (no path
- *             compression), merge/rollback O(1)
- * Usage: wdsu: merges carrying relative relations (food chains / parity /
- *        difference-constraint style y = x + w; weights from any additive
- *        group: modular addition, xor, ...);
- *        rdsu: connectivity with rollback for offline edge deletion,
- *        segment-tree divide & conquer, parallel binary search
+ * Complexity: wdsu merge / find amortized O(alpha); rdsu find O(log n), merge /
+ *             rollback O(1)
+ * Usage: `wdsu<N>`: merges carrying relative relations (food chains, parity, y
+ *        = x + w) over any additive group.
+ *        `rdsu<N>`: connectivity with rollback, for offline edge deletion /
+ *        divide & conquer / parallel binary search.
+ *        Method list: see Interface below.
  * Interface: wdsu: merge(x, y, w) (constraint y = x + w; returns
  *        compatibility), rel(x, y) (val[y] - val[x] once same root);
  *        rdsu: merge(a, b), rollback(snapshot of hist.size())
- * Principle: wdsu path compression accumulates weights up to the root; on
- *        merge, the new root link weight follows d[rx] = w + d[y] - d[x];
- *        rdsu unions by rank (height O(log n)) and undoes via the stack
- * Notes: wdsu's weight group must support + and - (for xor groups replace +
- *        and - with ^); rdsu must not path-compress (it would break rollback)
+ * Principle: wdsu path compression accumulates weights up to the root (d[rx] =
+ *            w + d[y] - d[x]); rdsu unions by rank, height O(log n), undoes via
+ *            a stack
+ * Notes: wdsu's weight group must support + and - (replace both with ^ for xor
+ *        groups); rdsu must not path-compress (it breaks rollback)
  * ============================================================
- * Example (uncomment to compile):
- * signed main() {
- *   wdsu w;
- *   w.init(5);
- *   w.merge(1, 2, 5), w.merge(2, 3, -2);   // val2 = val1+5, val3 = val2-2
- *   w.find(1), w.find(3);                  // find first so paths compress (d is then the full distance to the root)
- *   cout << w.rel(1, 3) << '\n';           // 3（val3 - val1 = 5-2）
- *   cout << w.merge(1, 3, 3) << w.merge(1, 3, 4) << '\n';  // 1 0 (compatible / contradictory)
- *   rdsu r;
- *   r.init(5);
- *   size_t snap = r.hist.size();
- *   r.merge(1, 2), r.merge(2, 3);
- *   cout << (r.find(1) == r.find(3)) << '\n';  // 1
- *   r.rollback(snap);
- *   cout << (r.find(1) == r.find(3)) << '\n';  // 0
- * }
  */

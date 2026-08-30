@@ -28,28 +28,18 @@ int gcd_tab(int a, int b) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: O(1) GCD by lookup table (precomputed small table + early exit in binary GCD)
- * Complexity: preprocessing O(2^K * 2^K) (~4M entries at K=11, ~16MB of int);
+ * Complexity: preprocessing O(2^K * 2^K) (~4M entries at K = 11, ~16MB of int);
  *             queries amortized O(1)
- * Usage: scenarios with huge numbers of gcd calls (1e6+); when the smaller
- *        operand falls in the table (< 2^K) one lookup answers directly,
- *        otherwise it degrades to a few binary-GCD iterations
- * Principle: gcd(a, b) = gcd(a mod b, b) (Euclid); if b < 2^K then
- *        a mod b < b < 2^K, so both are inside the table and one lookup
- *        suffices; ctz strips factors of two so both sides are odd
+ * Usage: scenarios with huge numbers of gcd calls (1e6+): when the smaller
+ *        operand is < 2^K one lookup answers directly, otherwise it degrades to
+ *        a few binary-GCD iterations.
+ *        init_gcd(), then gcd_tab(a, b).
+ * Principle: gcd(a, b) = gcd(a mod b, b); if b < 2^K then a mod b < 2^K as
+ *            well, so both are inside the table and one lookup suffices; ctz
+ *            strips factors of two so both sides are odd
  * Notes: this implementation targets 32-bit non-negative integers
- *        (__builtin_ctz); for 64-bit use Gcd_Binary.cpp (or raise K and
- *        switch to __builtin_ctzll — memory grows exponentially in K)
- * Usage pattern: init_gcd(); then gcd_tab(a, b) is O(1)-class gcd
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   init_gcd();
- *   int a, b;
- *   cin >> a >> b;
- *   cout << gcd_tab(a, b) << '\n';
- * }
+ *        (__builtin_ctz); for 64-bit use Gcd_Binary.cpp, or raise K and switch
+ *        to __builtin_ctzll (memory grows exponentially in K)
  * ============================================================
  */

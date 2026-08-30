@@ -64,32 +64,15 @@ struct mcmf {
 
 /*
  * ============================================================
- * ============================================================
  * Name: min-cost max-flow (MCMF: SPFA shortest paths + push along them)
- * Complexity: each SPFA O(VE); O(F) augmentation rounds (F = flow value);
+ * Complexity: each SPFA O(VE), O(F) augmentation rounds (F = flow value);
  *             overall O(F * V * E) territory
- * Usage: maximum flow with minimum total cost, wrapped as struct mcmf; the
- *        static array version needs N / M tuned per problem (original
- *        problem N = 5e3+9, M = 5e4+9); #define int long long pairs with
- *        inf = 0x3f3f3f3f3f3f3f3f
+ * Usage: maximum flow with minimum total cost, `struct mcmf`; the static array
+ *        version needs N / M tuned per problem (the original used N = 5e3+9, M
+ *        = 5e4+9).
  * Source: all.cpp lines 28964-29015 (kept verbatim; the original declared a
  *         global instance "} e;" — declare your own mcmf e;)
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m, s, t;
- *   cin >> n >> m >> s >> t;
- *   static mcmf e;   // ~2MB instance: static storage avoids stack overflow (global in the original)
- *   for (int i = 1; i <= m; ++i) {
- *     int x, y, z, c;
- *     cin >> x >> y >> z >> c;
- *     e.add(x, y, z, c);
- *   }
- *   auto [x, y] = e.calc(s, t);
- *   cout << x << ' ' << y;   // max flow and min cost
- *   cout.flush();            // demo: flush buffered output
- * }
+ * Notes: declare your own instance (the original declared a global "} e;");
+ *        with #define int long long, inf = 0x3f3f3f3f3f3f3f3f
  * ============================================================
  */

@@ -85,40 +85,25 @@ struct euler_directed {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Euler path / circuit (iterative Hierholzer)
- * Complexity: O(n + m) (each edge visited once)
- * Usage: Euler trails/circuits of undirected and directed graphs (every edge
- *        exactly once), wrapped as euler_undirected / euler_directed:
- *        undirected existence: connected (ignoring isolated vertices) +
- *        0 odd-degree vertices (circuit) or 2 (path, starting at an odd one);
- *        directed existence: connected + all in/out differences 0 (circuit)
- *        or exactly one +1/-1 pair (path, starting at out-in = 1)
+ * Complexity: O(n + m)
+ * Usage: Euler trails / circuits of undirected and directed graphs:
+ *        `euler_undirected` / `euler_directed`.
+ *        undirected existence: connected (ignoring isolated vertices) and 0
+ *        odd-degree vertices (circuit) or 2 (path, starting at an odd one);
+ *        directed existence: connected and all in/out differences 0 (circuit),
+ *        or exactly one +1/-1 pair (path, starting at out-in = 1).
+ *        Method list: see Interface below.
  * Interface: init(n) / add(u, v); odd_cnt() (undirected degree check);
  *        has_path(s) (directed degree check, sets start s);
  *        path(s) returns the vertex sequence (length m+1; empty on failure)
- * Principle: Hierholzer — walk unused edges from the start, dead-end
- *        vertices are pushed onto the answer stack; the reversed answer is
- *        the Euler order (iterative: no stack overflow)
- * Notes: path does NOT check connectivity (degree-valid but disconnected
- *        graphs yield a "partial path" shorter than m+1 — detectable);
- *        loops/multi-edges supported; objects hold MB-sized arrays, declare
- *        them global or static (never on the stack)
+ * Principle: Hierholzer: walk unused edges from the start and push dead-end
+ *            vertices onto the answer stack; the reversed stack is the Euler
+ *            order (iterative, so no stack overflow)
+ * Notes: path does NOT check connectivity (a degree-valid but disconnected
+ *        graph yields a "partial path" shorter than m + 1, which is
+ *        detectable);
+ *        loops / multi-edges are supported; the objects hold MB-sized arrays,
+ *        so declare them global or static, never on the stack
  * ============================================================
- * Example (uncomment to compile; static objects avoid stack overflow):
-
- * signed main() {
- *   static euler_undirected g;
- *   g.init(4);
- *   g.add(1, 2), g.add(2, 3), g.add(3, 4), g.add(4, 1), g.add(1, 3);
- *   cout << g.odd_cnt() << '\n';              // 2 (1 and 3 odd-degree -> path)
- *   auto p = g.path(1);                       // e.g. 1 2 3 4 1 3 (order not unique)
- *   for (int v : p) cout << v << ' ';         // length = 6 = m + 1
- *   cout << '\n';
- *   static euler_directed h;
- *   h.init(3);
- *   h.add(1, 2), h.add(2, 3), h.add(3, 1);
- *   int s;
- *   cout << h.has_path(s) << ' ' << s << '\n';  // 1 1 (circuit)
- * }
  */

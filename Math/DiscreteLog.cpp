@@ -68,29 +68,17 @@ int exbsgs(int a, int b, int m) {
 
 /*
  * ============================================================
- * ============================================================
  * Name: BSGS / exBSGS (discrete logarithm)
  * Complexity: BSGS O(sqrt m); exBSGS O(sqrt m + log^2 m)
- * Usage: smallest x >= 0 with a^x = b (mod m):
- *        bsgs(a, b, m) requires gcd(a, m) = 1;
- *        exbsgs(a, b, m) is unrestricted (peels off gcds, reduces to BSGS)
- * Principle: x = i*k + j (k = ceil(sqrt m)): b*a^{-ik} = a^j — baby steps
- *        store a^j (keeping the smallest j) in a hash table, giant steps
- *        multiply b by a^{-k} per i; the first hit is the minimal solution;
- *        exBSGS divides both sides by g = gcd(a, m) each round (needs g | b),
- *        turning the equation into (a/g)*a^{x-1} = b/g (mod m/g), accumulating
- *        the factor into d; d == b gives x = cnt early; afterwards a and m
- *        are coprime, solve a^t = b*d^{-1} (mod m) and x = t + cnt
- * Notes: m = 1 or b = 1 returns 0; the solution is < m (order <= m);
- *        duplicates Math/CRT.cpp's exgcd (this file is self-contained)
+ * Usage: smallest x >= 0 with a^x = b (mod m): bsgs(a, b, m) requires gcd(a, m)
+ *        = 1; exbsgs(a, b, m) is unrestricted.
+ * Principle: write x = i*k + j with k = ceil(sqrt m): baby steps store a^j
+ *            (keeping the smallest j) in a hash table and giant steps multiply
+ *            b by a^{-k} per i, so the first hit is the minimal solution;
+ *            exBSGS peels off g = gcd(a, m) per round (it needs g | b) until a
+ *            and m are coprime, then solves a^t = b*d^{-1} (mod m) and returns
+ *            t + cnt
+ * Notes: m = 1 or b = 1 returns 0; the solution is < m (the order is at most
+ *        m); duplicates Math/CRT.cpp's exgcd to stay self-contained
  * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   cout << bsgs(3, 1, 7) << '\n';      // 0（3^0 = 1）
- *   cout << bsgs(3, 6, 7) << '\n';      // 3（3^3 = 27 ≡ 6）
- *   cout << bsgs(2, 3, 7) << '\n';      // -1（2^x mod 7 ∈ {1,2,4}）
- *   cout << exbsgs(2, 8, 16) << '\n';   // 3（2^3 = 8）
- *   cout << exbsgs(4, 2, 12) << '\n';   // -1（4^x mod 12 ∈ {4, 4, ...}）
- * }
  */

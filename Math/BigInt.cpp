@@ -284,29 +284,18 @@ struct bigint {
 
 /*
  * ============================================================
- * ============================================================
  * Name: big integer (BigInt, base 2^32, binary storage)
- * Complexity: add/sub O(n), multiply O(nm) (schoolbook), divide/mod O((n-m)m) (Knuth algorithm D)
- * Usage: integer arithmetic beyond 64 bits: + - * / %, comparisons,
- *        increment/decrement, powers, gcd; division truncates toward zero
- *        (C/C++ semantics, remainder takes the dividend's sign)
- * Principle: little-endian uint32 array in base 2^32, sign stored
- *        separately; division follows Knuth's TAOCP algorithm D
- *        (normalize, trial quotient, multiply-subtract, add-back) for any
- *        length; decimal conversion works in 1e9 chunks
- * Notes: mixes with int/long long via implicit construction; to_string and
- *        stream IO are O(n^2) territory, IO only; the divisor must be non-zero
- * ============================================================
- * Example (uncomment to compile):
-
- * signed main() {
- *   bigint a("-123456789012345678901234567890"), b(987654321);
- *   cout << a + b << '\n';
- *   cout << a * b << '\n';
- *   cout << a / b << '\n';
- *   cout << a % b << '\n';
- *   cout << bigint("-7") / 2 << '\n';       // -3 (truncation toward zero)
- *   cout << bigint("2").pow(100) << '\n';   // 1267650600228229401496703205376
- * }
+ * Complexity: add / sub O(n); multiply O(nm) (schoolbook); divide / mod
+ *             O((n-m)m) (Knuth algorithm D)
+ * Usage: integer arithmetic beyond 64 bits: + - * / %, comparisons, increment /
+ *        decrement, powers and gcd.
+ * Principle: little-endian uint32 array in base 2^32 with the sign stored
+ *            separately; division follows Knuth's TAOCP algorithm D for any
+ *            length; decimal conversion works in 1e9 chunks
+ * Notes: division truncates toward zero (C/C++ semantics, the remainder takes
+ *        the dividend's sign); to_string and stream IO are O(n^2)-ish, so use
+ *        them for IO only;
+ *        the divisor must be non-zero; mixes with int / long long through
+ *        implicit construction
  * ============================================================
  */

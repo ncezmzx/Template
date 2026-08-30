@@ -53,51 +53,21 @@ struct bounded_flow {
 
 /*
  * ============================================================
- * ============================================================
  * Name: flows with lower bounds (feasible / max / min flow)
  * Complexity: O(Dinic) = O(V^2 E) worst case, much faster in practice
- * Usage: networks whose edges carry flow lower bounds [l, r], wrapped as
- *        bounded_flow<N, M> (contains Dinic's add/maxflow plus the balance
- *        array in[]):
- *        1) circulation (no fixed source/sink): a feasible flow with every
- *           edge's flow in [l, r];
- *        2) max/min flow with fixed source/sink, respecting the lower bounds
- * Principle: split each edge into "mandatory l" and "optional [0, r-l]":
- *        force l first, balance every vertex's in/out difference with a super
- *        source/sink (in[x] = sum of in-lowers - sum of out-lowers;
- *        in[x] > 0 adds S->x with cap in[x], else x->T with cap -in[x]);
- *        S->T saturating flow = feasible; for fixed SS/TT add an INF edge
- *        TT->SS to reduce to circulation — the flow on that edge is the min
- *        feasible flow; then augment SS->TT for the maximum
- * Notes: init() between test cases; SS/TT = original source/sink, S/T =
- *        super source/sink; edge (u,v,l,r) needs add(u, v, r-l) plus
- *        in[u] -= l, in[v] += l
- * ============================================================
- * Example (uncomment to compile; fixed-source/sink max flow, P5198 style):
-
- * static bounded_flow<100009, 1000009> bf;
- * signed main() {
- *   int n, m, SS, TT;
- *   cin >> n >> m >> SS >> TT;
- *   bf.init();
- *   for (int i = 1; i <= m; ++i) {
- *     int u, v, l, r;
- *     cin >> u >> v >> l >> r;
- *     bf.in[u] -= l, bf.in[v] += l;        // force the lower bound
- *     bf.add(u, v, r - l);                 // excess capacity
- *   }
- *   int S = n + 1, T = n + 2, sum = 0;
- *   for (int i = 1; i <= n; ++i) {
- *     if (bf.in[i] > 0) bf.add(S, i, bf.in[i]), sum += bf.in[i];
- *     else if (bf.in[i] < 0) bf.add(i, T, -bf.in[i]);
- *   }
- *   bf.add(TT, SS, bf.INF);                // fixed source/sink -> circulation
- *   if (bf.maxflow(S, T) != sum) return cout << "NO\n", 0;
- *   int flow = 0;
- *   for (int i = bf.hd[SS]; i; i = bf.nxt[i])
- *     if (bf.to[i] == TT) flow = bf.cap[i];      // flow on the TT->SS edge = min feasible flow
- *   flow += bf.maxflow(SS, TT);                  // keep augmenting for the max flow
- *   cout << flow << '\n';
- * }
+ * Usage: networks whose edges carry lower bounds [l, r], `bounded_flow<N, M>`
+ *        (Dinic's add / maxflow plus the balance array in[]):
+ *        circulation (no fixed source / sink): a feasible flow with every
+ *        edge's flow in [l, r]; max / min flow with fixed source / sink
+ *        respecting the lower bounds.
+ *        Edge (u, v, l, r): add(u, v, r - l) plus in[u] -= l, in[v] += l.
+ * Principle: split each edge into mandatory l and optional [0, r-l]; balance
+ *            every vertex's in/out difference with a super source / sink (in[x]
+ *            > 0 adds S->x with cap in[x], else x->T with cap -in[x]); S->T
+ *            saturating flow means feasible; for fixed SS / TT add an INF edge
+ *            TT->SS to reduce to a circulation (the flow on it is the min
+ *            feasible flow), then augment SS->TT for the maximum
+ * Notes: init() between test cases; SS / TT are the original source / sink, S /
+ *        T the super source / sink
  * ============================================================
  */

@@ -46,44 +46,26 @@ struct kruskal_rebuild_tree {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Kruskal rebuild tree
- * Complexity: build O(m log m) (sorting) + O(m alpha); preprocessing O(n log n); query O(log n)
- * Usage: "bottleneck" properties of the MST (built in ascending edge order),
- *        wrapped as kruskal_rebuild_tree<N, M>: fill e[1..m], build(n, m),
- *        dfs(i, 0) from every root (fa[i] == i); the bottleneck value is
- *        val[lca(u, v)]:
- *        1) among all u-v paths, the one minimizing the maximum edge weight
- *           has max-edge weight = val[lca(u, v)];
- *        2) vertices reachable from u using only edges <= w = the whole
- *           subtree of the highest ancestor with val <= w (combine with
- *           lifting + subtree sizes for "weight-limited connectivity");
- *        3) building in descending order gives max-spanning/bottleneck semantics
- * Principle: whenever Kruskal merges two components, a new virtual node
- *        (weight = current edge weight) becomes the parent of both, yielding
- *        a 2n-1 node heap-ordered binary tree: leaves are original vertices,
- *        virtual weights are monotone
- * Notes: a disconnected graph yields a rebuild forest — dfs each root;
- *        original vertices' val[1..n] are uninitialized (not compared; set
- *        to 0 if needed)
- * ============================================================
- * Example (uncomment to compile):
-
- * static kruskal_rebuild_tree<200009, 500009> krt;
- * signed main() {
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1; i <= m; ++i) cin >> krt.e[i].u >> krt.e[i].v >> krt.e[i].w;
- *   krt.build(n, m);
- *   for (int i = 1; i <= krt.tot; ++i)
- *     if (krt.fa[i] == i) krt.dfs(i, 0);
- *   int q;
- *   cin >> q;
- *   while (q--) {
- *     int u, v;
- *     cin >> u >> v;
- *     cout << krt.val[krt.lca(u, v)] << '\n';
- *   }
- * }
+ * Complexity: build O(m log m) + O(m alpha); preprocessing O(n log n); query
+ *             O(log n)
+ * Usage: `kruskal_rebuild_tree<N, M>`: bottleneck properties of the MST (built
+ *        in ascending edge order).
+ *        fill e[1..m], build(n, m), then dfs(i, 0) from every root (fa[i] ==
+ *        i); the bottleneck value is val[lca(u, v)].
+ *        among all u-v paths, the one minimizing the maximum edge weight has
+ *        max-edge weight val[lca(u, v)];
+ *        the vertices reachable from u using only edges <= w are the whole
+ *        subtree of the highest ancestor with val <= w (combine with lifting +
+ *        subtree sizes for weight-limited connectivity);
+ *        building in descending order gives max-spanning / bottleneck semantics
+ *        instead.
+ * Principle: whenever Kruskal merges two components, a new virtual node (weight
+ *            = the current edge weight) becomes the parent of both, giving a
+ *            2n-1 node heap-ordered binary tree whose leaves are the original
+ *            vertices
+ * Notes: a disconnected graph yields a rebuild forest, so dfs each root; the
+ *        original vertices' val[1..n] are uninitialized (set them to 0 if you
+ *        compare them)
  * ============================================================
  */

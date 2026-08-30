@@ -33,27 +33,10 @@ struct cut_vertex {
  * ============================================================
  * Name: Tarjan cut vertices (articulation points, undirected graph)
  * Complexity: O(n + m)
- * Usage: cut vertices (removing one disconnects the graph), wrapped as
- *        cut_vertex<N>: es holds undirected edges, build(n), then
- *        is_cut[x] = 1 marks a cut vertex; criterion: a non-root x with a
- *        child y satisfying low[y] >= dfn[x]; the root needs >= 2 child
- *        subtrees (sz > 1)
+ * Usage: cut vertices of an undirected graph, `cut_vertex<N>`: es holds the
+ *        undirected edges, build(n), then is_cut[x] = 1 marks a cut vertex.
+ *        Criterion: a non-root x with a child y satisfying low[y] >= dfn[x];
+ *        the root needs >= 2 child subtrees (sz > 1).
  * Source: all.cpp lines 56109-56127 (wrapped into a struct, recursion unchanged)
- * ============================================================
- * Example (uncomment to compile):
- * static cut_vertex<200009> cv;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   int n, m;
- *   cin >> n >> m;
- *   for (int i = 1, x, y; i <= m; ++i) {
- *     cin >> x >> y;
- *     cv.es[x].push_back(y), cv.es[y].push_back(x);
- *   }
- *   cv.build(n);
- *   for (int i = 1; i <= n; ++i)
- *     if (cv.is_cut[i]) cout << i << ' ';      // all cut vertices
- *   cout << '\n';
- * }
  * ============================================================
  */

@@ -98,30 +98,17 @@ struct heap_binary_ext {
  * ============================================================
  * Name: STL binary heap extension (binary(STL)(extended), mergeable, based on
  *       priority_queue with lazy deletion)
- * Complexity: push/top O(1) amortized (top lazily pops dl, then O(1));
- *             modify/erase O(log n) amortized; size O(1)
- * Usage: wrapped as heap_binary_ext<N> (the two inner structs provide
- *        push/top/modify/erase/size; node i's key lives in vl[i]);
- *        newnode/top/join/decrease_key/erase; min-heap
+ * Complexity: push / top O(1) amortized (top lazily pops dl, then O(1)); modify
+ *             / erase O(log n) amortized; size O(1)
+ * Usage: `heap_binary_ext<N>`: push / top / modify / erase / size (node i's key
+ *        lives in vl[i]); newnode / top / join / decrease_key / erase; min-
+ *        heap.
  * Source: Luogu article "In Praise of the Priority Queue"
  *         (the Luogu blog article "In Praise of the Priority Queue") section 9, wrapped into a struct
- * Notes: decrease_key/erase use LLONG_MAX lazy deletion; join inserts y's top
- *        as sentinel node y+N into x's pq (ids must stay < M); two inner
- *        layers: eraseable_heap (pq+dl double heap) and fastpush_heap
- *        (block buffer nbuf/buf); with #define int long long keys and
- *        sentinels stay consistent. KNOWN ISSUE (article original): on some
- *        operation sequences decrease_key's fa-chain lift loses the minimum
- *        contribution inside the heap (top reads high); reference only
- * ============================================================
- * Example (uncomment to compile; join/top only — see the known-defect note above):
- * static heap_binary_ext<1009> hp;
- * signed main() {
- *   int h = hp.newnode(5, 1);
- *   hp.join(h, hp.newnode(3, 2));
- *   hp.join(h, hp.newnode(8, 3));
- *   hp.join(h, hp.newnode(1, 4));
- *   hp.join(h, hp.newnode(7, 5));
- *   cout << hp.top(h) << '\n';      // 1
- * }
+ * Notes: decrease_key / erase use LLONG_MAX lazy deletion; join inserts y's top
+ *        as sentinel node y + N into x's pq, so ids must stay < M.
+ *        KNOWN ISSUE (from the source article): on some operation sequences
+ *        decrease_key's fa-chain lift loses the minimum contribution, so top
+ *        reads high. Reference only.
  * ============================================================
  */

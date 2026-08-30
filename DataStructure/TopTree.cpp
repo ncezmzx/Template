@@ -106,46 +106,22 @@ struct top_tree {
 /*
  * ============================================================
  * Name: static Top Tree (heavy-chain decomposition + cluster aggregation)
- * Complexity: preprocessing O(n log n); path_query O(log^2 n);
- *             subtree_query O(log n); point_set O(log^2 n + sum of light degrees)
- * Usage: cluster aggregate queries on a static tree, wrapped as top_tree<N>:
- *       1) path_query(u, v): max vertex weight on the path (no light rakes,
- *          same semantics as HLD);
- *       2) subtree_query(x): max over the whole subtree — cluster semantics:
- *          the heavy-chain slice [dfn[x], dfn[tail[top[x]]]] where each node
- *          aggregates all its light-child chain clusters (rake), covering the
- *          subtree exactly (O(log n), not O(subtree size));
- *       3) point_set updates a value and propagates along the splay and light
- *          edges (light chain root -> parent chain node)
- * Principle: one splay per heavy chain (in-order = chain order; subtrees cover
- *       contiguous dfn ranges); each node keeps smx (in-chain range max),
- *       rake (aggregate of light-child chain clusters), ck (cluster aggregate
- *       = node union splay subtree union rake); chains are built from deepest
- *       heads up so rake dependencies are ready
- * Notes: vertex weights; forests handled (dfs for every root); tail[h] is the
- *       bottom of chain h; rake depends on ck and vice versa — see point_set
- *       for the propagation loop
- * ============================================================
- * Example (uncomment to compile; path max / subtree max / point set):
- * static top_tree<200009> tt;
- * signed main() {
- *   int n;
- *   cin >> n;
- *   for (int i = 1; i <= n; ++i) cin >> tt.val[i];
- *   for (int i = 1, u, v; i < n; ++i) {
- *     cin >> u >> v;
- *     tt.es[u].push_back(v), tt.es[v].push_back(u);
- *   }
- *   tt.build(n);
- *   int q;
- *   cin >> q;
- *   while (q--) {
- *     int o, u, v;
- *     cin >> o >> u >> v;
- *     if (o == 1) tt.point_set(u, v);
- *     if (o == 2) cout << tt.path_query(u, v) << '\n';
- *     if (o == 3) cout << tt.subtree_query(u) << '\n';
- *   }
- * }
+ * Complexity: preprocessing O(n log n); path_query O(log^2 n); subtree_query
+ *             O(log n); point_set O(log^2 n + sum of light degrees)
+ * Usage: cluster aggregate queries on a static tree, `top_tree<N>`:
+ *        path_query(u, v): max vertex weight on the path (HLD semantics, no
+ *        light rakes);
+ *        subtree_query(x): max over the whole subtree in O(log n) via cluster
+ *        rakes, not O(subtree size);
+ *        point_set(x, v): updates a value and propagates along the splay and
+ *        the light edges.
+ * Principle: one splay per heavy chain (in-order = chain order, subtrees cover
+ *            contiguous dfn ranges); each node keeps smx (in-chain range max),
+ *            rake (aggregate of light-child chain clusters) and ck (cluster
+ *            aggregate); chains are built from the deepest heads up so rake
+ *            dependencies are ready
+ * Notes: vertex weights; forests are handled; tail[h] is the bottom of chain h;
+ *        rake depends on ck and vice versa, see point_set for the propagation
+ *        loop
  * ============================================================
  */

@@ -139,35 +139,18 @@ class Min25 {
 
 /*
  * ============================================================
- * ============================================================
  * Name: Min25 sieve (prefix sums of multiplicative functions, f(p) polynomial)
  * Complexity: ~O(n^{3/4} / log n); space O(sqrt n)
  * Usage: sum_{i=1..n} f(i) for multiplicative f whose values on primes are a
- *        polynomial in p of degree < M (coefficient array a: f(p) =
- *        sum_m a[m]*p^m); f(p^c) comes from the callback f(p, c)
+ *        polynomial in p of degree < M (coefficient array a, so f(p) = sum_m
+ *        a[m]*p^m); f(p^c) comes from the callback f(p, c).
  * Depends: power_sum (closed form of sum i^m, m <= 4; T must support modular
  *        multiplication/division, e.g. modint)
  * Source: user-provided code; fixed the OOB prime[k] read in get() when
  *         k > pcnt and added the missing power_sum dependency
  * Notes: T needs default construction (zero), int construction, + - * / and
- *        compound assignment; each object may call operator() only once
- *        (internal state is built for a single solve)
- * ============================================================
- * Example (uncomment to compile; sum_{i=1..n} phi(i), answer 32 at n = 10):
-
- * #include <Math/ModInt.cpp>   // T = Montgomery modint
- * signed main() {
- *   using T = mint;
- *   // f(p) = p - 1 → a = {-1, +1}；f(p^c) = p^c - p^(c-1)
- *   auto fpc = [](int p, int c) -> T {
- *     T pw = 1, pw1 = 1;
- *     for (int i = 0; i < c; ++i) pw *= p;
- *     for (int i = 0; i < c - 1; ++i) pw1 *= p;
- *     return pw - pw1;
- *   };
- *   Min25<T, 2, decltype(fpc)> min25({T(-1), T(1)}, fpc);
- *   long long n = 10;
- *   cout << raw(min25(n)) << '\n';   // 32
- * }
+ *        compound assignment; each object may call operator() only once, since
+ *        internal state is built for a single solve;
+ *        depends on power_sum (closed form of sum i^m for m <= 4)
  * ============================================================
  */
