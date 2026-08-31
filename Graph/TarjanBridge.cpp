@@ -3,23 +3,22 @@ using namespace std;
 #define int long long
 
 // Tarjan bridges / edge-biconnected components (handles multi-edges via edge ids)
-template <size_t N>
-struct edcc {
+template <size_t N> struct edcc {
   int n, idx, tp, cl, etot;
   int dfn[N], stk[N], low[N], vis[N], col[N];
-  vector<pair<int, int>> es[N];  // (neighbor, edge id)
+  vector<pair<int, int>> es[N]; // (neighbor, edge id)
   void add(int x, int y) {
     es[x].emplace_back(y, ++etot);
     es[y].emplace_back(x, etot);
   }
-  void tarjan(int x, int lst) {  // lst = edge id to parent
+  void tarjan(int x, int lst) { // lst = edge id to parent
     dfn[x] = low[x] = ++idx, vis[x] = 1, stk[++tp] = x;
     for (auto [y, z] : es[x]) {
       if (lst == z) continue;
       if (!dfn[y]) tarjan(y, z), low[x] = min(low[x], low[y]);
       else if (vis[y]) low[x] = min(low[x], dfn[y]);
     }
-    if (dfn[x] == low[x]) {  // x is the top of one e-DCC
+    if (dfn[x] == low[x]) { // x is the top of one e-DCC
       ++cl;
       while (stk[tp] != x) col[stk[tp--]] = cl;
       col[stk[tp--]] = cl;
@@ -44,6 +43,5 @@ struct edcc {
  *        Bridge criterion: the edge (x, parent) is a bridge iff dfn[x] ==
  *        low[x] once x is finished; the parent-edge id (lst) handles multi-
  *        edges correctly.
- * Source: all.cpp lines 51899-51912 (wrapped into a struct, recursion unchanged)
  * ============================================================
  */

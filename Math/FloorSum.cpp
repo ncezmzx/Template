@@ -6,7 +6,7 @@ using namespace std;
 // constraints (same as ACL): 0 <= n < 2^32, 1 <= m < 2^32; a, b may be negative
 int floor_sum(int n, int m, int a, int b) {
   unsigned long long ans = 0;
-  if (a < 0) {  // normalize negative slope: subtract n(n-1)/2 * ceil(-a/m)
+  if (a < 0) { // normalize negative slope: subtract n(n-1)/2 * ceil(-a/m)
     int a2 = a % m;
     if (a2 < 0) a2 += m;
     ans -= 1ULL * n * (n - 1) / 2 * ((a2 - a) / m);
@@ -19,7 +19,7 @@ int floor_sum(int n, int m, int a, int b) {
     b = b2;
   }
   unsigned long long un = n, um = m, ua = a, ub = b;
-  while (true) {  // Euclidean-like descent: O(log) rounds, shrinks like gcd
+  while (true) { // Euclidean-like descent: O(log) rounds, shrinks like gcd
     if (ua >= um) {
       ans += un * (un - 1) / 2 * (ua / um);
       ua %= um;
@@ -28,11 +28,11 @@ int floor_sum(int n, int m, int a, int b) {
       ans += un * (ub / um);
       ub %= um;
     }
-    unsigned long long y_max = ua * un + ub;  // unsigned multiply safe for n,m < 2^32
+    unsigned long long y_max = ua * un + ub; // unsigned multiply safe for n,m < 2^32
     if (y_max < um) break;
     un = y_max / um;
     ub = y_max % um;
-    swap(ua, um);  // swap axes: symmetric smaller subproblem
+    swap(ua, um); // swap axes: symmetric smaller subproblem
   }
   return (int)ans;
 }

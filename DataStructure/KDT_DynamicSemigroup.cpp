@@ -5,38 +5,34 @@ struct SumCfg3D {
   using Coord = long long;
   static constexpr int MAXK = 3;
   using Pos = array<Coord, MAXK>;
-  using Info = long long;
+  struct Info { long long sum = 0, cnt = 0; }; // length folded in, so S + F needs no sz
   using Tag = long long;
-  static Info combine(Info a, Info b) { return a + b; }
-  static Info apply(Info x, Tag f, int sz) { return x + f * (Info)sz; }
-  static Tag compose(Tag f, Tag g) { return f + g; }
+  friend Info operator+(const Info &a, const Info &b) { return {a.sum + b.sum, a.cnt + b.cnt}; }
+  friend Info operator+(const Info &a, const Tag &f) { return {a.sum + f * a.cnt, a.cnt}; }
+  // Tag + Tag: built-in long long addition
 };
 
 struct MaxCfg2D {
   using Coord = int;
   static constexpr int MAXK = 2;
   using Pos = array<Coord, MAXK>;
-  using Info = long long;
+  struct Info { long long sum = 0, cnt = 0; };
   using Tag = long long;
-  static Info combine(Info a, Info b) { return a + b; }
-  static Info apply(Info x, Tag f, int sz) { return x + f * (Info)sz; }
-  static Tag compose(Tag f, Tag g) { return f + g; }
+  friend Info operator+(const Info &a, const Info &b) { return {a.sum + b.sum, a.cnt + b.cnt}; }
+  friend Info operator+(const Info &a, const Tag &f) { return {a.sum + f * a.cnt, a.cnt}; }
 };
 
 struct MinCfg2D {
   using Coord = long long;
   static constexpr int MAXK = 2;
   using Pos = array<Coord, MAXK>;
-  using Info = long long;
-  using Tag = long long;
-  static Info combine(Info a, Info b) { return min(a, b); }
-  static Info apply(Info x, Tag f, int) { return min(x, f); }
-  static Tag compose(Tag f, Tag g) { return min(f, g); }
+  struct Info { long long v = 0; };
+  using Tag = Info; // same type: combine / apply / compose are all min
+  friend Info operator+(const Info &a, const Info &b) { return {min(a.v, b.v)}; }
 };
 
-template <class Cfg>
-class KDT {
- public:
+template <class Cfg> class KDT {
+  public:
   using Coord = typename Cfg::Coord;
   using Info = typename Cfg::Info;
   using Tag = typename Cfg::Tag;
@@ -46,7 +42,10 @@ class KDT {
   KDT(int k) { K = k; }
   KDT(size_t cap = 0) { init(cap); }
 
-  void set_dims(int k) { K = k; clear(); }
+  void set_dims(int k) {
+    K = k;
+    clear();
+  }
 
   void init(size_t cap = 0) {
     clear();
@@ -56,13 +55,15 @@ class KDT {
   void clear() {
     n = tot = tp = hd = tl = 0;
     rt.clear(), val.clear(), sum.clear(), tag.clear(), lazy.clear();
-    mn.clear(), mx.clear(), a.clear(),  ls.clear(), rs.clear();
-    tmp.clear(); stk.clear(); que.clear(), sz.clear();
+    mn.clear(), mx.clear(), a.clear(), ls.clear(), rs.clear();
+    tmp.clear();
+    stk.clear();
+    que.clear(), sz.clear();
   }
 
   size_t size() const { return (size_t)n; }
 
-  void insert(const Pos& p, const Info& v) {
+  void insert(const Pos &p, const Info &v) {
     int u = new_node();
     a[u] = mn[u] = mx[u] = p, val[u] = sum[u] = v, sz[u] = 1;
     lazy[u] = ls[u] = rs[u] = 0, tmp[tot = 1] = u;
@@ -72,12 +73,12 @@ class KDT {
     }
   }
 
-  void update(const Pos& l, const Pos& r, const Tag& f) {
+  void update(const Pos &l, const Pos &r, const Tag &f) {
     for (int i = 0; i < (int)rt.size(); ++i)
       if (rt[i]) update_one(rt[i], l, r, f);
   }
 
-  Info query(const Pos& l, const Pos& r) {
+  Info query(const Pos &l, const Pos &r) {
     bool have = false;
     Info res{};
     for (int i = 0; i < (int)rt.size(); ++i)
@@ -85,7 +86,7 @@ class KDT {
     return res;
   }
 
- private:
+  private:
   void grow_bins(size_t point_cnt) {
     size_t need = __lg(point_cnt) + 1;
     if (rt.size() < need) rt.resize(need, 0);
@@ -96,29 +97,34 @@ class KDT {
     int c = max(need * 2, 16);
     val.resize(c), sum.resize(c), tag.resize(c), lazy.resize(c, 0);
     mn.resize(c), mx.resize(c), a.resize(c), ls.resize(c, 0), rs.resize(c, 0);
-    tmp.resize(c); stk.resize(c); que.resize(c), sz.resize(c, 0);
+    tmp.resize(c);
+    stk.resize(c);
+    que.resize(c), sz.resize(c, 0);
   }
 
   int new_node() { return grow_bins((size_t)n + 1), ensure(n + 2), ++n; }
 
-  bool inside(const Pos& p, const Pos& l, const Pos& r) {
-    for (int i = 0; i < K; ++i) if (p[i] < l[i] || r[i] < p[i]) return false;
+  bool inside(const Pos &p, const Pos &l, const Pos &r) {
+    for (int i = 0; i < K; ++i)
+      if (p[i] < l[i] || r[i] < p[i]) return false;
     return true;
   }
-  bool contained(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
-    for (int i = 0; i < K; ++i) if (mn[i] < l[i] || r[i] < mx[i]) return false;
+  bool contained(const Pos &mn, const Pos &mx, const Pos &l, const Pos &r) {
+    for (int i = 0; i < K; ++i)
+      if (mn[i] < l[i] || r[i] < mx[i]) return false;
     return true;
   }
-  bool disjoint(const Pos& mn, const Pos& mx, const Pos& l, const Pos& r) {
-    for (int i = 0; i < K; ++i) if (mx[i] < l[i] || r[i] < mn[i]) return true;
+  bool disjoint(const Pos &mn, const Pos &mx, const Pos &l, const Pos &r) {
+    for (int i = 0; i < K; ++i)
+      if (mx[i] < l[i] || r[i] < mn[i]) return true;
     return false;
   }
 
   void up(int u) {
     sz[u] = 1 + (ls[u] ? sz[ls[u]] : 0) + (rs[u] ? sz[rs[u]] : 0);
     Info s = val[u];
-    if (ls[u]) s = Cfg::combine(s, sum[ls[u]]);
-    if (rs[u]) s = Cfg::combine(s, sum[rs[u]]);
+    if (ls[u]) s = s + sum[ls[u]];
+    if (rs[u]) s = s + sum[rs[u]];
     sum[u] = s, mn[u] = mx[u] = a[u];
     for (int i = 0; i < K; ++i) {
       if (ls[u]) mn[u][i] = min(mn[u][i], mn[ls[u]][i]), mx[u][i] = max(mx[u][i], mx[ls[u]][i]);
@@ -126,10 +132,10 @@ class KDT {
     }
   }
 
-  void apply_node(int u, const Tag& f) {
+  void apply_node(int u, const Tag &f) {
     if (!u) return;
-    val[u] = Cfg::apply(val[u], f, 1), sum[u] = Cfg::apply(sum[u], f, sz[u]);
-    tag[u] = lazy[u] ? Cfg::compose(f, tag[u]) : f, lazy[u] = 1;
+    val[u] = val[u] + f, sum[u] = sum[u] + f;
+    tag[u] = lazy[u] ? tag[u] + f : f, lazy[u] = 1;
   }
 
   void down(int u) {
@@ -147,26 +153,39 @@ class KDT {
     return up(tmp[m]), tmp[m];
   }
 
-  void flat(int& u) {
-    hd = tl = 1; que[1] = u; u = 0;
+  void flat(int &u) {
+    hd = tl = 1;
+    que[1] = u;
+    u = 0;
     while (hd <= tl) {
       int x = que[hd++];
       down(x);
       tmp[++tot] = x;
       sz[x] = 1, lazy[x] = 0, sum[x] = val[x], mn[x] = mx[x] = a[x];
-      if (ls[x]) { que[++tl] = ls[x]; ls[x] = 0; }
-      if (rs[x]) { que[++tl] = rs[x]; rs[x] = 0; }
+      if (ls[x]) {
+        que[++tl] = ls[x];
+        ls[x] = 0;
+      }
+      if (rs[x]) {
+        que[++tl] = rs[x];
+        rs[x] = 0;
+      }
     }
   }
 
-  void update_one(int root, const Pos& l, const Pos& r, const Tag& f) {
-    hd = tl = 1; que[1] = root; tp = 0;
+  void update_one(int root, const Pos &l, const Pos &r, const Tag &f) {
+    hd = tl = 1;
+    que[1] = root;
+    tp = 0;
     while (hd <= tl) {
       int x = que[hd++];
-      if (contained(mn[x], mx[x], l, r)) { apply_node(x, f); continue; }
+      if (contained(mn[x], mx[x], l, r)) {
+        apply_node(x, f);
+        continue;
+      }
       if (disjoint(mn[x], mx[x], l, r)) continue;
       down(x);
-      if (inside(a[x], l, r)) val[x] = Cfg::apply(val[x], f, 1);
+      if (inside(a[x], l, r)) val[x] = val[x] + f;
       if (ls[x]) que[++tl] = ls[x];
       if (rs[x]) que[++tl] = rs[x];
       stk[++tp] = x;
@@ -174,17 +193,21 @@ class KDT {
     while (tp) {
       int x = stk[tp--];
       Info s = val[x];
-      if (ls[x]) s = Cfg::combine(s, sum[ls[x]]);
-      if (rs[x]) s = Cfg::combine(s, sum[rs[x]]);
+      if (ls[x]) s = s + sum[ls[x]];
+      if (rs[x]) s = s + sum[rs[x]];
       sum[x] = s;
     }
   }
 
-  void query_one(int root, const Pos& l, const Pos& r, bool& have, Info& res) {
-    hd = tl = 1; que[1] = root;
+  void query_one(int root, const Pos &l, const Pos &r, bool &have, Info &res) {
+    hd = tl = 1;
+    que[1] = root;
     while (hd <= tl) {
       int x = que[hd++];
-      if (contained(mn[x], mx[x], l, r)) { add(res, have, sum[x]); continue; }
+      if (contained(mn[x], mx[x], l, r)) {
+        add(res, have, sum[x]);
+        continue;
+      }
       if (disjoint(mn[x], mx[x], l, r)) continue;
       down(x);
       if (inside(a[x], l, r)) add(res, have, val[x]);
@@ -193,9 +216,9 @@ class KDT {
     }
   }
 
-  static void add(Info& res, bool& have, const Info& v) {
+  static void add(Info &res, bool &have, const Info &v) {
     if (!have) res = v, have = true;
-    else res = Cfg::combine(res, v);
+    else res = res + v;
   }
 
   int n = 0, tot = 0, tp = 0, hd = 0, tl = 0;
@@ -208,15 +231,17 @@ class KDT {
 };
 
 template <int K, class Cfg>
-typename Cfg::Info brute_query(const vector<pair<typename Cfg::Pos, typename Cfg::Info>>& pts,
-                               const typename Cfg::Pos& l, const typename Cfg::Pos& r) {
-  bool have = false; typename Cfg::Info res{};
-  for (auto& [p, v] : pts) {
+typename Cfg::Info brute_query(const vector<pair<typename Cfg::Pos, typename Cfg::Info>> &pts,
+                               const typename Cfg::Pos &l, const typename Cfg::Pos &r) {
+  bool have = false;
+  typename Cfg::Info res{};
+  for (auto &[p, v] : pts) {
     bool in = true;
-    for (int i = 0; i < K; ++i) if (p[i] < l[i] || r[i] < p[i]) in = false;
+    for (int i = 0; i < K; ++i)
+      if (p[i] < l[i] || r[i] < p[i]) in = false;
     if (!in) continue;
     if (!have) res = v, have = true;
-    else res = Cfg::combine(res, v);
+    else res = res + v;
   }
   return res;
 }
@@ -224,7 +249,7 @@ typename Cfg::Info brute_query(const vector<pair<typename Cfg::Pos, typename Cfg
 void stress_3d() {
   using Cfg = SumCfg3D;
   KDT<Cfg> kd;
-  vector<pair<Cfg::Pos, long long>> pts;
+  vector<pair<Cfg::Pos, Cfg::Info>> pts;
   mt19937 rng(20240826);
   auto rnd = [&](int L, int R) { return uniform_int_distribution<int>(L, R)(rng); };
   int ops = 2000;
@@ -233,29 +258,32 @@ void stress_3d() {
     if (o == 1) {
       Cfg::Pos p{rnd(-50, 50), rnd(-50, 50), rnd(-50, 50)};
       long long v = rnd(-100, 100);
-      kd.insert(p, v);
-      pts.push_back({p, v});
-    } else if (o == 2) {
+      kd.insert(p, {v, 1});
+      pts.push_back({p, {v, 1}});
+    }
+    else if (o == 2) {
       int x1 = rnd(-50, 50), x2 = rnd(x1, 50);
       int y1 = rnd(-50, 50), y2 = rnd(y1, 50);
       int z1 = rnd(-50, 50), z2 = rnd(z1, 50);
       Cfg::Pos l{x1, y1, z1}, r{x2, y2, z2};
       long long f = rnd(-100, 100);
       kd.update(l, r, f);
-      for (auto& [p, v] : pts) {
+      for (auto &[p, v] : pts) {
         bool in = true;
-        for (int i = 0; i < 3; ++i) if (p[i] < l[i] || r[i] < p[i]) in = false;
-        if (in) v += f;
+        for (int i = 0; i < 3; ++i)
+          if (p[i] < l[i] || r[i] < p[i]) in = false;
+        if (in) v = v + f;
       }
-    } else {
+    }
+    else {
       int x1 = rnd(-50, 50), x2 = rnd(x1, 50);
       int y1 = rnd(-50, 50), y2 = rnd(y1, 50);
       int z1 = rnd(-50, 50), z2 = rnd(z1, 50);
       Cfg::Pos l{x1, y1, z1}, r{x2, y2, z2};
-      long long a = kd.query(l, r);
-      long long b = brute_query<3, Cfg>(pts, l, r);
-      if (a != b) {
-        printf("3D MISMATCH at op %d: kd=%lld brute=%lld\n", t, a, b);
+      Cfg::Info a = kd.query(l, r);
+      Cfg::Info b = brute_query<3, Cfg>(pts, l, r);
+      if (a.sum != b.sum || a.cnt != b.cnt) {
+        printf("3D MISMATCH at op %d: kd=(%lld,%lld) brute=(%lld,%lld)\n", t, a.sum, a.cnt, b.sum, b.cnt);
         abort();
       }
     }
@@ -267,7 +295,7 @@ void stress_2d_clear() {
   using Cfg = MaxCfg2D;
   KDT<Cfg> kd;
   auto run = [&](int round) {
-    vector<pair<Cfg::Pos, long long>> pts;
+    vector<pair<Cfg::Pos, Cfg::Info>> pts;
     mt19937 rng(round + 1000);
     auto rnd = [&](int L, int R) { return uniform_int_distribution<int>(L, R)(rng); };
     int ops = 800;
@@ -276,26 +304,32 @@ void stress_2d_clear() {
       if (o == 1) {
         Cfg::Pos p{rnd(-40, 40), rnd(-40, 40)};
         long long v = rnd(-100, 100);
-        kd.insert(p, v);
-        pts.push_back({p, v});
-      } else if (o == 2) {
+        kd.insert(p, {v, 1});
+        pts.push_back({p, {v, 1}});
+      }
+      else if (o == 2) {
         int x1 = rnd(-40, 40), x2 = rnd(x1, 40);
         int y1 = rnd(-40, 40), y2 = rnd(y1, 40);
         Cfg::Pos l{x1, y1}, r{x2, y2};
         long long f = rnd(-100, 100);
         kd.update(l, r, f);
-        for (auto& [p, v] : pts) {
+        for (auto &[p, v] : pts) {
           bool in = true;
-          for (int i = 0; i < 2; ++i) if (p[i] < l[i] || r[i] < p[i]) in = false;
-          if (in) v += f;
+          for (int i = 0; i < 2; ++i)
+            if (p[i] < l[i] || r[i] < p[i]) in = false;
+          if (in) v = v + f;
         }
-      } else {
+      }
+      else {
         int x1 = rnd(-40, 40), x2 = rnd(x1, 40);
         int y1 = rnd(-40, 40), y2 = rnd(y1, 40);
         Cfg::Pos l{x1, y1}, r{x2, y2};
-        long long a = kd.query(l, r);
-        long long b = brute_query<2, Cfg>(pts, l, r);
-        if (a != b) { printf("2D MISMATCH round%d op%d: kd=%lld brute=%lld\n", round, t, a, b); abort(); }
+        Cfg::Info a = kd.query(l, r);
+        Cfg::Info b = brute_query<2, Cfg>(pts, l, r);
+        if (a.sum != b.sum || a.cnt != b.cnt) {
+          printf("2D MISMATCH round%d op%d: kd=(%lld,%lld) brute=(%lld,%lld)\n", round, t, a.sum, a.cnt, b.sum, b.cnt);
+          abort();
+        }
       }
     }
     return pts.size();
@@ -305,7 +339,10 @@ void stress_2d_clear() {
     if (round) kd.clear();
     size_t got = run(round);
     total += got;
-    if (kd.size() != got) { printf("size mismatch round%d\n", round); abort(); }
+    if (kd.size() != got) {
+      printf("size mismatch round%d\n", round);
+      abort();
+    }
   }
   printf("2D + clear stress OK (total %zu points across rounds)\n", total);
 }
@@ -313,7 +350,7 @@ void stress_2d_clear() {
 void stress_min_2d() {
   using Cfg = MinCfg2D;
   KDT<Cfg> kd;
-  vector<pair<Cfg::Pos, long long>> pts;
+  vector<pair<Cfg::Pos, Cfg::Info>> pts;
   mt19937 rng(7);
   auto rnd = [&](int L, int R) { return uniform_int_distribution<int>(L, R)(rng); };
   int ops = 1500;
@@ -322,26 +359,32 @@ void stress_min_2d() {
     if (o == 1) {
       Cfg::Pos p{rnd(-60, 60), rnd(-60, 60)};
       long long v = rnd(0, 1000);
-      kd.insert(p, v);
-      pts.push_back({p, v});
-    } else if (o == 2) {
+      kd.insert(p, {v});
+      pts.push_back({p, {v}});
+    }
+    else if (o == 2) {
       int x1 = rnd(-60, 60), x2 = rnd(x1, 60);
       int y1 = rnd(-60, 60), y2 = rnd(y1, 60);
       Cfg::Pos l{x1, y1}, r{x2, y2};
-      long long f = rnd(0, 1000);
+      Cfg::Info f{rnd(0, 1000)};
       kd.update(l, r, f);
-      for (auto& [p, v] : pts) {
+      for (auto &[p, v] : pts) {
         bool in = true;
-        for (int i = 0; i < 2; ++i) if (p[i] < l[i] || r[i] < p[i]) in = false;
-        if (in) v = min(v, f);
+        for (int i = 0; i < 2; ++i)
+          if (p[i] < l[i] || r[i] < p[i]) in = false;
+        if (in) v = v + f;
       }
-    } else {
+    }
+    else {
       int x1 = rnd(-60, 60), x2 = rnd(x1, 60);
       int y1 = rnd(-60, 60), y2 = rnd(y1, 60);
       Cfg::Pos l{x1, y1}, r{x2, y2};
-      long long a = kd.query(l, r);
-      long long b = brute_query<2, Cfg>(pts, l, r);
-      if (a != b) { printf("MIN MISMATCH op%d: kd=%lld brute=%lld\n", t, a, b); abort(); }
+      Cfg::Info a = kd.query(l, r);
+      Cfg::Info b = brute_query<2, Cfg>(pts, l, r);
+      if (a.v != b.v) {
+        printf("MIN MISMATCH op%d: kd=%lld brute=%lld\n", t, a.v, b.v);
+        abort();
+      }
     }
   }
   printf("2D min-semigroup stress OK (%zu points)\n", kd.size());
@@ -358,17 +401,19 @@ void perf_smoke() {
     int o = rnd(1, 3);
     if (o == 1) {
       Cfg::Pos p{rnd(0, 100000), rnd(0, 100000), rnd(0, 100000)};
-      kd.insert(p, rnd(-1000, 1000));
-    } else if (o == 2) {
+      kd.insert(p, {rnd(-1000, 1000), 1});
+    }
+    else if (o == 2) {
       int x1 = rnd(0, 100000), x2 = rnd(x1, 100000);
       int y1 = rnd(0, 100000), y2 = rnd(y1, 100000);
       int z1 = rnd(0, 100000), z2 = rnd(z1, 100000);
       kd.update(Cfg::Pos{x1, y1, z1}, Cfg::Pos{x2, y2, z2}, rnd(-100, 100));
-    } else {
+    }
+    else {
       int x1 = rnd(0, 100000), x2 = rnd(x1, 100000);
       int y1 = rnd(0, 100000), y2 = rnd(y1, 100000);
       int z1 = rnd(0, 100000), z2 = rnd(z1, 100000);
-      acc += kd.query(Cfg::Pos{x1, y1, z1}, Cfg::Pos{x2, y2, z2}) + lst;
+      acc += kd.query(Cfg::Pos{x1, y1, z1}, Cfg::Pos{x2, y2, z2}).sum + lst;
     }
   }
   printf("perf smoke OK (3D, %d ops, %zu points, checksum %lld)\n", m, kd.size(), acc);
@@ -412,19 +457,19 @@ int main() {
  *   static constexpr int K = dimension count (compile-time)
  *   using Info           node info type      (original w / s)
  *   using Tag            lazy tag type       (original tg)
- *   static Info combine(Info a, Info b)      // associative
- *   static Info apply  (Info x, Tag f, int sz)
- *       // apply tag f to the aggregation x of sz points; must distribute
- *       // over combine: op(apply(a,f,szA), apply(b,f,szB)) ==
- *       //               apply(op(a,b), f, szA+szB)
- *   static Tag  compose(Tag f, Tag g)        // g applied, then f
- *       // must satisfy apply(x, compose(f,g), sz) ==
- *       //               apply(apply(x, g, sz), f, sz)
+ *   operator+ overloads (free functions / friends of Info and Tag):
+ *     Info + Info -> Info   // associative combine
+ *     Info + Tag  -> Info   // apply tag f to info (Info is the first operand)
+ *     Tag  + Tag  -> Tag    // compose tags; left tag first, then right tag
+ *   The template itself only uses `a + b`, `x + f`, `f + g`.
  *
  * Notes:
  *   query() pushes lazy tags down on partially covered nodes, so it can
  *   change the tag distribution inside the tree while preserving semantics.
  *   An empty query returns the default-constructed Info.
+ *   Since Info + Tag has no length parameter, length-dependent actions (range
+ *   add + range sum) fold the count into Info, e.g. Info = {sum, cnt} with
+ *   (sum, cnt) + f = (sum + f * cnt, cnt).
  *
  * Fixes applied over the original code:
  *   1) up() previously merged child bounding boxes even for missing children
@@ -435,6 +480,7 @@ int main() {
  *      A lazy flag distinguishes pending tags, so Tag also needs no identity.
  *   3) fixed-size arrays were replaced by an auto-growing vector node pool,
  *      removing the hard-coded limits N / M.
+ *   4) combine / apply / compose static methods were replaced by operator+.
  *
  * Self-test:
  *   main() runs randomized stress tests against a brute-force reference and

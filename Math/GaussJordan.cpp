@@ -11,9 +11,8 @@ int qpow(int a, int b) {
 }
 
 // Gauss-Jordan elimination over the prime field Z_md
-template <size_t N>
-struct gauss_jordan {
-  int a[N][N];  // a[i][j] coefficients, a[i][n] constants
+template <size_t N> struct gauss_jordan {
+  int a[N][N]; // a[i][j] coefficients, a[i][n] constants
   // returns 1 = unique solution (x[i] in a[i][n]), 2 = infinitely many, 0 = none
   int solve(int n) {
     int r = 0;

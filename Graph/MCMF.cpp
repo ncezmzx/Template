@@ -5,7 +5,7 @@ using namespace std;
 constexpr int N = 5e3 + 9, M = 5e4 + 9, inf = 0x3f3f3f3f3f3f3f3f;
 struct mcmf {
   int hd[N], nxt[M * 2], to[M * 2], cap[M * 2], cst[M * 2], tot = 1, dst[N], cur[N], vst[N];
-  int q[N + 2], nv = 2;   // ring queue (N+2 slots) + real vertex count
+  int q[N + 2], nv = 2; // ring queue (N+2 slots) + real vertex count
   void add(int x, int y, int z, int c) {
     nxt[++tot] = hd[x], hd[x] = tot, to[tot] = y, cap[tot] = z, cst[tot] = c;
     nxt[++tot] = hd[y], hd[y] = tot, to[tot] = x, cap[tot] = 0, cst[tot] = -c;
@@ -35,7 +35,7 @@ struct mcmf {
     while (true) {
       memset(dst, 0x3f, nv * sizeof(int));
       memcpy(cur, hd, nv * sizeof(int));
-      int qh = 0, qt = 0;   // ring array queue; vst keeps at most N+1 queued
+      int qh = 0, qt = 0; // ring array queue; vst keeps at most N+1 queued
       q[qt] = s, dst[s] = 0;
       if (++qt > N + 1) qt = 0;
       while (qh != qt) {

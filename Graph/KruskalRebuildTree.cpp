@@ -3,11 +3,10 @@ using namespace std;
 #define int long long
 
 // Kruskal rebuild tree: bottleneck path values and weight-limited reachability
-template <size_t N, size_t M>
-struct kruskal_rebuild_tree {
+template <size_t N, size_t M> struct kruskal_rebuild_tree {
   struct edge {
     int u, v, w;
-    bool operator<(const edge& r) const { return w < r.w; }
+    bool operator<(const edge &r) const { return w < r.w; }
   } e[M];
   int n, m, tot, val[N << 1], fa[N << 1], f[N << 1][20], dep[N << 1];
   vector<int> T[N << 1];
@@ -27,9 +26,9 @@ struct kruskal_rebuild_tree {
       if (tot == 2 * n - 1) break;
     }
   }
-  void dfs(int x, int ff) {  // root each tree of the rebuild forest
+  void dfs(int x, int ff) { // root each tree of the rebuild forest
     f[x][0] = ff, dep[x] = dep[ff] + 1;
-    for (int i = 1; f[x][i - 1]; ++i) f[x][i] = f[f[x][i - 1]][i - 1];  // stop at 0
+    for (int i = 1; f[x][i - 1]; ++i) f[x][i] = f[f[x][i - 1]][i - 1]; // stop at 0
     for (int y : T[x])
       if (y != ff) dfs(y, x);
   }

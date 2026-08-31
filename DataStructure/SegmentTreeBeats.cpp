@@ -16,20 +16,24 @@ struct segbeats {
     if (t[p << 1].mx > t[p << 1 | 1].mx) {
       t[p].mx = t[p << 1].mx, t[p].cmx = t[p << 1].cmx;
       t[p].mx2 = max(t[p << 1].mx2, t[p << 1 | 1].mx);
-    } else if (t[p << 1].mx < t[p << 1 | 1].mx) {
+    }
+    else if (t[p << 1].mx < t[p << 1 | 1].mx) {
       t[p].mx = t[p << 1 | 1].mx, t[p].cmx = t[p << 1 | 1].cmx;
       t[p].mx2 = max(t[p << 1].mx, t[p << 1 | 1].mx2);
-    } else {
+    }
+    else {
       t[p].mx = t[p << 1].mx, t[p].cmx = t[p << 1].cmx + t[p << 1 | 1].cmx;
       t[p].mx2 = max(t[p << 1].mx2, t[p << 1 | 1].mx2);
     }
     if (t[p << 1].mn < t[p << 1 | 1].mn) {
       t[p].mn = t[p << 1].mn, t[p].cmn = t[p << 1].cmn;
       t[p].mn2 = min(t[p << 1].mn2, t[p << 1 | 1].mn);
-    } else if (t[p << 1].mn > t[p << 1 | 1].mn) {
+    }
+    else if (t[p << 1].mn > t[p << 1 | 1].mn) {
       t[p].mn = t[p << 1 | 1].mn, t[p].cmn = t[p << 1 | 1].cmn;
       t[p].mn2 = min(t[p << 1].mn, t[p << 1 | 1].mn2);
-    } else {
+    }
+    else {
       t[p].mn = t[p << 1].mn, t[p].cmn = t[p << 1].cmn + t[p << 1 | 1].cmn;
       t[p].mn2 = min(t[p << 1].mn2, t[p << 1 | 1].mn2);
     }

@@ -3,11 +3,10 @@ using namespace std;
 #define int long long
 
 // Dinic core + flows with lower bounds (feasible / max / min flow)
-template <size_t N, size_t M>
-struct bounded_flow {
+template <size_t N, size_t M> struct bounded_flow {
   static constexpr int INF = 0x3f3f3f3f3f3f3f3f;
   int hd[N], nxt[M], to[M], cap[M], tot = 1, cur[N], dep[N], q[N], nv = 2;
-  int in[N];  // lower-bound balance: in[x] = sum(in-lower) - sum(out-lower)
+  int in[N]; // lower-bound balance: in[x] = sum(in-lower) - sum(out-lower)
   void init() {
     tot = 1, nv = 2;
     memset(hd, 0, sizeof hd), memset(in, 0, sizeof in);
@@ -16,11 +15,11 @@ struct bounded_flow {
     nxt[++tot] = hd[x], hd[x] = tot, to[tot] = y, cap[tot] = c;
     nxt[++tot] = hd[y], hd[y] = tot, to[tot] = x, cap[tot] = 0;
     if (x >= nv) nv = x + 1;
-    if (y >= nv) nv = y + 1;  // track real vertex count to shrink memset/memcpy
+    if (y >= nv) nv = y + 1; // track real vertex count to shrink memset/memcpy
   }
   bool bfs(int s, int t) {
     memset(dep, -1, nv * sizeof(int));
-    int qh = 0, qt = 0;  // flat array queue
+    int qh = 0, qt = 0; // flat array queue
     q[qt++] = s, dep[s] = 0;
     while (qh < qt) {
       int x = q[qh++], dx = dep[x] + 1;
@@ -32,7 +31,7 @@ struct bounded_flow {
   int dfs(int x, int t, int w) {
     if (x == t) return w;
     int flow = 0, dx = dep[x] + 1;
-    for (int& i = cur[x]; i && w; i = nxt[i]) {
+    for (int &i = cur[x]; i && w; i = nxt[i]) {
       int v = to[i];
       if (cap[i] && dep[v] == dx) {
         int k = dfs(v, t, min(w, cap[i]));

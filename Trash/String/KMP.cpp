@@ -4,8 +4,8 @@ using namespace std;
 
 // KMP prefix function / failure table (strings are 1-indexed: s = ' ' + s)
 constexpr int N = 1e6 + 9;
-int n, nxt[N];   // nxt[i] = longest border length of s[1..i] (failure jump)
-string s;        // pattern; use as s = ' ' + s
+int n, nxt[N]; // nxt[i] = longest border length of s[1..i] (failure jump)
+string s;      // pattern; use as s = ' ' + s
 
 // build nxt (s is 1-indexed with s[0] a placeholder; n = |s| - 1)
 void build_nxt() {
@@ -21,7 +21,7 @@ int match(const string &t, const string &s) {
   int m = t.size() - 1, M = s.size() - 1, cnt = 0;
   for (int i = 1, j = 0; i <= M; ++i) {
     while (j && t[j + 1] != s[i]) j = nxt[j];
-    if ((j += (t[j + 1] == s[i])) == m) ++cnt;  // full pattern hit (could record i instead)
+    if ((j += (t[j + 1] == s[i])) == m) ++cnt; // full pattern hit (could record i instead)
   }
   return cnt;
 }

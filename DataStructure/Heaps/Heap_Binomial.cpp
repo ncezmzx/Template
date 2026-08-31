@@ -3,18 +3,15 @@ using namespace std;
 #define int long long
 
 // binomial heap (no amortized-constant insert specialization), mergeable min-heap
-template <size_t N>
-struct heap_binomial {
+template <size_t N> struct heap_binomial {
   int a[N], fa[N], vl[N], tp[N], rk[N], pos[N], msk[N];
   list<int> nd[N], sn[N];
   typename list<int>::iterator it[N];
-  void add(list<int>& x, int y) { it[y] = x.insert(x.end(), y); }
-  void cmin(int& x, int y) { x > y && (x = y); }
-  int newnode(int x, int i) {
-    return add(nd[i], i), tp[i] = vl[i] = x, pos[i] = msk[i] = i;
-  }
+  void add(list<int> &x, int y) { it[y] = x.insert(x.end(), y); }
+  void cmin(int &x, int y) { x > y && (x = y); }
+  int newnode(int x, int i) { return add(nd[i], i), tp[i] = vl[i] = x, pos[i] = msk[i] = i; }
   int top(int x) { return tp[x]; }
-  void join(int x, list<int>& ndy) {  // carry-based consolidation of root lists
+  void join(int x, list<int> &ndy) { // carry-based consolidation of root lists
     int mx = -1;
     for (int h : nd[x]) mx = max(mx, rk[h]), a[rk[h]] = h;
     for (int h : ndy) {
@@ -26,10 +23,10 @@ struct heap_binomial {
     }
     nd[x].clear(), tp[x] = LLONG_MAX;
     for (int i = 0; i <= mx; ++i)
-      if (int& h = a[i]) add(nd[x], h), cmin(tp[x], vl[h]), h = 0;
+      if (int &h = a[i]) add(nd[x], h), cmin(tp[x], vl[h]), h = 0;
   }
   void join(int x, int y) { join(x, nd[y]); }
-  void decrease_key(int h, int p, int v) {  // bubble up swapping masked values
+  void decrease_key(int h, int p, int v) { // bubble up swapping masked values
     cmin(tp[h], vl[p = pos[p]] = v);
     for (int f = fa[p]; f && vl[f] > v; f = fa[p = f])
       swap(msk[p], msk[f]), swap(pos[msk[p]], pos[msk[f]]), swap(vl[p], vl[f]);

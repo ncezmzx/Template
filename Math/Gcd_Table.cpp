@@ -18,7 +18,8 @@ int gcd_tab(int a, int b) {
     if (a > b) {
       if (b < (1 << K)) return G[a % b][b] << s;
       a = (a - b) >> __builtin_ctz(a - b);
-    } else {
+    }
+    else {
       if (a < (1 << K)) return G[b % a][a] << s;
       b = (b - a) >> __builtin_ctz(b - a);
     }

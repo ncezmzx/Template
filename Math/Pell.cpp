@@ -12,9 +12,9 @@ long long isqrt(long long x) {
 // D positive non-square; returns the fundamental solution (x1, y1)
 pair<long long, long long> pell(long long D) {
   long long a0 = isqrt(D);
-  vector<long long> A;  // A[i] = partial quotient a_{i+1}; period length L = A.size()
+  vector<long long> A; // A[i] = partial quotient a_{i+1}; period length L = A.size()
   long long m = 0, d = 1, a = a0;
-  do {  // continued-fraction period of sqrt(D) ends at a == 2*a0
+  do { // continued-fraction period of sqrt(D) ends at a == 2*a0
     m = d * a - m;
     d = (D - m * m) / d;
     a = (a0 + m) / d;
@@ -23,8 +23,8 @@ pair<long long, long long> pell(long long D) {
   long long L = A.size();
   // convergents p_i/q_i (p_{-2}=0, p_{-1}=1; q_{-2}=1, q_{-1}=0); __int128 guards overflow
   auto conv = [&](long long upto) {
-    long long p = a0, q = 1;      // p_0, q_0
-    long long p1 = 1, q1 = 0;     // p_{-1}, q_{-1}
+    long long p = a0, q = 1;  // p_0, q_0
+    long long p1 = 1, q1 = 0; // p_{-1}, q_{-1}
     for (long long i = 1; i <= upto; ++i) {
       long long ai = A[(i - 1) % L];
       __int128 pn = (__int128)ai * p + p1, qn = (__int128)ai * q + q1;

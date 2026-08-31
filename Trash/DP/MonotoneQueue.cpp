@@ -3,13 +3,13 @@ using namespace std;
 
 // monotone queue: sliding window maximum over a sequence, O(n)
 // returns res[j] = max(a[j..j+y-1]) for j = 0..(int)a.size()-y
-vector<int> window_max(const vector<int>& a, int y) {
+vector<int> window_max(const vector<int> &a, int y) {
   int m = (int)a.size();
   vector<int> res(max(0, m - y + 1));
-  deque<int> q;  // indices; front = current window maximum
+  deque<int> q; // indices; front = current window maximum
   for (int j = 0; j < m; ++j) {
-    while (!q.empty() && q.front() < j - y + 1) q.pop_front();  // expired
-    while (!q.empty() && a[q.back()] < a[j]) q.pop_back();      // keep decreasing
+    while (!q.empty() && q.front() < j - y + 1) q.pop_front(); // expired
+    while (!q.empty() && a[q.back()] < a[j]) q.pop_back();     // keep decreasing
     q.push_back(j);
     if (j >= y - 1) res[j - y + 1] = a[q.front()];
   }

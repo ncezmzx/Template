@@ -1,5 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
+
+// Berlekamp-Massey: shortest recurrence s_n = c1*s_{n-1} + ... + cd*s_{n-d}
+// for sequence s over a prime field; needs |s| >= 2d terms
+// k-th term (0-indexed); s must contain >= 2*order terms
+
 #define int long long
 
 int pw_(int x, int n, int mod) {
@@ -13,9 +18,7 @@ int pw_(int x, int n, int mod) {
   return r;
 }
 
-// Berlekamp-Massey: shortest recurrence s_n = c1*s_{n-1} + ... + cd*s_{n-d}
-// for sequence s over a prime field; needs |s| >= 2d terms
-vector<int> berlekamp_massey(const vector<int>& s, int mod) {
+vector<int> BM(const vector<int> &s, int mod) {
   int n = s.size(), L = 0, m = 0;
   vector<int> C(n + 1, 0), B(n + 1, 0), T;
   C[0] = B[0] = 1;
@@ -32,31 +35,29 @@ vector<int> berlekamp_massey(const vector<int>& s, int mod) {
   }
   C.resize(L + 1);
   C.erase(C.begin());
-  for (auto& x : C) x = (mod - x) % mod;  // convention: s_i + sum C_j*s_{i-j} = 0 -> c_j = -C_j
+  for (auto &x : C) x = (mod - x) % mod;
   return C;
 }
 
-// polynomial product modulo the characteristic polynomial (deg < d), naive O(d^2)
-vector<int> polymul(const vector<int>& a, const vector<int>& b, const vector<int>& rec, int mod) {
+vector<int> polymul(const vector<int> &a, const vector<int> &b, const vector<int> &rec, int mod) {
   int d = rec.size();
   vector<int> c(a.size() + b.size() - 1, 0);
   for (int i = 0; i < (int)a.size(); ++i)
     for (int j = 0; j < (int)b.size(); ++j) c[i + j] = (c[i + j] + a[i] * b[j]) % mod;
-  for (int k = (int)c.size() - 1; k >= d; --k)  // reduce x^k = sum rec[i]*x^{k-1-i}... see notes
+  for (int k = (int)c.size() - 1; k >= d; --k)
     for (int i = 1; i <= d; ++i) c[k - i] = (c[k - i] + c[k] * rec[i - 1]) % mod;
   c.resize(d);
   return c;
 }
 
-// k-th term (0-indexed); s must contain >= 2*order terms
-int kth_term(const vector<int>& s, int k, int mod) {
-  vector<int> rec = berlekamp_massey(s, mod);
+int kth_term(const vector<int> &s, int k, int mod) {
+  vector<int> rec = BM(s, mod);
   int d = rec.size();
-  if (d == 0) return 0;  // all-zero sequence
+  if (d == 0) return 0;
   if (k < (int)s.size()) return s[k] % mod;
   vector<int> res(1, 1), base(2, 0);
-  base[1] = 1;  // polynomial x
-  for (int e = k; e; e >>= 1) {  // x^k mod f(x)
+  base[1] = 1;
+  for (int e = k; e; e >>= 1) {
     if (e & 1) res = polymul(res, base, rec, mod);
     base = polymul(base, base, rec, mod);
   }

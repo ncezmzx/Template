@@ -3,48 +3,45 @@ using namespace std;
 #define int long long
 
 // heavy-light decomposition + segment tree (point set / range sum) for path sums
-template <size_t N>
-struct hld {
+template <size_t N> struct hld {
   int n, idx;
   int a[N], dfn[N], sz[N], id[N], top[N], fa[N], son[N], dep[N];
   vector<int> es[N];
   int sgt[N << 2];
-  int dfs1(int x, int ff) {  // fa/dep/subtree size/heavy child
+  int dfs1(int x, int ff) { // fa/dep/subtree size/heavy child
     fa[x] = ff, dep[x] = dep[ff] + 1;
     for (int y : es[x])
       if (y ^ ff) sz[x] += dfs1(y, x), sz[y] > sz[son[x]] && (son[x] = y);
     return ++sz[x];
   }
-  void dfs2(int x, int tp) {  // decompose: top = chain head, dfn order (heavy child first)
+  void dfs2(int x, int tp) { // decompose: top = chain head, dfn order (heavy child first)
     top[x] = tp, id[dfn[x] = ++idx] = x;
     if (son[x]) dfs2(son[x], tp);
     for (int y : es[x])
       if ((y ^ son[x]) && (y ^ fa[x])) dfs2(y, y);
   }
-  void up(int u) {
-    sgt[u] = sgt[u << 1] + sgt[u << 1 | 1];
-  }
+  void up(int u) { sgt[u] = sgt[u << 1] + sgt[u << 1 | 1]; }
   void build(int u, int l, int r) {
-    if (l == r) return sgt[u] = a[id[l]], void();  // id[dfn] restores vertex weights
+    if (l == r) return sgt[u] = a[id[l]], void(); // id[dfn] restores vertex weights
     int m = (l + r) >> 1;
     build(u << 1, l, m), build(u << 1 | 1, m + 1, r);
     up(u);
   }
-  void update(int u, int l, int r, int x, int y) {  // point set: dfn x becomes y
+  void update(int u, int l, int r, int x, int y) { // point set: dfn x becomes y
     if (l == r) return sgt[u] = y, void();
     int m = (l + r) >> 1;
     if (m >= x) update(u << 1, l, m, x, y);
     else update(u << 1 | 1, m + 1, r, x, y);
     up(u);
   }
-  int query(int u, int l, int r, int x, int y) {  // range sum over dfn interval
+  int query(int u, int l, int r, int x, int y) { // range sum over dfn interval
     if (x <= l && r <= y) return sgt[u];
     int m = (l + r) >> 1, res = 0;
     if (m >= x) res += query(u << 1, l, m, x, y);
     if (m < y) res += query(u << 1 | 1, m + 1, r, x, y);
     return res;
   }
-  int query(int x, int y) {  // sum along the path x -> y
+  int query(int x, int y) { // sum along the path x -> y
     int res = 0;
     while (top[x] != top[y]) {
       if (dep[top[x]] < dep[top[y]]) swap(x, y);

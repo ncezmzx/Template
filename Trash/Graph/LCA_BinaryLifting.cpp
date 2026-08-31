@@ -2,11 +2,10 @@
 using namespace std;
 
 // LCA by binary lifting
-template <size_t N>
-struct lca_binary_lifting {
-  int dep[N], fa[N][20];  // fa[u][i] = 2^i-th ancestor of u
+template <size_t N> struct lca_binary_lifting {
+  int dep[N], fa[N][20]; // fa[u][i] = 2^i-th ancestor of u
   vector<int> e[N];
-  void dfs(int u, int f) {  // preprocess dep / fa
+  void dfs(int u, int f) { // preprocess dep / fa
     dep[u] = dep[f] + 1;
     fa[u][0] = f;
     for (int i = 1; i < 20; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];
@@ -18,12 +17,12 @@ struct lca_binary_lifting {
   int lca(int x, int y) {
     if (dep[x] < dep[y]) swap(x, y);
     for (int i = 19; i >= 0; i--) {
-      if (dep[fa[x][i]] >= dep[y]) {  // lift x to y's depth
+      if (dep[fa[x][i]] >= dep[y]) { // lift x to y's depth
         x = fa[x][i];
       }
     }
     if (x == y) return x;
-    for (int i = 19; i >= 0; i--) {  // lift together, stop at LCA's children
+    for (int i = 19; i >= 0; i--) { // lift together, stop at LCA's children
       if (fa[x][i] != fa[y][i]) {
         x = fa[x][i], y = fa[y][i];
       }

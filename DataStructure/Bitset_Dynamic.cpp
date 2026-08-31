@@ -11,26 +11,26 @@ struct Bitset {
   Bitset(int l) : n((l >> 6) + 1), len(l), mask((1ULL << (l & 63)) - 1) { v.resize(n); }
   void trim() { v[len >> 6] &= mask; }
 
-  Bitset& operator=(const Bitset& a) {
+  Bitset &operator=(const Bitset &a) {
     v = a.v, len = a.len, n = a.n;
     return *this;
   }
-  Bitset& operator&=(const Bitset &a) {
+  Bitset &operator&=(const Bitset &a) {
     for (int i = 0; i < n; ++i) v[i] &= a.v[i];
     return *this;
   }
   friend Bitset operator&(Bitset a, const Bitset &b) { return a &= b; }
-  Bitset& operator|=(const Bitset &a) {
+  Bitset &operator|=(const Bitset &a) {
     for (int i = 0; i < n; ++i) v[i] |= a.v[i];
     return *this;
   }
   friend Bitset operator|(Bitset a, const Bitset &b) { return a |= b; }
-  Bitset& operator^=(const Bitset &a) {
+  Bitset &operator^=(const Bitset &a) {
     for (int i = 0; i < n; ++i) v[i] ^= a.v[i];
     return *this;
   }
   friend Bitset operator^(Bitset a, const Bitset &b) { return a ^= b; }
-  Bitset& operator-=(const Bitset &a) {
+  Bitset &operator-=(const Bitset &a) {
     for (int i = 0; i < n; ++i) v[i] &= ~a.v[i];
     return *this;
   }
@@ -55,11 +55,11 @@ struct Bitset {
   friend bool operator>(const Bitset &a, const Bitset &b) { return b < a; }
 
   void set(int i) {
-    if (i >= len) return ;
+    if (i >= len) return;
     v[i >> 6] |= 1ULL << (i & 63);
   }
   void set(int l, int r) {
-    if (l > r || r >= len) return ;
+    if (l > r || r >= len) return;
     int sl = l >> 6, sr = r >> 6;
     for (; l >> 6 == sl && l <= r; ++l) v[sl] |= 1ULL << (l & 63);
     for (; r >> 6 == sr && l <= r; --r) v[sr] |= 1ULL << (r & 63);
@@ -68,11 +68,11 @@ struct Bitset {
   void set() { fill(v.begin(), v.end(), size_t(-1)), trim(); }
 
   void unset(int i) {
-    if (i >= len) return ;
+    if (i >= len) return;
     v[i >> 6] &= ~(1ULL << (i & 63));
   }
   void unset(int l, int r) {
-    if (l > r || r >= len) return ;
+    if (l > r || r >= len) return;
     int sl = l >> 6, sr = r >> 6;
     for (; l >> 6 == sl && l <= r; ++l) v[sl] &= ~(1ULL << (l & 63));
     for (; r >> 6 == sr && l <= r; --r) v[sr] &= ~(1ULL << (r & 63));
@@ -81,11 +81,11 @@ struct Bitset {
   void unset() { fill(v.begin(), v.end(), 0); }
 
   void flip(int i) {
-    if (i >= len) return ;
+    if (i >= len) return;
     v[i >> 6] ^= 1ULL << (i & 63);
   }
   void flip(int l, int r) {
-    if (l > r || r > len) return ;
+    if (l > r || r > len) return;
     int sl = l >> 6, sr = r >> 6;
     for (; l >> 6 == sl && l <= r; ++l) v[sl] ^= 1ULL << (l & 63);
     for (; r >> 6 == sr && l <= r; --r) v[sr] ^= 1ULL << (r & 63);
@@ -103,13 +103,12 @@ struct Bitset {
   }
   bool any() const { return !none(); }
   bool all() const {
-    for (int i = 0; i + 1 < n; ++i) if (v[i] != W) return false;
+    for (int i = 0; i + 1 < n; ++i)
+      if (v[i] != W) return false;
     return v[n - 1] == mask;
   }
 
-  void swap(Bitset &a) {
-    ::swap(n, a.n), ::swap(len, a.len), ::swap(mask, a.mask), v.swap(a.v);
-  }
+  void swap(Bitset &a) { ::swap(n, a.n), ::swap(len, a.len), ::swap(mask, a.mask), v.swap(a.v); }
 
   int find0(int p) const { // find first 0 after p, v shouldn't be all 1s
     if (p >= len) return len;
@@ -139,7 +138,7 @@ struct Bitset {
   }
   int size() const { return len; }
 
-  Bitset& operator<<=(int s) {
+  Bitset &operator<<=(int s) {
     if (s >= len) return unset(), *this;
     int k = s >> 6, t = s & 63;
     if (k > 0) {
@@ -156,7 +155,7 @@ struct Bitset {
     return trim(), *this;
   }
 
-  Bitset& operator>>=(int s) {
+  Bitset &operator>>=(int s) {
     if (s >= len) return unset(), *this;
     int k = s >> 6, t = s & 63;
     if (k > 0) {
@@ -175,7 +174,7 @@ struct Bitset {
 
   friend Bitset operator<<(Bitset a, int s) { return a <<= s; }
   friend Bitset operator>>(Bitset a, int s) { return a >>= s; }
-  friend ostream& operator<<(ostream &os, const Bitset &a) {
+  friend ostream &operator<<(ostream &os, const Bitset &a) {
     for (int i = 0; i + 1 < a.n; ++i) {
       for (int j = 0; j < 64; ++j) os << (a.v[i] >> j & 1);
     }

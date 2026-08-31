@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // triangle counting in an undirected graph via degree orientation, O(m sqrt m)
-template <size_t N, size_t M>
-struct triangle_count {
+template <size_t N, size_t M> struct triangle_count {
   int n, m, deg[N];
   pair<int, int> e[M];
   vector<int> g[N];
@@ -13,7 +12,7 @@ struct triangle_count {
     for (int i = 1; i <= m; ++i) {
       int u = e[i].first, v = e[i].second;
       if (deg[u] > deg[v] || (deg[u] == deg[v] && u > v)) swap(u, v);
-      g[u].push_back(v);  // orient low degree -> high degree (DAG)
+      g[u].push_back(v); // orient low degree -> high degree (DAG)
     }
     vector<char> tag(n + 1, 0);
     long long ans = 0;
@@ -21,7 +20,7 @@ struct triangle_count {
       for (int v : g[u]) tag[v] = 1;
       for (int v : g[u])
         for (int w : g[v])
-          if (tag[w]) ++ans;  // (u, v, w) counted at its smallest-degree vertex
+          if (tag[w]) ++ans; // (u, v, w) counted at its smallest-degree vertex
       for (int v : g[u]) tag[v] = 0;
     }
     return ans;

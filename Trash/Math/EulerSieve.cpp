@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // linear (Euler) sieve: primes + Euler totient in O(n)
-template <size_t N>
-struct euler_sieve {
+template <size_t N> struct euler_sieve {
   int phi[N], pri[N], c, vst[N];
   void run(int n) {
     phi[1] = 1;

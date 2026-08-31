@@ -10,7 +10,7 @@ int qpow(int a, int b) {
   return r;
 }
 
-int lagrange(const vector<int>& x, const vector<int>& y, int k) {
+int lagrange(const vector<int> &x, const vector<int> &y, int k) {
   int n = (int)x.size(), res = 0;
   for (int i = 0; i < n; ++i) {
     int num = 1, den = 1;
@@ -25,7 +25,7 @@ int lagrange(const vector<int>& x, const vector<int>& y, int k) {
 }
 
 // O(n) version for nodes x = 1..n (prefix/suffix products + factorial inverses)
-int lagrange_1n(const vector<int>& y, int k) {
+int lagrange_1n(const vector<int> &y, int k) {
   int n = (int)y.size() - 1;
   if (k >= 1 && k <= n) return y[k];
   if (n == 0) return 0;

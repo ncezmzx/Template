@@ -19,35 +19,34 @@ struct Q {
   int l, r, k, id;
 };
 // a[1..n] (1-indexed); qs = {{l, r, k}, ...}; returns k-th smallest values in input order
-vector<int> parallel_kth(int n, const vector<int>& a, const vector<array<int, 3>>& qs) {
+vector<int> parallel_kth(int n, const vector<int> &a, const vector<array<int, 3>> &qs) {
   n_ = n;
   memset(bit, 0, (n + 1) * sizeof(int));
   vector<int> vals(a.begin() + 1, a.end());
   sort(vals.begin(), vals.end());
   vals.erase(unique(vals.begin(), vals.end()), vals.end());
   int V = vals.size();
-  vector<vector<int>> pos(V + 1);  // all positions of compressed value i
-  for (int i = 1; i <= n; ++i)
-    pos[(int)(lower_bound(vals.begin(), vals.end(), a[i]) - vals.begin()) + 1].push_back(i);
+  vector<vector<int>> pos(V + 1); // all positions of compressed value i
+  for (int i = 1; i <= n; ++i) pos[(int)(lower_bound(vals.begin(), vals.end(), a[i]) - vals.begin()) + 1].push_back(i);
   vector<Q> cur;
   for (int i = 0; i < (int)qs.size(); ++i) cur.push_back({qs[i][0], qs[i][1], qs[i][2], i});
   vector<int> ans(qs.size());
-  function<void(int, int, vector<Q>&)> solve = [&](int L, int R, vector<Q>& q) {
+  function<void(int, int, vector<Q> &)> solve = [&](int L, int R, vector<Q> &q) {
     if (q.empty()) return;
     if (L == R) {
-      for (auto& x : q) ans[x.id] = vals[L - 1];
+      for (auto &x : q) ans[x.id] = vals[L - 1];
       return;
     }
     int mid = L + R >> 1;
-    for (int i = L; i <= mid; ++i)  // insert positions with values in [L, mid]
+    for (int i = L; i <= mid; ++i) // insert positions with values in [L, mid]
       for (int p : pos[i]) bit_add(p, 1);
     vector<Q> lq, rq;
-    for (auto& x : q) {
-      int c = bit_sum(x.r) - bit_sum(x.l - 1);  // count of values <= mid in range
+    for (auto &x : q) {
+      int c = bit_sum(x.r) - bit_sum(x.l - 1); // count of values <= mid in range
       if (c >= x.k) lq.push_back(x);
       else rq.push_back({x.l, x.r, x.k - c, x.id});
     }
-    for (int i = L; i <= mid; ++i)  // roll back the BIT for the next level
+    for (int i = L; i <= mid; ++i) // roll back the BIT for the next level
       for (int p : pos[i]) bit_add(p, -1);
     solve(L, mid, lq);
     solve(mid + 1, R, rq);

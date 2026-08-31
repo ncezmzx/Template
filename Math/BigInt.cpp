@@ -17,8 +17,7 @@ struct bigint {
   }
   // (*this) = (*this) * 10^k + v in one shot (k<=9, v < 10^9); core parsing primitive
   void mul_add_small(int k, u64 v) {
-    static constexpr u64 pw10[10] = {1, 10, 100, 1000, 10000, 100000,
-                                     1000000, 10000000, 100000000, 1000000000};
+    static constexpr u64 pw10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
     u64 m = pw10[k], carry = v;
     for (int i = 0; i < (int)a.size(); ++i) {
       u64 cur = (u64)a[i] * m + carry;
@@ -27,11 +26,12 @@ struct bigint {
     while (carry) a.push_back(u32(carry)), carry >>= 32;
     trim();
   }
-  explicit bigint(const string& s) {
+  explicit bigint(const string &s) {
     int i = 0;
     bool n = false;
     if (i < (int)s.size() && (s[i] == '-' || s[i] == '+')) n = s[i++] == '-';
     a.assign(1, 0);
+    neg = false;  // must init: only set to true below when a '-' was seen
     // parse 9 decimal digits per chunk: 9x fewer multiply-adds than per-digit
     while (i < (int)s.size()) {
       int take = min(9, (int)s.size() - i);
@@ -43,7 +43,7 @@ struct bigint {
     if (n && !is_zero()) neg = true;
   }
 
-  static void trim(vector<u32>& v) {
+  static void trim(vector<u32> &v) {
     while (v.size() > 1 && v.back() == 0) v.pop_back();
   }
   void trim() { ::bigint::trim(a); }
@@ -54,15 +54,33 @@ struct bigint {
     r.neg = false;
     return r;
   }
+  // number of significant bits in the magnitude (0 for zero)
+  int bitlen() const {
+    if (is_zero()) return 0;
+    return (int)(a.size() - 1) * 32 + 32 - __builtin_clz(a.back());
+  }
+  // exact conversion to long long / int; throws std::overflow_error if it does not fit
+  long long to_ll() const {
+    if (*this > (bigint)LLONG_MAX) throw overflow_error("bigint::to_ll: value out of range");
+    if (*this < (bigint)LLONG_MIN) throw overflow_error("bigint::to_ll: value out of range");
+    unsigned long long v = 0;
+    for (int i = (int)a.size() - 1; i >= 0; --i) v = (v << 32) | a[i];
+    return neg ? (long long)(0ull - v) : (long long)v;
+  }
+  explicit operator bool() const { return !is_zero(); }
+  explicit operator long long() const { return to_ll(); }
+  explicit operator int() const { return (int)to_ll(); }
 
-  static int cmp_abs(const bigint& x, const bigint& y) {
-    if (x.a.size() != y.a.size()) return x.a.size() < y.a.size() ? -1 : 1;
-    for (int i = (int)x.a.size() - 1; i >= 0; --i)
-      if (x.a[i] != y.a[i]) return x.a[i] < y.a[i] ? -1 : 1;
+  // compare two raw magnitude vectors
+  static int cmp_vec(const vector<u32> &x, const vector<u32> &y) {
+    if (x.size() != y.size()) return x.size() < y.size() ? -1 : 1;
+    for (int i = (int)x.size() - 1; i >= 0; --i)
+      if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
     return 0;
   }
+  static int cmp_abs(const bigint &x, const bigint &y) { return cmp_vec(x.a, y.a); }
 
-  static vector<u32> add_abs(const vector<u32>& x, const vector<u32>& y) {
+  static vector<u32> add_abs(const vector<u32> &x, const vector<u32> &y) {
     vector<u32> r(max(x.size(), y.size()) + 1, 0);
     u64 carry = 0;
     for (int i = 0; i < (int)r.size(); ++i) {
@@ -73,7 +91,7 @@ struct bigint {
     trim(r);
     return r;
   }
-  static vector<u32> sub_abs(const vector<u32>& x, const vector<u32>& y) {
+  static vector<u32> sub_abs(const vector<u32> &x, const vector<u32> &y) {
     vector<u32> r(x);
     u64 borrow = 0;
     for (int i = 0; i < (int)r.size(); ++i) {
@@ -84,7 +102,7 @@ struct bigint {
     trim(r);
     return r;
   }
-  static vector<u32> mul_abs(const vector<u32>& x, const vector<u32>& y) {
+  static vector<u32> mul_abs(const vector<u32> &x, const vector<u32> &y) {
     if (x.size() == 1 && x[0] == 0) return vector<u32>(1, 0);
     if (y.size() == 1 && y[0] == 0) return vector<u32>(1, 0);
     vector<u32> r(x.size() + y.size(), 0);
@@ -101,8 +119,8 @@ struct bigint {
     return r;
   }
 
-  static pair<vector<u32>, vector<u32>> divmod_abs(const vector<u32>& U, const vector<u32>& V) {
-    if (cmp_abs({false, U}, {false, V}) < 0) return {vector<u32>(1, 0), U};
+  static pair<vector<u32>, vector<u32>> divmod_abs(const vector<u32> &U, const vector<u32> &V) {
+    if (cmp_vec(U, V) < 0) return {vector<u32>(1, 0), U};
     vector<u32> u = U, v = V;
     int n = (int)v.size();
     if (n == 1) {
@@ -118,7 +136,7 @@ struct bigint {
     }
     int m = (int)u.size() - n;
     u64 d = ((u64)1 << 32) / ((u64)v.back() + 1);
-    auto mul_small = [](const vector<u32>& x, u64 d) {
+    auto mul_small = [](const vector<u32> &x, u64 d) {
       vector<u32> r(x.size() + 1, 0);
       u64 carry = 0;
       for (int i = 0; i < (int)x.size(); ++i) {
@@ -136,8 +154,7 @@ struct bigint {
     for (int j = m; j >= 0; --j) {
       u64 num = ((u64)u[j + n] << 32) | u[j + n - 1];
       u64 qhat = num / v[n - 1], rhat = num % v[n - 1];
-      while (qhat >= (1ull << 32) ||
-             qhat * v[n - 2] > ((rhat << 32) + u[j + n - 2])) {
+      while (qhat >= (1ull << 32) || qhat * v[n - 2] > ((rhat << 32) + u[j + n - 2])) {
         --qhat, rhat += v[n - 1];
         if (rhat >= (1ull << 32)) break;
       }
@@ -159,7 +176,8 @@ struct bigint {
           carry = sum >> 32;
         }
         u[j + n] = u32(u[j + n] + carry);
-      } else {
+      }
+      else {
         u[j + n] = u32(u[j + n] - borrow);
       }
       q[j] = u32(qhat);
@@ -176,36 +194,76 @@ struct bigint {
     return {q, r};
   }
 
+  // sign-extended two's-complement image of x over n limbs (n*32 bits)
+  static vector<u32> to_twos(const bigint &x, int n) {
+    vector<u32> r(n, 0);
+    for (int i = 0; i < (int)x.a.size() && i < n; ++i) r[i] = x.a[i];
+    if (x.neg) {
+      for (int i = 0; i < n; ++i) r[i] = ~r[i];
+      u64 carry = 1;
+      for (int i = 0; i < n && carry; ++i) {
+        u64 cur = (u64)r[i] + carry;
+        r[i] = u32(cur);
+        carry = cur >> 32;
+      }
+    }
+    return r;
+  }
+  // inverse of to_twos; the top bit of the highest limb is the sign bit
+  static bigint from_twos(const vector<u32> &v) {
+    bool neg = (v.back() >> 31) & 1;
+    vector<u32> mag = v;
+    if (neg) {
+      for (auto &w : mag) w = ~w;
+      u64 carry = 1;
+      for (int i = 0; i < (int)mag.size() && carry; ++i) {
+        u64 cur = (u64)mag[i] + carry;
+        mag[i] = u32(cur);
+        carry = cur >> 32;
+      }
+    }
+    trim(mag);
+    return bigint(neg, mag);
+  }
+
   bigint operator-() const {
     bigint r = *this;
     if (!r.is_zero()) r.neg = !r.neg;
     return r;
   }
-  bigint operator+(const bigint& o) const {
+  bigint operator+() const { return *this; }
+  bigint operator+(const bigint &o) const {
     if (neg == o.neg) return {neg, add_abs(a, o.a)};
     int c = cmp_abs(*this, o);
     if (c == 0) return bigint();
     if (c > 0) return {neg, sub_abs(a, o.a)};
     return {o.neg, sub_abs(o.a, a)};
   }
-  bigint operator-(const bigint& o) const { return *this + (-o); }
-  bigint operator*(const bigint& o) const { return {neg ^ o.neg, mul_abs(a, o.a)}; }
-  pair<bigint, bigint> divmod(const bigint& o) const {
+  bigint operator-(const bigint &o) const { return *this + (-o); }
+  bigint operator*(const bigint &o) const { return {static_cast<bool>(neg ^ o.neg), mul_abs(a, o.a)}; }
+  pair<bigint, bigint> divmod(const bigint &o) const {
     auto [q, r] = divmod_abs(a, o.a);
-    bigint Q{neg ^ o.neg, q}, R{neg, r};
+    bigint Q{static_cast<bool>(neg ^ o.neg), q}, R{neg, r};
     if (Q.is_zero()) Q.neg = false;
     if (R.is_zero()) R.neg = false;
     return {Q, R};
   }
-  bigint operator/(const bigint& o) const { return divmod(o).first; }
-  bigint operator%(const bigint& o) const { return divmod(o).second; }
-  bigint& operator+=(const bigint& o) { return *this = *this + o; }
-  bigint& operator-=(const bigint& o) { return *this = *this - o; }
-  bigint& operator*=(const bigint& o) { return *this = *this * o; }
-  bigint& operator/=(const bigint& o) { return *this = *this / o; }
-  bigint& operator%=(const bigint& o) { return *this = *this % o; }
-  bigint& operator++() { return *this += 1; }
-  bigint& operator--() { return *this -= 1; }
+  bigint operator/(const bigint &o) const { return divmod(o).first; }
+  bigint operator%(const bigint &o) const { return divmod(o).second; }
+  bigint &operator+=(const bigint &o) { return *this = *this + o; }
+  bigint &operator-=(const bigint &o) { return *this = *this - o; }
+  bigint &operator*=(const bigint &o) { return *this = *this * o; }
+  bigint &operator/=(const bigint &o) { return *this = *this / o; }
+  bigint &operator%=(const bigint &o) { return *this = *this % o; }
+  bigint &operator&=(const bigint &o) { return *this = *this & o; }
+  bigint &operator|=(const bigint &o) { return *this = *this | o; }
+  bigint &operator^=(const bigint &o) { return *this = *this ^ o; }
+  bigint &operator<<=(long long k) { return *this = *this << k; }
+  bigint &operator>>=(long long k) { return *this = *this >> k; }
+  bigint &operator<<=(const bigint &k) { return *this = *this << k; }
+  bigint &operator>>=(const bigint &k) { return *this = *this >> k; }
+  bigint &operator++() { return *this += 1; }
+  bigint &operator--() { return *this -= 1; }
   bigint operator++(int) {
     bigint t = *this;
     ++*this;
@@ -217,16 +275,81 @@ struct bigint {
     return t;
   }
 
-  bool operator<(const bigint& o) const {
+  // ---- bitwise ops (two's-complement semantics, same results as builtin int) ----
+  bigint operator&(const bigint &o) const {
+    int n = max(bitlen(), o.bitlen()) / 32 + 2;
+    vector<u32> a = to_twos(*this, n), b = to_twos(o, n);
+    for (int i = 0; i < n; ++i) a[i] &= b[i];
+    return from_twos(a);
+  }
+  bigint operator|(const bigint &o) const {
+    int n = max(bitlen(), o.bitlen()) / 32 + 2;
+    vector<u32> a = to_twos(*this, n), b = to_twos(o, n);
+    for (int i = 0; i < n; ++i) a[i] |= b[i];
+    return from_twos(a);
+  }
+  bigint operator^(const bigint &o) const {
+    int n = max(bitlen(), o.bitlen()) / 32 + 2;
+    vector<u32> a = to_twos(*this, n), b = to_twos(o, n);
+    for (int i = 0; i < n; ++i) a[i] ^= b[i];
+    return from_twos(a);
+  }
+  bigint operator~() const {
+    vector<u32> a = to_twos(*this, bitlen() / 32 + 2);
+    for (auto &w : a) w = ~w;
+    return from_twos(a);
+  }
+  bool operator!() const { return is_zero(); }
+  // && / || provided for parity with builtin ints; note they do NOT short-circuit
+  bool operator&&(const bigint &o) const { return !is_zero() && !o.is_zero(); }
+  bool operator||(const bigint &o) const { return !is_zero() || !o.is_zero(); }
+
+  // ---- shifts (arithmetic; a negative amount shifts the other direction) ----
+  bigint operator<<(long long k) const {
+    if (k < 0) return *this >> -k;
+    if (k == 0 || is_zero()) return *this;
+    u64 sh = (u64)k;
+    int ls = (int)(sh / 32), bs = (int)(sh % 32);
+    vector<u32> r(a.size() + ls + 1, 0);
+    for (int i = 0; i < (int)a.size(); ++i) {
+      u64 cur = (u64)a[i] << bs;
+      r[i + ls] |= u32(cur);
+      r[i + ls + 1] |= u32(cur >> 32);
+    }
+    trim(r);
+    return bigint(neg, r);
+  }
+  bigint operator>>(long long k) const {
+    if (k < 0) return *this << -k;
+    if (k == 0 || is_zero()) return *this;
+    u64 sh = (u64)k;
+    bigint m = abs();
+    if ((u64)m.bitlen() <= sh) return bigint(neg ? -1 : 0);  // all bits shifted out
+    if (neg) m += (bigint(1) << k) - 1;                      // floor(-m/2^k) = -ceil(m/2^k)
+    int ls = (int)(sh / 32), bs = (int)(sh % 32);
+    int n = (int)m.a.size();
+    vector<u32> r(n - ls, 0);
+    for (int i = 0; i < (int)r.size(); ++i) {
+      u64 cur = m.a[i + ls];
+      if (bs && i + ls + 1 < n) cur |= (u64)m.a[i + ls + 1] << 32;
+      r[i] = u32(cur >> bs);
+    }
+    trim(r);
+    return bigint(neg, r);
+  }
+  bigint operator<<(const bigint &k) const { return *this << k.to_ll(); }
+  bigint operator>>(const bigint &k) const { return *this >> k.to_ll(); }
+
+  bool operator<(const bigint &o) const {
     if (neg != o.neg) return neg;
     int c = cmp_abs(*this, o);
     return neg ? c > 0 : c < 0;
   }
-  bool operator>(const bigint& o) const { return o < *this; }
-  bool operator<=(const bigint& o) const { return !(o < *this); }
-  bool operator>=(const bigint& o) const { return !(*this < o); }
-  bool operator==(const bigint& o) const { return neg == o.neg && a == o.a; }
-  bool operator!=(const bigint& o) const { return !(*this == o); }
+  bool operator>(const bigint &o) const { return o < *this; }
+  bool operator<=(const bigint &o) const { return !(o < *this); }
+  bool operator>=(const bigint &o) const { return !(*this < o); }
+  bool operator==(const bigint &o) const { return neg == o.neg && a == o.a; }
+  bool operator!=(const bigint &o) const { return !(*this == o); }
 
   bigint pow(long long b) const {
     bigint r = 1, x = *this;
@@ -270,15 +393,15 @@ struct bigint {
     return res;
   }
 
-  friend ostream& operator<<(ostream& os, const bigint& x) { return os << x.to_string(); }
-  friend istream& operator>>(istream& is, bigint& x) {
+  friend ostream &operator<<(ostream &os, const bigint &x) { return os << x.to_string(); }
+  friend istream &operator>>(istream &is, bigint &x) {
     string s;
     is >> s;
     x = bigint(s);
     return is;
   }
 
- private:
+  private:
   bigint(bool n, vector<u32> v) : neg(n), a(std::move(v)) { trim(); }
 };
 
@@ -287,15 +410,21 @@ struct bigint {
  * Name: big integer (BigInt, base 2^32, binary storage)
  * Complexity: add / sub O(n); multiply O(nm) (schoolbook); divide / mod
  *             O((n-m)m) (Knuth algorithm D)
- * Usage: integer arithmetic beyond 64 bits: + - * / %, comparisons, increment /
- *        decrement, powers and gcd.
+ * Usage: arbitrary precision integer arithmetic beyond 64 bits. Full op set:
+ *        + - * / % (and compound = forms), unary + and -, ++ / --, comparisons
+ *        < > <= >= == !=, bitwise & | ^ ~ (and &= |= ^=), logical !, shifts
+ *        << >> (and <<= >>=, arithmetic), powers and gcd.
  * Principle: little-endian uint32 array in base 2^32 with the sign stored
  *            separately; division follows Knuth's TAOCP algorithm D for any
- *            length; decimal conversion works in 1e9 chunks
+ *            length; decimal conversion works in 1e9 chunks; bitwise ops run on
+ *            a sign-extended two's-complement image so results match builtin
+ *            int semantics for negative operands
  * Notes: division truncates toward zero (C/C++ semantics, the remainder takes
- *        the dividend's sign); to_string and stream IO are O(n^2)-ish, so use
- *        them for IO only;
- *        the divisor must be non-zero; mixes with int / long long through
- *        implicit construction
+ *        the dividend's sign); shifts are arithmetic (like int) and a negative
+ *        shift amount shifts the other direction; operator&& / operator|| do
+ *        NOT short-circuit; to_string and stream IO are O(n^2)-ish, so use
+ *        them for IO only; the divisor must be non-zero; mixes with int / long
+ *        long through implicit construction; to_ll() / (long long) / (int)
+ *        throw std::overflow_error when the value does not fit
  * ============================================================
  */

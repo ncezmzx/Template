@@ -35,8 +35,7 @@ namespace Poly {
     poly(const initializer_list<int> &s) : vector<int>(s) {}
     poly(int n) { resize(n); }
     poly(int n, int val) { resize(n, val); }
-    template <typename Iter>
-    poly(Iter first, Iter last) : vector<int>(first, last) {}
+    template <typename Iter> poly(Iter first, Iter last) : vector<int>(first, last) {}
   };
   static vector<int> rev;
   static vector<int> roots{0, 1};
@@ -197,8 +196,7 @@ namespace Poly {
     if ((int)invs.size() <= x) {
       int from = (int)invs.size();
       invs.resize(x + 1);
-      for (int i = from; i <= x; ++i)
-        invs[i] = (int)((long long)(Mod - Mod / i) * invs[Mod % i] % Mod);
+      for (int i = from; i <= x; ++i) invs[i] = (int)((long long)(Mod - Mod / i) * invs[Mod % i] % Mod);
     }
     return invs[x];
   }
@@ -240,7 +238,7 @@ namespace Poly {
     res.resize(n);
     return res;
   }
-}
+} // namespace Poly
 using namespace Poly;
 /*
  * ============================================================

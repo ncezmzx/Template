@@ -3,18 +3,18 @@ using namespace std;
 
 // log trick: range gcd updates via ODT-style segment merging
 struct log_trick_odt {
-  map<int, int> mp;  // segment table: key = segment start l, value v (segment [l, next(l)-1])
+  map<int, int> mp; // segment table: key = segment start l, value v (segment [l, next(l)-1])
   void split(int x) {
     auto it = prev(mp.upper_bound(x));
     mp[x] = it->second;
   }
-  void assign(int l, int r, int x) {  // a[l..r] = x
+  void assign(int l, int r, int x) { // a[l..r] = x
     split(l), split(r + 1);
     auto it = mp.find(l);
     while (it->first != r + 1) it = mp.erase(it);
     mp[l] = x;
   }
-  void perform(int l, int r, int x) {  // a[i] = gcd(a[i], x) on [l, r]
+  void perform(int l, int r, int x) { // a[i] = gcd(a[i], x) on [l, r]
     split(l), split(r + 1);
     auto it = mp.find(l);
     while (it->first != r + 1) {

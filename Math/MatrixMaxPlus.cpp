@@ -26,7 +26,8 @@ matrix operator*(const matrix &lhs, const matrix &rhs) {
   return ret;
 }
 matrix qpow(matrix a, int b) {
-  matrix ret = a; --b;
+  matrix ret = a;
+  --b;
   for (; b > 0; b >>= 1, a = a * a)
     if (b & 1) ret = ret * a;
   return ret;

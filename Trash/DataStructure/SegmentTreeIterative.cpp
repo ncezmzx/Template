@@ -2,12 +2,11 @@
 using namespace std;
 
 // iterative (bottom-up) segment tree: point update + range max of pairs
-template <size_t N>
-struct segtree_iterative {
+template <size_t N> struct segtree_iterative {
   int n;
-  pair<int, int> sgt[N << 1];  // leaves at [n, 2n-1], root at 1
+  pair<int, int> sgt[N << 1]; // leaves at [n, 2n-1], root at 1
   // point update: position x becomes y, then recompute ancestors
-  void update(int x, const pair<int, int>& y) {
+  void update(int x, const pair<int, int> &y) {
     sgt[x += n - 1] = y;
     for (x >>= 1; x; x >>= 1) sgt[x] = max(sgt[x << 1], sgt[x << 1 | 1]);
   }

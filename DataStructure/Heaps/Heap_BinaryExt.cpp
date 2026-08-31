@@ -4,16 +4,15 @@ using namespace std;
 
 // STL binary heap extension: mergeable heap built on priority_queue with lazy
 // deletion (eraseable_heap) and a buffered fast-push wrapper (fastpush_heap)
-template <size_t N>
-struct heap_binary_ext {
+template <size_t N> struct heap_binary_ext {
   static constexpr size_t M = N << 1;
   int ivl[M], bel[M], vl[M];
   vector<vector<int>> buf;
   int fa[N], rk[N];
-  void cmin(int& x, int y) { x > y && (x = y); }
+  void cmin(int &x, int y) { x > y && (x = y); }
   struct eraseable_heap {
-    heap_binary_ext* H;
-    priority_queue<int> pq, dl;  // main heap + lazy-delete heap
+    heap_binary_ext *H;
+    priority_queue<int> pq, dl; // main heap + lazy-delete heap
     void push(int x, int i) { pq.push(H->ivl[i] = x); }
     int top() {
       while (!dl.empty() && !pq.empty() && pq.top() == dl.top()) pq.pop(), dl.pop();
@@ -32,20 +31,18 @@ struct heap_binary_ext {
     }
   };
   struct fastpush_heap {
-    heap_binary_ext* H;
+    heap_binary_ext *H;
     eraseable_heap pq;
     vector<int> nbuf;
     int sz, tp;
     fastpush_heap() : sz(0), tp(LLONG_MAX) {}
-    int qmin(vector<int>& v) {
+    int qmin(vector<int> &v) {
       int x = LLONG_MAX;
       for (int y : v) H->cmin(x, H->vl[y]);
       return x;
     }
-    static void erase(vector<int>& v, int t) {
-      v.erase(find(v.begin(), v.end(), t));
-    }
-    void push(int x, int i) {  // buffer pushes, flush a block when it pays off
+    static void erase(vector<int> &v, int t) { v.erase(find(v.begin(), v.end(), t)); }
+    void push(int x, int i) { // buffer pushes, flush a block when it pays off
       H->cmin(tp, H->vl[i] = x), H->bel[i] = -1;
       nbuf.push_back(i);
       if ((1 << ((int)nbuf.size() >> 1)) > ++sz) {
@@ -61,7 +58,8 @@ struct heap_binary_ext {
       H->vl[x] = v;
       if (t == -1) {
         if (v == LLONG_MAX) erase(nbuf, x);
-      } else {
+      }
+      else {
         pq.erase(t);
         if (v == LLONG_MAX) erase(H->buf[t], x);
         if (!H->buf[t].empty()) pq.push(qmin(H->buf[t]), t);
@@ -76,13 +74,13 @@ struct heap_binary_ext {
   }
   int newnode(int x, int i) { return pq[i].push(x, i), i; }
   int top(int x) { return pq[x].top(); }
-  void join(int& x, int y) {  // push y's top as sentinel node y+N into x
+  void join(int &x, int y) { // push y's top as sentinel node y+N into x
     if (rk[x] < rk[y]) swap(x, y);
     if (rk[x] == rk[y]) ++rk[x];
     pq[x].push(pq[y].top(), y + N), fa[y] = x;
   }
   void decrease_key(int h, int p, int v) {
-    for (int x = p; int& f = fa[x]; x = exchange(f, h)) {
+    for (int x = p; int &f = fa[x]; x = exchange(f, h)) {
       if (f == h) {
         pq[f].modify(x + N, pq[x].top());
         break;

@@ -1,10 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
 
 // Cartesian tree (min-heap ordered), built by a monotonic stack in O(n)
-template <size_t N>
-struct cartesian_tree {
+template <size_t N> struct cartesian_tree {
   int n, a[N], lc[N], rc[N], fa[N], stk[N];
   void build(int n_) {
     n = n_;

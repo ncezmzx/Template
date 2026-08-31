@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // Min-25 style prefix sums of phi / mu via Du's sieve (O(n^{2/3}))
-template <size_t SN>
-struct du_sieve {
+template <size_t SN> struct du_sieve {
   int phi_[SN], mu_[SN], prime_[SN], pc_;
   bool vis_[SN];
   long long sphi_[SN], smu_[SN];

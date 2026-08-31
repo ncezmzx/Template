@@ -2,27 +2,26 @@
 using namespace std;
 
 // Palindromic tree (Eertree / PAM): one node per distinct palindromic substring
-template <size_t N>
-struct palindromic_tree {
+template <size_t N> struct palindromic_tree {
   int tot, last_;
   int ch[N][26], fail_[N], len_[N], cnt_[N];
-  char s_[N];  // s_[1..n_], s_[0] = sentinel
+  char s_[N]; // s_[1..n_], s_[0] = sentinel
   void init() {
     tot = 1, last_ = 0, s_[0] = '#';
-    len_[0] = 0, len_[1] = -1;  // node 0 = even root (empty), node 1 = odd root (len -1)
+    len_[0] = 0, len_[1] = -1; // node 0 = even root (empty), node 1 = odd root (len -1)
     fail_[0] = 1, fail_[1] = 0;
     memset(ch[0], 0, sizeof ch[0]), memset(ch[1], 0, sizeof ch[1]);
   }
-  int get_fail(int p, int i) {  // longest palindromic suffix extendable by s_[i]
+  int get_fail(int p, int i) { // longest palindromic suffix extendable by s_[i]
     while (s_[i - len_[p] - 1] != s_[i]) p = fail_[p];
     return p;
   }
-  void extend(int i) {  // append s_[i] (1-indexed)
+  void extend(int i) { // append s_[i] (1-indexed)
     int c = s_[i] - 'a', p = get_fail(last_, i);
     if (!ch[p][c]) {
       int now = ++tot;
       len_[now] = len_[p] + 2;
-      fail_[now] = ch[get_fail(fail_[p], i)][c];  // fail computed before linking
+      fail_[now] = ch[get_fail(fail_[p], i)][c]; // fail computed before linking
       memset(ch[now], 0, sizeof ch[now]);
       cnt_[now] = 0;
       ch[p][c] = now;
@@ -30,11 +29,11 @@ struct palindromic_tree {
     last_ = ch[p][c];
     cnt_[last_]++;
   }
-  void build(const char* s) {  // s is 1-indexed (s[0] = non-letter sentinel)
+  void build(const char *s) { // s is 1-indexed (s[0] = non-letter sentinel)
     init();
     for (int i = 1; s[i]; ++i) s_[i] = s[i], extend(i);
   }
-  void tally() {  // fail-tree suffix sums: cnt_[u] = occurrences of node u's palindrome
+  void tally() { // fail-tree suffix sums: cnt_[u] = occurrences of node u's palindrome
     for (int i = tot; i >= 2; --i) cnt_[fail_[i]] += cnt_[i];
   }
 };

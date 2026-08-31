@@ -3,12 +3,16 @@ using namespace std;
 #define int long long
 
 // Fenwick tree / binary indexed tree: point add + prefix sum
-template <size_t N>
-struct fenwick {
-  int n;  // index upper bound
+template <size_t N> struct fenwick {
+  int n; // index upper bound
   int c[N];
-  void update(int x, int y) { for (; x <= n; x += x & -x) c[x] += y; }
-  int query(int x, int r = 0) { for (; x > 0; x -= x & -x) r += c[x]; return r; }
+  void update(int x, int y) {
+    for (; x <= n; x += x & -x) c[x] += y;
+  }
+  int query(int x, int r = 0) {
+    for (; x > 0; x -= x & -x) r += c[x];
+    return r;
+  }
 };
 
 /*

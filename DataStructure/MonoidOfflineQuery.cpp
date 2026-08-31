@@ -4,14 +4,16 @@ using namespace std;
 // offline static range monoid products (cat-tree divide, topbit bucketing);
 // queries are inclusive [l, r]
 template <typename Mono, typename F>
-void monoid_product(const std::vector<Mono> &vec,
-                    const std::vector<std::pair<int, int>> &query, F f) {
+void monoid_product(const std::vector<Mono> &vec, const std::vector<std::pair<int, int>> &query, F f) {
   const int n = vec.size();
   std::vector<std::vector<int>> buk(n);
   for (int id = 0; id < (int)query.size(); ++id) {
     int l = query[id].first, r = query[id].second;
-    if (l == r) { f(id, vec[l]); continue; }
-    int k = 31 - __builtin_clz(l ^ r);   // topbit
+    if (l == r) {
+      f(id, vec[l]);
+      continue;
+    }
+    int k = 31 - __builtin_clz(l ^ r); // topbit
     buk[r >> k << k].push_back(id);
   }
 

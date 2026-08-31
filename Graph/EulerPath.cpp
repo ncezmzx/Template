@@ -11,13 +11,13 @@ struct euler_undirected {
   void init(int n_) {
     n = n_, ecnt = 1;
     fill(hd + 1, hd + n + 1, 0), fill(deg + 1, deg + n + 1, 0);
-    fill(used, used + M, false);  // reset edge marks (object reuse)
+    fill(used, used + M, false); // reset edge marks (object reuse)
   }
-  void add(int u, int v) {  // undirected edge (multi-edges and loops ok)
+  void add(int u, int v) { // undirected edge (multi-edges and loops ok)
     ++ecnt, to[ecnt] = v, nxt[ecnt] = hd[u], hd[u] = ecnt, ++deg[u];
     ++ecnt, to[ecnt] = u, nxt[ecnt] = hd[v], hd[v] = ecnt, ++deg[v];
   }
-  int odd_cnt() {  // number of odd-degree vertices (0: circuit; 2: path; else none)
+  int odd_cnt() { // number of odd-degree vertices (0: circuit; 2: path; else none)
     int c = 0;
     for (int i = 1; i <= n; ++i) c += deg[i] & 1;
     return c;
@@ -29,14 +29,14 @@ struct euler_undirected {
     stk.push_back(s);
     while (!stk.empty()) {
       int v = stk.back();
-      int& e = hd[v];
+      int &e = hd[v];
       while (e && used[e]) e = nxt[e];
       if (e) {
         used[e] = used[e ^ 1] = true;
         stk.push_back(to[e]);
         e = nxt[e];
-      } else
-        res.push_back(v), stk.pop_back();
+      }
+      else res.push_back(v), stk.pop_back();
     }
     reverse(res.begin(), res.end());
     return res;
@@ -49,10 +49,8 @@ struct euler_directed {
     n = n_, ecnt = 1;
     fill(hd + 1, hd + n + 1, 0), fill(in_ + 1, in_ + n + 1, 0), fill(out_ + 1, out_ + n + 1, 0);
   }
-  void add(int u, int v) {
-    ++ecnt, to[ecnt] = v, nxt[ecnt] = hd[u], hd[u] = ecnt, ++out_[u], ++in_[v];
-  }
-  bool has_path(int& s) {  // checks in/out degree conditions; sets s to a valid start
+  void add(int u, int v) { ++ecnt, to[ecnt] = v, nxt[ecnt] = hd[u], hd[u] = ecnt, ++out_[u], ++in_[v]; }
+  bool has_path(int &s) { // checks in/out degree conditions; sets s to a valid start
     int a = 0, b = 0;
     s = 0;
     for (int i = 1; i <= n; ++i) {
@@ -62,8 +60,8 @@ struct euler_directed {
       if (d == -1) ++b;
       if (!s && (out_[i] || in_[i])) s = i;
     }
-    if (a == 0 && b == 0) return true;                     // circuit (s is non-isolated)
-    return a == 1 && b == 1;                               // path
+    if (a == 0 && b == 0) return true; // circuit (s is non-isolated)
+    return a == 1 && b == 1;           // path
   }
   // vertex sequence using every edge (empty if none; vertices with edges must be reachable from s)
   vector<int> path(int s) {
@@ -73,10 +71,10 @@ struct euler_directed {
       int v = stk.back();
       if (hd[v]) {
         int e = hd[v];
-        hd[v] = nxt[e];  // delete edge (directed needs no used marks)
+        hd[v] = nxt[e]; // delete edge (directed needs no used marks)
         stk.push_back(to[e]);
-      } else
-        res.push_back(v), stk.pop_back();
+      }
+      else res.push_back(v), stk.pop_back();
     }
     reverse(res.begin(), res.end());
     return res;

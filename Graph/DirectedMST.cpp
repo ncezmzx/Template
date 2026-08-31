@@ -10,23 +10,23 @@ struct edge {
 
 // min arborescence rooted at root (Chu-Liu/Edmonds); edges in e are rewritten in place;
 // returns total weight, or -1 if none exists; vertices 0-indexed
-long long zhu_liu(int n, int m, int root, vector<edge>& e) {
+long long zhu_liu(int n, int m, int root, vector<edge> &e) {
   static int id_[NV], vis_[NV], pre[NV], ine[NV];
   long long res = 0;
   for (;;) {
     fill(ine, ine + n, LLONG_MAX);
-    for (int i = 0; i < m; ++i)  // cheapest incoming edge per vertex
+    for (int i = 0; i < m; ++i) // cheapest incoming edge per vertex
       if (e[i].u != e[i].v && e[i].w < ine[e[i].v]) ine[e[i].v] = e[i].w, pre[e[i].v] = e[i].u;
     for (int i = 0; i < n; ++i)
-      if (i != root && ine[i] == LLONG_MAX) return -1;  // some vertex unreachable
+      if (i != root && ine[i] == LLONG_MAX) return -1; // some vertex unreachable
     int cnt_ = 0;
     fill(id_, id_ + n, -1), fill(vis_, vis_ + n, -1);
     for (int i = 0; i < n; ++i) {
       if (i == root) continue;
       res += ine[i];
-      int v = i;  // follow pre to find cycles (timestamps avoid loops)
+      int v = i; // follow pre to find cycles (timestamps avoid loops)
       while (vis_[v] != i && id_[v] == -1 && v != root) vis_[v] = i, v = pre[v];
-      if (v != root && id_[v] == -1) {  // new cycle: assign one id (do-while over v->pre->...->v)
+      if (v != root && id_[v] == -1) { // new cycle: assign one id (do-while over v->pre->...->v)
         int u = v;
         do {
           id_[u] = cnt_;
@@ -35,10 +35,10 @@ long long zhu_liu(int n, int m, int root, vector<edge>& e) {
         ++cnt_;
       }
     }
-    if (!cnt_) return res;  // no cycles: done
+    if (!cnt_) return res; // no cycles: done
     for (int i = 0; i < n; ++i)
-      if (id_[i] == -1) id_[i] = cnt_++;  // ids for vertices outside cycles
-    for (int i = 0; i < m; ++i) {  // contract: entering edges lose the counted in-edge weight
+      if (id_[i] == -1) id_[i] = cnt_++; // ids for vertices outside cycles
+    for (int i = 0; i < m; ++i) {        // contract: entering edges lose the counted in-edge weight
       int v = e[i].v;
       e[i].u = id_[e[i].u], e[i].v = id_[e[i].v];
       if (e[i].u != e[i].v) e[i].w -= ine[v];

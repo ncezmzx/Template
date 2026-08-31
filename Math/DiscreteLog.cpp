@@ -12,13 +12,13 @@ int pw(int x, int n, int m) {
   }
   return r;
 }
-int exgcd(int a, int b, int& x, int& y) {
+int exgcd(int a, int b, int &x, int &y) {
   if (!b) return x = 1, y = 0, a;
   int g = exgcd(b, a % b, y, x);
   y -= a / b * x;
   return g;
 }
-int inv_mod(int a, int m) {  // requires gcd(a, m) = 1
+int inv_mod(int a, int m) { // requires gcd(a, m) = 1
   int x, y;
   exgcd(a, m, x, y);
   return (x % m + m) % m;
@@ -32,13 +32,13 @@ int bsgs(int a, int b, int m) {
   unordered_map<int, int> mp;
   mp.reserve(2 * k);
   int cur = 1;
-  for (int j = 0; j < k; ++j) {  // baby steps: a^j (keep smallest j)
+  for (int j = 0; j < k; ++j) { // baby steps: a^j (keep smallest j)
     if (!mp.count(cur)) mp[cur] = j;
     cur = cur * a % m;
   }
-  int ainvk = pw(inv_mod(a, m), k, m);  // a^{-k}
+  int ainvk = pw(inv_mod(a, m), k, m); // a^{-k}
   cur = b;
-  for (int i = 0; i <= k; ++i) {  // giant steps: b*a^{-ik}; hit a^j -> x = ik + j
+  for (int i = 0; i <= k; ++i) { // giant steps: b*a^{-ik}; hit a^j -> x = ik + j
     auto it = mp.find(cur);
     if (it != mp.end()) return i * k + it->second;
     cur = cur * ainvk % m;
@@ -53,14 +53,14 @@ int bsgs(int a, int b, int m) {
 int exbsgs(int a, int b, int m) {
   if (m == 1) return 0;
   a %= m, b %= m;
-  if (b == 1 % m) return 0;  // a^0 = 1
+  if (b == 1 % m) return 0; // a^0 = 1
   int cnt = 0, d = 1;
   for (int g = __gcd(a, m); g > 1; g = __gcd(a, m)) {
     if (b % g) return -1;
     ++cnt;
     b /= g, m /= g;
     d = d * (a / g) % m;
-    if (d == b) return cnt;  // a^{cnt} = b (mod original m)
+    if (d == b) return cnt; // a^{cnt} = b (mod original m)
   }
   int r = bsgs(a, b * inv_mod(d, m) % m, m);
   return r < 0 ? -1 : r + cnt;

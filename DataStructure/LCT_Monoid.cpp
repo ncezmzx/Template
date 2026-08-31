@@ -2,9 +2,9 @@
 using namespace std;
 
 // generic-monoid Link-Cut Tree: dp[x] = dp[ls] * val[x] * dp[rs]; Mono must be reversible (flip)
-// Mono requirements: default constructor = identity; operator*; flip() (swap left/right aggregates on reversal)
-template <typename Mono, int N>
-class LinkCutTree {
+// Mono requirements: default constructor = identity; operator*; flip() (swap left/right aggregates on reversal); Mono()
+// (if queried path doesn't exist)
+template <typename Mono, int N> class LinkCutTree {
 #define ls son[x][0]
 #define rs son[x][1]
   int son[N][2], fa[N];
@@ -18,7 +18,7 @@ class LinkCutTree {
   void push_down(int x) {
     if (tag[x]) {
       tag[x] = 0, std::swap(ls, rs);
-      if (ls) tag[ls] ^= 1, dp[ls].flip();   // leave null children alone (the original flipped tag[0])
+      if (ls) tag[ls] ^= 1, dp[ls].flip();
       if (rs) tag[rs] ^= 1, dp[rs].flip();
     }
   }
@@ -45,19 +45,23 @@ class LinkCutTree {
   }
   int make_root(int x) { return x = access(x), tag[x] ^= 1, dp[x].flip(), x; }
 
- public:
-  void init(int x, const Mono &v) {   // initial value of one vertex (dp/val of x = v)
-    val[x] = v, dp[x] = v, tag[x] = 0, son[x][0] = son[x][1] = fa[x] = 0;
+  public:
+  void init(int x, const Mono &v) { val[x] = v, dp[x] = v, tag[x] = 0, son[x][0] = son[x][1] = fa[x] = 0; }
+  void link(int x, int y) {
+    if (x != y && find(x) != find(y)) fa[make_root(x)] = y;
   }
-  void link(int x, int y) { fa[make_root(x)] = y; }
   void cut(int x, int y) {
     make_root(x), access(y), splay(x);
     if (son[x][1] == y && !son[y][0]) son[x][1] = fa[y] = 0, push_up(x);
   }
   void set(int x, const Mono &v) { splay(x), val[x] = v, push_up(x); }
-  Mono query(int u, int v) { return make_root(u), dp[access(v)]; }
+  Mono query(int u, int v) {
+    if (find(u) != find(v)) return Mono();
+    return make_root(u), dp[access(v)];
+  }
   int find(int x) {
-    for (push_down(x = access(x)); ls; x = ls, push_down(x));   // push tags before descending (the original order went the wrong way);
+    for (push_down(x = access(x)); ls; x = ls, push_down(x))
+      ;
     return splay(x), x;
   }
 #undef ls

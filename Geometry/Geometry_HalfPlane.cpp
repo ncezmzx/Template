@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// half-plane intersection (sort & incrementally maintain deque); a half-plane = left side of directed line p + t*v; O(n log n)
+// half-plane intersection (sort & incrementally maintain deque); a half-plane = left side of directed line p + t*v; O(n
+// log n)
 const double EPS = 1e-9;
 struct P {
   double x, y;
@@ -12,12 +13,12 @@ P operator*(P a, double k) { return {a.x * k, a.y * k}; }
 double cross(P a, P b) { return a.x * b.y - a.y * b.x; }
 
 struct HP {
-  P p, v;  // half-plane: left side while walking from p to p + v
+  P p, v; // half-plane: left side while walking from p to p + v
   double ang;
   HP(P p_ = {0, 0}, P v_ = {1, 0}) : p(p_), v(v_), ang(atan2(v_.y, v_.x)) {}
 };
-bool onleft(const HP& l, const P& t) { return cross(l.v, t - l.p) > 0; }
-P line_inter(const HP& a, const HP& b) {  // intersection of two lines (must not be parallel)
+bool onleft(const HP &l, const P &t) { return cross(l.v, t - l.p) > 0; }
+P line_inter(const HP &a, const HP &b) { // intersection of two lines (must not be parallel)
   double t = cross(b.p - a.p, b.v) / cross(a.v, b.v);
   return a.p + a.v * t;
 }
@@ -25,7 +26,7 @@ P line_inter(const HP& a, const HP& b) {  // intersection of two lines (must not
 // returns the intersection polygon (CCW); may be empty (empty region / unbounded without frame)
 // note: for unbounded regions add a large bounding box (four half-planes) first
 vector<P> hpi(vector<HP> ls) {
-  sort(ls.begin(), ls.end(), [](const HP& a, const HP& b) { return a.ang < b.ang; });
+  sort(ls.begin(), ls.end(), [](const HP &a, const HP &b) { return a.ang < b.ang; });
   int n = ls.size(), first = 0, last = 0;
   vector<HP> q(n);
   vector<P> p(n);
@@ -34,9 +35,9 @@ vector<P> hpi(vector<HP> ls) {
     while (first < last && !onleft(ls[i], p[last - 1])) --last;
     while (first < last && !onleft(ls[i], p[first])) ++first;
     q[++last] = ls[i];
-    if (last - first >= 1 && fabs(cross(q[last].v, q[last - 1].v)) < EPS) {  // parallel: drop the redundant one
+    if (last - first >= 1 && fabs(cross(q[last].v, q[last - 1].v)) < EPS) { // parallel: drop the redundant one
       --last;
-      if (onleft(q[last], ls[i].p)) q[last] = ls[i];  // keep the tighter constraint
+      if (onleft(q[last], ls[i].p)) q[last] = ls[i]; // keep the tighter constraint
     }
     if (last - first >= 1) p[last - 1] = line_inter(q[last - 1], q[last]);
   }
@@ -46,7 +47,7 @@ vector<P> hpi(vector<HP> ls) {
   return vector<P>(p.begin() + first, p.begin() + last + 1);
 }
 
-double area(const vector<P>& p) {  // unsigned polygon area
+double area(const vector<P> &p) { // unsigned polygon area
   double s = 0;
   for (int i = 1, n = p.size(); i + 1 < n; ++i) s += cross(p[i] - p[0], p[i + 1] - p[0]);
   return fabs(s) / 2;

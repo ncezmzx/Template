@@ -16,8 +16,9 @@ void fwt_or(int a[], int n, bool inv) {
       for (int j = 0; j < len; ++j) {
         if (!inv) {
           int v = a[i + j + len] + a[i + j];
-          a[i + j + len] = v >= md ? v - md : v;   // conditional subtract avoids %
-        } else {
+          a[i + j + len] = v >= md ? v - md : v; // conditional subtract avoids %
+        }
+        else {
           int v = a[i + j + len] - a[i + j];
           a[i + j + len] = v < 0 ? v + md : v;
         }
@@ -31,7 +32,8 @@ void fwt_and(int a[], int n, bool inv) {
         if (!inv) {
           int v = a[i + j] + a[i + j + len];
           a[i + j] = v >= md ? v - md : v;
-        } else {
+        }
+        else {
           int v = a[i + j] - a[i + j + len];
           a[i + j] = v < 0 ? v + md : v;
         }

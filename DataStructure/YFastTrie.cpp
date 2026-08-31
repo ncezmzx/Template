@@ -46,7 +46,8 @@ struct yfast {
         if (bit(v, k - 1)) rc[u] = id;
         else lc[u] = id;
         u = id;
-      } else {
+      }
+      else {
         u = it->second;
         mn[u] = min(mn[u], v);
         mx[u] = max(mx[u], v);
@@ -66,7 +67,8 @@ struct yfast {
       if (k == 1) {
         if (bit(v, 0)) rc[0] = 0;
         else lc[0] = 0;
-      } else {
+      }
+      else {
         int par = path[k - 1];
         if (bit(v, k - 1)) rc[par] = 0;
         else lc[par] = 0;
@@ -131,11 +133,12 @@ struct yfast {
       id = free_id.back();
       free_id.pop_back();
       blk[id].a.clear();
-    } else {
+    }
+    else {
       id = (int)blk.size();
       blk.emplace_back();
     }
-    rep_link(minv);      // link predecessor/successor first (minv is not in the trie yet)
+    rep_link(minv); // link predecessor/successor first (minv is not in the trie yet)
     trie_insert(minv);
     min2id[minv] = id;
     return id;
@@ -150,14 +153,14 @@ struct yfast {
     trie_delete(old_min);
     rep_unlink(old_min);
     min2id.erase(old_min);
-    rep_link(new_min);   // link before inserting (with new_min absent, pred_succ takes the longest-prefix branch)
+    rep_link(new_min); // link before inserting (with new_min absent, pred_succ takes the longest-prefix branch)
     trie_insert(new_min);
     min2id[new_min] = id;
   }
   int block_of(u64 minv) const { return min2id.at(minv); }
   int tail_id() const { return tail ? block_of(tail) : -1; }
 
-  int locate(u64 x, int& nid) const {
+  int locate(u64 x, int &nid) const {
     if (!head) return nid = -1, -1;
     if (x < head) return nid = block_of(head), -1;
     auto [p, s] = pred_succ(x);
@@ -195,7 +198,7 @@ struct yfast {
     int nid;
     int id = locate(x, nid);
     if (id < 0) id = nid;
-    auto& a = blk[id].a;
+    auto &a = blk[id].a;
     u64 old_min = a.front();
     a.insert(lower_bound(a.begin(), a.end(), x), x);
     if (x < old_min) change_rep(id, old_min, x);
@@ -205,7 +208,7 @@ struct yfast {
   void erase(u64 x) {
     int id = find_block(x);
     if (id < 0) return;
-    auto& a = blk[id].a;
+    auto &a = blk[id].a;
     auto it = lower_bound(a.begin(), a.end(), x);
     u64 old_min = a.front();
     bool was_min = it == a.begin();
@@ -221,7 +224,8 @@ struct yfast {
         a.insert(a.end(), blk[oid].a.begin(), blk[oid].a.end());
         del_block(oid, oid_min);
         maybe_split(id);
-      } else {
+      }
+      else {
         u64 pp = prv.count(cur) ? prv.at(cur) : 0;
         if (pp) {
           int oid = block_of(pp);
@@ -235,16 +239,14 @@ struct yfast {
 
   bool find(u64 x) const { return find_block(x) >= 0; }
   u64 minimum() const { return head; }
-  u64 maximum() const {
-    return tail ? blk[block_of(tail)].a.back() : 0;
-  }
+  u64 maximum() const { return tail ? blk[block_of(tail)].a.back() : 0; }
 
   u64 predecessor(u64 x) const {
     if (!head) return 0;
     int nid;
     int id = locate(x, nid);
     if (id < 0) return 0;
-    const auto& a = blk[id].a;
+    const auto &a = blk[id].a;
     auto it = lower_bound(a.begin(), a.end(), x);
     if (it != a.begin()) return *prev(it);
     u64 p = prv.count(a.front()) ? prv.at(a.front()) : 0;
@@ -255,7 +257,7 @@ struct yfast {
     int nid;
     int id = locate(x, nid);
     if (id < 0) return nid >= 0 ? blk[nid].a.front() : 0;
-    const auto& a = blk[id].a;
+    const auto &a = blk[id].a;
     auto it = upper_bound(a.begin(), a.end(), x);
     if (it != a.end()) return *it;
     u64 s = nxt.count(a.front()) ? nxt.at(a.front()) : 0;

@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 constexpr int md = 998244353;
-template <class T>
-using must_int = enable_if_t<is_integral<T>::value>*;
+template <class T> using must_int = enable_if_t<is_integral<T>::value> *;
 struct Montgomery {
   typedef unsigned u32;
   typedef unsigned long long u64;
@@ -17,21 +16,17 @@ struct Montgomery {
   }
 };
 Montgomery mont(md);
-template <int id>
-struct modint {
+template <int id> struct modint {
   static constexpr int mod = id;
   static constexpr unsigned umod = id;
   unsigned v;
   modint() : v(0) {}
   modint(unsigned x) : v(mont.reduce(1ull * x * mont.R2)) {}
-  template <class T, must_int<T> = nullptr>
-  modint(T x) : modint((unsigned)(x %= mod, x < 0 ? x + mod : x)) {}
+  template <class T, must_int<T> = nullptr> modint(T x) : modint((unsigned)(x %= mod, x < 0 ? x + mod : x)) {}
   modint operator+() const { return *this; }
   modint operator-() const { return modint() - *this; }
   friend int raw(const modint &self) { return mont.reduce(self.v); }
-  friend ostream &operator<<(ostream &os, const modint &self) {
-    return os << raw(self);
-  }
+  friend ostream &operator<<(ostream &os, const modint &self) { return os << raw(self); }
   modint &operator+=(const modint &rhs) {
     v += rhs.v;
     if (v >= umod) v -= umod;
@@ -50,8 +45,7 @@ struct modint {
     assert(rhs.v);
     return *this *= qpow(rhs, mod - 2);
   }
-  template <class T, must_int<T> = nullptr>
-  friend modint qpow(modint a, T b) {
+  template <class T, must_int<T> = nullptr> friend modint qpow(modint a, T b) {
     modint r = 1;
     for (; b; b >>= 1, a *= a)
       if (b & 1) r *= a;

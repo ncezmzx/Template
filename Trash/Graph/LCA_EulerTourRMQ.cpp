@@ -3,24 +3,22 @@ using namespace std;
 #define int long long
 
 // LCA via Euler tour + sparse-table RMQ: O(1) queries
-template <size_t N>
-struct lca_euler_rmq {
+template <size_t N> struct lca_euler_rmq {
   int n, idx;
   int mi[20][N], dfn[N], dep[N];
   vector<int> es[N];
-  void dfs(int x, int ff) {  // Euler order: mi[0][dfn[x]] stores the parent
+  void dfs(int x, int ff) { // Euler order: mi[0][dfn[x]] stores the parent
     mi[0][dfn[x] = ++idx] = ff, dep[x] = dep[ff] + 1;
     for (int y : es[x])
       if (y ^ ff) dfs(y, x);
   }
-  int get(int x, int y) { return dfn[x] < dfn[y] ? x : y; }  // shallower (earlier) vertex
-  void build(int n_) {  // sparse table over the Euler tour
+  int get(int x, int y) { return dfn[x] < dfn[y] ? x : y; } // shallower (earlier) vertex
+  void build(int n_) {                                      // sparse table over the Euler tour
     n = n_;
     for (int i = 1; i < 20; ++i)
-      for (int j = 1; j + (1 << i) - 1 <= n; ++j)
-        mi[i][j] = get(mi[i - 1][j], mi[i - 1][j + (1 << (i - 1))]);
+      for (int j = 1; j + (1 << i) - 1 <= n; ++j) mi[i][j] = get(mi[i - 1][j], mi[i - 1][j + (1 << (i - 1))]);
   }
-  int lca(int x, int y) {  // shallowest vertex on the Euler interval
+  int lca(int x, int y) { // shallowest vertex on the Euler interval
     if (x == y) return x;
     if ((x = dfn[x]) > (y = dfn[y])) swap(x, y);
     int d = __lg(y - ++x + 1);

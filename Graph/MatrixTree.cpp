@@ -14,7 +14,7 @@ int pw(int x, int n, int p) {
   return r;
 }
 // determinant by Gaussian elimination (prime mod); a is n x n and gets overwritten
-int det_mod(vector<vector<int>>& a, int n) {
+int det_mod(vector<vector<int>> &a, int n) {
   int res = 1;
   for (int i = 0; i < n; ++i) {
     int k = -1;
@@ -24,7 +24,7 @@ int det_mod(vector<vector<int>>& a, int n) {
         break;
       }
     if (k < 0) return 0;
-    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD;  // row swap flips sign
+    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD; // row swap flips sign
     res = res * a[i][i] % MOD;
     int iv = pw(a[i][i], MOD - 2, MOD);
     for (int r = i + 1; r < n; ++r) {
@@ -36,10 +36,10 @@ int det_mod(vector<vector<int>>& a, int n) {
   return res;
 }
 // number of spanning trees of an undirected graph (multi-edges ok, loops ignored)
-int count_spanning(int n, const vector<pair<int, int>>& edges) {
+int count_spanning(int n, const vector<pair<int, int>> &edges) {
   if (n <= 1) return 1;
   vector<vector<int>> L(n - 1, vector<int>(n - 1, 0));
-  for (auto& e : edges) {
+  for (auto &e : edges) {
     int u = e.first, v = e.second;
     if (u == v) continue;
     if (u < n - 1) L[u][u]++;
@@ -49,14 +49,14 @@ int count_spanning(int n, const vector<pair<int, int>>& edges) {
   return det_mod(L, n - 1);
 }
 // number of out-arborescences rooted at root (each non-root has exactly one in-edge)
-int count_arborescence(int n, const vector<pair<int, int>>& edges, int root) {
+int count_arborescence(int n, const vector<pair<int, int>> &edges, int root) {
   if (n <= 1) return 1;
-  vector<vector<int>> L(n, vector<int>(n, 0));  // in-degree Laplacian
+  vector<vector<int>> L(n, vector<int>(n, 0)); // in-degree Laplacian
   vector<int> idx;
   for (int i = 0; i < n; ++i)
     if (i != root) idx.push_back(i);
-  for (auto& e : edges) {
-    int u = e.first, v = e.second;  // edge u -> v: an in-edge of v
+  for (auto &e : edges) {
+    int u = e.first, v = e.second; // edge u -> v: an in-edge of v
     if (v == root || u == v) continue;
     L[v][v]++;
     L[v][u] = (L[v][u] + MOD - 1) % MOD;

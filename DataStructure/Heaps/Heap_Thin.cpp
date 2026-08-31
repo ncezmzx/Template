@@ -3,21 +3,18 @@ using namespace std;
 #define int long long
 
 // thin heap (mergeable; nodes may become "thin" after losing one child), min-heap
-template <size_t N>
-struct heap_thin {
+template <size_t N> struct heap_thin {
   int a[N], fa[N], vl[N], tp[N], rk[N], ls[N], rs[N];
-  bool ist[N];  // thin marks
+  bool ist[N]; // thin marks
   list<int> nd[N];
   typename list<int>::iterator it[N];
-  void add(list<int>& x, int y) { it[y] = x.insert(x.end(), y); }
-  void cmin(int& x, int y) { x > y && (x = y); }
+  void add(list<int> &x, int y) { it[y] = x.insert(x.end(), y); }
+  void cmin(int &x, int y) { x > y && (x = y); }
   int newnode(int x, int i) { return add(nd[i], i), tp[i] = vl[i] = x, i; }
   int top(int x) { return tp[x]; }
-  void join(int x, int y) {
-    cmin(tp[x], tp[y]), nd[x].splice(nd[x].end(), nd[y]);
-  }
+  void join(int x, int y) { cmin(tp[x], tp[y]), nd[x].splice(nd[x].end(), nd[y]); }
   int getrk(int x) { return x ? rk[x] : -1; }
-  void decrease_key(int h, int p, int v) {  // unlink + thinning/restructuring up the path
+  void decrease_key(int h, int p, int v) { // unlink + thinning/restructuring up the path
     cmin(tp[h], vl[p] = v);
     int f = fa[p];
     if (!f || (p == ls[f] && vl[f] <= v)) return;
@@ -27,8 +24,7 @@ struct heap_thin {
     while (f) {
       int rkf = getrk(f), rkl = getrk(ls[f]), rkr = getrk(rs[f]);
       if (rkf >= rkr + 2 || (!fa[f] && ist[f])) {
-        if (ist[f])
-          --rk[f], ist[f] = false, f = fa[f];
+        if (ist[f]) --rk[f], ist[f] = false, f = fa[f];
         else {
           int sn = ls[f], bt = rs[f];
           if (bt) fa[bt] = sn;
@@ -38,13 +34,14 @@ struct heap_thin {
           ist[f] = true;
           break;
         }
-      } else if (rkf >= rkl + 3) {
+      }
+      else if (rkf >= rkl + 3) {
         int g = fa[f];
         (f == ls[g] ? ls[g] : rs[g]) = exchange(rs[f], 0);
         add(nd[h], f), fa[f] = 0, rk[f] -= 2, ist[f] = false;
         f = g;
-      } else
-        break;
+      }
+      else break;
     }
   }
   void erase(int h, int x) {
@@ -61,7 +58,7 @@ struct heap_thin {
     }
     nd[h].clear(), tp[h] = LLONG_MAX;
     for (int i = 0; i <= mx; ++i)
-      if (int& x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
+      if (int &x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
   }
 };
 /*

@@ -31,7 +31,7 @@ struct expr_eval {
     long long res = parse_uni();
     if (pos < (int)s.size() && s[pos] == '^') {
       ++pos;
-      long long e = parse_pow();  // right-associative
+      long long e = parse_pow(); // right-associative
       long long r = 1;
       for (long long i = 0; i < e; ++i) r *= res;
       return r;
@@ -52,7 +52,7 @@ struct expr_eval {
   }
 
   long long parse_pri() {
-    if (pos >= (int)s.size()) return 0;   // guard truncated input (never hit on valid input)
+    if (pos >= (int)s.size()) return 0; // guard truncated input (never hit on valid input)
     if (s[pos] == '(') {
       ++pos;
       long long res = parse_expr();
@@ -69,7 +69,7 @@ struct expr_eval {
     return res;
   }
 
-  long long solve(const string& str) {
+  long long solve(const string &str) {
     s = str, pos = 0;
     long long res = parse_expr();
     while (pos < (int)s.size() && s[pos] == ' ') ++pos;

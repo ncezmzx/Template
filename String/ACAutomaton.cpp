@@ -3,16 +3,15 @@ using namespace std;
 #define int long long
 
 // Aho-Corasick automaton: trie + fail pointers over lowercase letters
-template <size_t N>
-struct ac_automaton {
+template <size_t N> struct ac_automaton {
   int ch[N][26], fail[N], ed[N], cnt[N], inq[N], q[N];
   int tot, hd, tl;
-  void init() {  // reset before each test case
+  void init() { // reset before each test case
     tot = 0;
     memset(ch[0], 0, sizeof ch[0]);
     ed[0] = 0;
   }
-  void insert(const string& s) {
+  void insert(const string &s) {
     int u = 0;
     for (char c : s) {
       int x = c - 'a';
@@ -39,7 +38,7 @@ struct ac_automaton {
     }
   }
   // number of distinct patterns occurring in s (marks ed = -1, rebuild to reuse)
-  int query(const string& s) {
+  int query(const string &s) {
     int u = 0, res = 0;
     for (char c : s) {
       u = ch[u][c - 'a'];
@@ -51,7 +50,7 @@ struct ac_automaton {
     return res;
   }
   // occurrence counting: after this, cnt[u] = occurrences of the pattern ending at u
-  void count(const string& t) {
+  void count(const string &t) {
     int u = 0;
     memset(cnt, 0, (tot + 1) * sizeof(int));
     memset(inq, 0, (tot + 1) * sizeof(int));

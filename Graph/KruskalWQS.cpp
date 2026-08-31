@@ -3,39 +3,34 @@ using namespace std;
 #define int long long
 
 // WQS binary search + Kruskal: MST with exactly k special edges (c == 0)
-template <size_t N>
-struct wqs_mst {
+template <size_t N> struct wqs_mst {
   struct e {
     int x, y, z, c;
-    bool operator<(const e r) const {
-      return z == r.z ? c < r.c : z < r.z;
-    }
+    bool operator<(const e r) const { return z == r.z ? c < r.c : z < r.z; }
   } es[N];
   int n, m, k, fa[N];
-  int spi[N], nsi[N], cs, cn;  // special/normal edge index tables, sorted once
+  int spi[N], nsi[N], cs, cn; // special/normal edge index tables, sorted once
   bool es_sorted = false;
   int get(int x) { return x == fa[x] ? x : fa[x] = get(fa[x]); }
   void ensure_sorted() {
     if (es_sorted) return;
     cs = cn = 0;
     for (int i = 1; i <= m; ++i) (es[i].c ? nsi[++cn] : spi[++cs]) = i;
-    auto byz = [this](int i, int j) {
-      return es[i].z != es[j].z ? es[i].z < es[j].z : es[i].c < es[j].c;
-    };
+    auto byz = [this](int i, int j) { return es[i].z != es[j].z ? es[i].z < es[j].z : es[i].c < es[j].c; };
     sort(spi + 1, spi + cs + 1, byz), sort(nsi + 1, nsi + cn + 1, byz);
     es_sorted = true;
   }
   // Kruskal with penalty x subtracted from every special edge;
   // returns {cost (special edges charged z - x), number of special edges used}
   pair<int, int> calc(int x) {
-    ensure_sorted();  // uniform -x keeps in-group order, one sort suffices
+    ensure_sorted(); // uniform -x keeps in-group order, one sort suffices
     iota(fa, fa + n, 0);
     int p = 0, q = 0;
-    for (int i = 1, j = 1, c = 0; c < n - 1 && (i <= cs || j <= cn); ) {
+    for (int i = 1, j = 1, c = 0; c < n - 1 && (i <= cs || j <= cn);) {
       bool sp;
       if (i > cs) sp = false;
       else if (j > cn) sp = true;
-      else sp = es[spi[i]].z - x <= es[nsi[j]].z;  // tie: special edge first
+      else sp = es[spi[i]].z - x <= es[nsi[j]].z; // tie: special edge first
       int id = sp ? spi[i++] : nsi[j++];
       int a = get(es[id].x), b = get(es[id].y);
       if (a == b) continue;

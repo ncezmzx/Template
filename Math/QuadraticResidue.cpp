@@ -13,24 +13,24 @@ int pw(int x, int n, int p) {
 }
 
 // Cipolla: solves x^2 = a (mod p), p an odd prime; returns the smaller root, -1 if none
-struct cpx {  // "complex" number x + y*sqrt(w) over F_p
+struct cpx { // "complex" number x + y*sqrt(w) over F_p
   int x, y;
 };
-int W;  // square of sqrt(w) (w = b^2 - a, a non-residue)
-cpx cmul(const cpx& a, const cpx& b, int p) {
+int W; // square of sqrt(w) (w = b^2 - a, a non-residue)
+cpx cmul(const cpx &a, const cpx &b, int p) {
   return {(a.x * b.x + a.y * b.y % p * W) % p, (a.x * b.y + a.y * b.x) % p};
 }
 int sqrt_mod(int a, int p) {
   a %= p;
   if (a == 0) return 0;
-  if (pw(a, (p - 1) / 2, p) != 1) return -1;  // Euler criterion
+  if (pw(a, (p - 1) / 2, p) != 1) return -1; // Euler criterion
   int b;
-  for (b = 1;; ++b) {  // find b with w = b^2 - a a non-residue (expected 2 tries)
+  for (b = 1;; ++b) { // find b with w = b^2 - a a non-residue (expected 2 tries)
     W = ((b * b - a) % p + p) % p;
     if (W && pw(W, (p - 1) / 2, p) == p - 1) break;
   }
   cpx r{1, 0}, c{b, 1};
-  for (int e = (p + 1) / 2; e; e >>= 1) {  // (b + sqrt(w))^{(p+1)/2}; imaginary part is 0
+  for (int e = (p + 1) / 2; e; e >>= 1) { // (b + sqrt(w))^{(p+1)/2}; imaginary part is 0
     if (e & 1) r = cmul(r, c, p);
     c = cmul(c, c, p);
   }

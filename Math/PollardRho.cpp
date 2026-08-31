@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-int mul_mod(int x, int y, int md) { return (__int128) x * y % md; }
+int mul_mod(int x, int y, int md) { return (__int128)x * y % md; }
 
 int qpow(int a, int b, int md) {
   int r = 1;
@@ -42,13 +42,12 @@ int pollard_rho(int n) {
     int x = rng() % (n - 1) + 1, y = x, d = 1;
     auto f = [&](int v) { return (mul_mod(v, v, n) + c) % n; };
     while (d == 1) {
-      // batched Floyd: multiply 128 |x-y| differences before one gcd (amortizes divisions)
       int q = 1;
       for (int i = 0; i < 128 && d == 1; ++i) {
         x = f(x), y = f(f(y));
         if (x == y) {
-          d = __gcd(q, n);          // pointers met: retry with the partial product
-          if (d == 1) d = n;           // useless, restart with a new c
+          d = __gcd(q, n);
+          if (d == 1) d = n;
           break;
         }
         q = mul_mod(q, x > y ? x - y : y - x, n);
@@ -60,7 +59,7 @@ int pollard_rho(int n) {
   }
 }
 
-void factorize(int n, vector<int>& fac) {
+void factorize(int n, vector<int> &fac) {
   if (n == 1) return;
   if (is_prime(n)) return fac.push_back(n), void();
   int d = pollard_rho(n);

@@ -1,0 +1,12 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+AccessModifierOffset: -4
+AllowShortFunctionsOnASingleLine: All
+AllowShortLambdasOnASingleLine: All
+NamespaceIndentation: All
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+ColumnLimit: 120
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeElse: true

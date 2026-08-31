@@ -4,20 +4,21 @@ using u64 = unsigned long long;
 using i64 = long long;
 
 // closed form of sum_{i=1..n} i^m (m <= 3; T needs modular mul/div, e.g. modint / __int128)
-template <class T>
-T power_sum(i64 n, int m) {
+template <class T> T power_sum(i64 n, int m) {
   assert(m >= 0 && m <= 4);
   if (m == 0) return T(n);
   T x = T(n);
   if (m == 1) return x * (x + 1) / 2;
   if (m == 2) return x * (x + 1) * (2 * x + 1) / 6;
-  if (m == 3) { T s = x * (x + 1) / 2; return s * s; }
+  if (m == 3) {
+    T s = x * (x + 1) / 2;
+    return s * s;
+  }
   // m == 4: n(n+1)(2n+1)(3n^2+3n-1)/30
   return x * (x + 1) * (2 * x + 1) * (3 * x * x + 3 * x - 1) / 30;
 }
 
-template <typename T, int M, typename F>
-class Min25 {
+template <typename T, int M, typename F> class Min25 {
   using i64 = int64_t;
 
   std::array<T, M> a;
@@ -56,7 +57,8 @@ class Min25 {
       lis[++cnt] = j;
       if (j <= lim) {
         le[j] = cnt;
-      } else {
+      }
+      else {
         ge[n / j] = cnt;
       }
       for (int m = 0; m < M; ++m) {
@@ -92,7 +94,7 @@ class Min25 {
     }
   }
   T get(i64 n, int k) {
-    if (k > pcnt || n < prime[k] || n <= 1) {   // test k > pcnt first (avoids OOB prime[k])
+    if (k > pcnt || n < prime[k] || n <= 1) { // test k > pcnt first (avoids OOB prime[k])
       return 0;
     }
     int id = idx(n);
@@ -110,7 +112,7 @@ class Min25 {
     return res;
   }
 
- public:
+  public:
   Min25(std::array<T, M> a, F f) : a(a), f(f) {}
   T operator()(i64 n) {
     this->n = n;

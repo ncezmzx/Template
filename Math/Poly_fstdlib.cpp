@@ -147,10 +147,7 @@ public:
 
     const long double PI = std::acos((long double)(-1)), EPS = 1e-18;
 
-    template <typename FLOAT_T>
-    FLOAT_T fabs(const FLOAT_T &x) {
-      return x > 0 ? x : -x;
-    }
+    template <typename FLOAT_T> FLOAT_T fabs(const FLOAT_T &x) { return x > 0 ? x : -x; }
 
     template <typename FLOAT_T>
     FLOAT_T sin(const FLOAT_T &x, const long double &EPS = fstdlib::_FEISTDLIB_SECURITY_::EPS) {

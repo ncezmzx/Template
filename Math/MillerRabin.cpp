@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
-int mul(int x, int y, int md) { return (unsigned __int128) x * y % md; }
+int mul(int x, int y, int md) { return (unsigned __int128)x * y % md; }
 int qpow(int a, int b, int md) {
   int r = 1;
   for (; b > 0; b >>= 1, a = mul(a, a, md))

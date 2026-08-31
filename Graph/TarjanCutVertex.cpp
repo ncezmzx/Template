@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // Tarjan cut vertices (articulation points) in an undirected graph
-template <size_t N>
-struct cut_vertex {
+template <size_t N> struct cut_vertex {
   int n, idx, rt;
   int dfn[N], low[N], is_cut[N];
   vector<int> es[N];
@@ -19,7 +18,7 @@ struct cut_vertex {
       }
       else low[x] = min(low[x], dfn[y]);
     }
-    if (x == rt && sz > 1) is_cut[x] = 1;  // root needs >= 2 child subtrees
+    if (x == rt && sz > 1) is_cut[x] = 1; // root needs >= 2 child subtrees
   }
   void build(int n_) {
     n = n_, idx = 0;

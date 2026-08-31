@@ -3,13 +3,12 @@ using namespace std;
 #define int long long
 
 // Manacher palindrome radii on the transformed string "&|c|c|...|?"
-template <size_t N>
-struct manacher {
-  int p[2 * N];  // p[i] = radius at position i of t (1-indexed)
+template <size_t N> struct manacher {
+  int p[2 * N]; // p[i] = radius at position i of t (1-indexed)
   string t;
   int m;
   // builds t from s, fills p; returns the longest palindromic substring length
-  int build(const string& s) {
+  int build(const string &s) {
     t = "&|";
     for (char c : s) t += c, t += '|';
     t += '?';

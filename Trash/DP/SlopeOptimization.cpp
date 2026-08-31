@@ -5,15 +5,12 @@ using d64 = long double;
 
 // slope-optimized DP (convex hull trick, monotone queue) + WQS binary search:
 // split a[1..n] into exactly k segments minimizing sum (segment sum + 1)^2
-template <size_t N>
-struct slope_opt_wqs {
+template <size_t N> struct slope_opt_wqs {
   constexpr static d64 eps = 1e-9;
   int n, k, a[N], s[N], f[N], g[N], q[N], hd, tl;
   d64 x(int i) { return s[i]; }
   d64 y(int i) { return f[i] + s[i] * s[i]; }
-  d64 slope(int i, int j) {
-    return (y(j) - y(i)) / (x(j) - x(i));
-  }
+  d64 slope(int i, int j) { return (y(j) - y(i)) / (x(j) - x(i)); }
   // one Kruskal-style pass with penalty x per segment;
   // returns {cost with penalty, number of segments used}
   pair<int, int> calc(int x) {

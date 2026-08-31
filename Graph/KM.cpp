@@ -3,11 +3,10 @@ using namespace std;
 #define int long long
 
 // Kuhn-Munkres: maximum-weight perfect matching on an n x n bipartite graph
-template <size_t N>
-struct km_matching {
+template <size_t N> struct km_matching {
   static constexpr int INF = 0x3f3f3f3f3f3f3f3f;
   int n, w[N][N], lx[N], ly[N], match[N], slack[N], pre[N], visx[N], visy[N];
-  void augment(int s) {  // BFS-like augment from left vertex s
+  void augment(int s) { // BFS-like augment from left vertex s
     for (int i = 1; i <= n; ++i) visx[i] = visy[i] = 0, slack[i] = INF;
     int y = 0, ny = 0;
     match[0] = s;
@@ -16,8 +15,7 @@ struct km_matching {
       visy[y] = 1;
       for (int i = 1; i <= n; ++i)
         if (!visy[i]) {
-          if (lx[x] + ly[i] - w[x][i] < slack[i])
-            slack[i] = lx[x] + ly[i] - w[x][i], pre[i] = y;
+          if (lx[x] + ly[i] - w[x][i] < slack[i]) slack[i] = lx[x] + ly[i] - w[x][i], pre[i] = y;
           d = min(d, slack[i]);
         }
       for (int i = 0; i <= n; ++i) {

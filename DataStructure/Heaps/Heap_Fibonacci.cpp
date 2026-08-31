@@ -3,20 +3,19 @@ using namespace std;
 #define int long long
 
 // Fibonacci heap (mergeable), min-heap
-template <size_t N>
-struct heap_fibonacci {
+template <size_t N> struct heap_fibonacci {
   int a[N], fa[N], vl[N], tp[N], dg[N];
-  bool mk[N];  // "lost a child" marks
+  bool mk[N]; // "lost a child" marks
   list<int> nd[N], sn[N];
   typename list<int>::iterator it[N];
-  void add(list<int>& x, int y) { it[y] = x.insert(x.end(), y); }
-  void cmin(int& x, int y) { x > y && (x = y); }
+  void add(list<int> &x, int y) { it[y] = x.insert(x.end(), y); }
+  void cmin(int &x, int y) { x > y && (x = y); }
   int newnode(int x, int i) { return add(nd[i], i), tp[i] = vl[i] = x, i; }
   int top(int x) { return tp[x]; }
-  void join(int x, int y) {  // concatenate root lists
+  void join(int x, int y) { // concatenate root lists
     cmin(tp[x], tp[y]), nd[x].splice(nd[x].end(), nd[y]);
   }
-  void decrease_key(int h, int p, int v) {  // cascading cuts
+  void decrease_key(int h, int p, int v) { // cascading cuts
     cmin(tp[h], vl[p] = v);
     int f = fa[p];
     if (!f || vl[f] <= v) return;
@@ -27,7 +26,7 @@ struct heap_fibonacci {
     decrease_key(h, x, LLONG_MIN);
     for (int y : sn[x]) add(nd[h], y), fa[y] = 0;
     nd[h].erase(it[x]), sn[x].clear();
-    int mx = -1;  // consolidate by degree
+    int mx = -1; // consolidate by degree
     for (int x : nd[h]) {
       while (int y = a[dg[x]]) {
         if (vl[x] > vl[y]) swap(x, y);
@@ -37,7 +36,7 @@ struct heap_fibonacci {
     }
     nd[h].clear(), tp[h] = LLONG_MAX;
     for (int i = 0; i <= mx; ++i)
-      if (int& x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
+      if (int &x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
   }
 };
 /*

@@ -2,12 +2,11 @@
 using namespace std;
 
 // Vertex-biconnected components / block-cut tree, with LCA binary lifting
-template <size_t N>
-struct block_cut_tree {
+template <size_t N> struct block_cut_tree {
   int n, sq, idx, tp;
   int dfn[N], low[N], stk[N];
   int dep[N << 1], fa[N << 1][20];
-  vector<int> g[N], e[N << 1];  // g = original graph, e = block-cut tree
+  vector<int> g[N], e[N << 1]; // g = original graph, e = block-cut tree
   void tarjan(int u) {
     dfn[u] = low[u] = ++idx;
     stk[++tp] = u;
@@ -15,7 +14,7 @@ struct block_cut_tree {
       if (!dfn[v]) {
         tarjan(v);
         low[u] = min(low[u], low[v]);
-        if (low[v] >= dfn[u]) {  // u is a cut vertex (or root): pop one BCC
+        if (low[v] >= dfn[u]) { // u is a cut vertex (or root): pop one BCC
           e[u].push_back(++sq);
           e[sq].push_back(u);
           for (int x = 0; x != v;) {
@@ -34,10 +33,10 @@ struct block_cut_tree {
     for (int i = 1; i <= n; ++i)
       if (!dfn[i]) tarjan(i);
   }
-  void dfs(int u, int f) {  // root the tree + build lifting table
+  void dfs(int u, int f) { // root the tree + build lifting table
     dep[u] = dep[f] + 1;
     fa[u][0] = f;
-    for (int i = 1; fa[u][i - 1]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];  // stop at 0
+    for (int i = 1; fa[u][i - 1]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1]; // stop at 0
     for (int v : e[u]) {
       if (v == f) continue;
       dfs(v, u);

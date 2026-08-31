@@ -3,12 +3,12 @@ using namespace std;
 #define int long long
 
 // Dominator tree (Lengauer-Tarjan): idom[x] = immediate dominator of x from source s
-template <size_t N>
-struct dominator_tree {
+template <size_t N> struct dominator_tree {
   int n, idx;
   int dfn[N], id[N], fa[N];
   int sdom[N], idom[N], mn[N], f[N];
   vector<int> g[N], rg[N], bucket[N];
+  void add(int x, int y) { g[x].push_back(y), rg[y].push_back(x); }
   int find(int x) {
     if (f[x] == x) return x;
     int y = find(f[x]);

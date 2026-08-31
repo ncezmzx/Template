@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // Suffix automaton over lowercase letters; states <= 2n
-template <size_t N>
-struct suffix_automaton {
+template <size_t N> struct suffix_automaton {
   int ch[N][26], lnk[N], len[N], sz[N];
   int buc[N], o[N];
   int tot, lst;

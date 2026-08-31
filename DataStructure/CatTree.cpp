@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-template<class T, size_t N> struct cattree {
+template <class T, size_t N> struct cattree {
   T ct[__lg(N) + 2][N];
   void build(int n, const T a[]) {
     for (int h = 0, s = 1; s <= n; ++h, s <<= 1) {
@@ -9,8 +9,7 @@ template<class T, size_t N> struct cattree {
         for (int j = i - 1; j > i - s; --j) ct[h][j - 1] = a[j - 1] + ct[h][j];
         if (i == n) break;
         ct[h][i] = a[i];
-        for (int j = i + 1; j < i + s && j < n; ++j)
-          ct[h][j] = ct[h][j - 1] + a[j];
+        for (int j = i + 1; j < i + s && j < n; ++j) ct[h][j] = ct[h][j - 1] + a[j];
       }
     }
   }

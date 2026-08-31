@@ -18,47 +18,36 @@ struct hash_t {
   u64 h;
   constexpr hash_t() : h{0} {}
   template <class T> constexpr hash_t(T H) : h{H % hmod} {}
-  hash_t& operator+=(hash_t rhs) {
+  hash_t &operator+=(hash_t rhs) {
     h += rhs.h, h >= hmod && (h -= hmod);
     return *this;
   }
-  hash_t& operator-=(hash_t rhs) {
+  hash_t &operator-=(hash_t rhs) {
     h += hmod - rhs.h, h >= hmod && (h -= hmod);
     return *this;
   }
-  hash_t& operator*=(hash_t rhs) {
-    i128 rt = (i128) h * rhs.h;
+  hash_t &operator*=(hash_t rhs) {
+    i128 rt = (i128)h * rhs.h;
     h = u64(rt & hmod) + u64(rt >> 61);
     if (h >= hmod) h -= hmod;
     return *this;
   }
-  friend hash_t operator+(hash_t lhs, const hash_t& rhs) {
-    return lhs += rhs;
-  }
-  friend hash_t operator-(hash_t lhs, const hash_t& rhs) {
-    return lhs -= rhs;
-  }
-  friend hash_t operator*(hash_t lhs, const hash_t& rhs) {
-    return lhs *= rhs;
-  }
-  bool operator==(const hash_t& rhs) const {
-    return h == rhs.h;
-  }
-  bool operator<(const hash_t& rhs) const {
-    return h < rhs.h;
-  }
+  friend hash_t operator+(hash_t lhs, const hash_t &rhs) { return lhs += rhs; }
+  friend hash_t operator-(hash_t lhs, const hash_t &rhs) { return lhs -= rhs; }
+  friend hash_t operator*(hash_t lhs, const hash_t &rhs) { return lhs *= rhs; }
+  bool operator==(const hash_t &rhs) const { return h == rhs.h; }
+  bool operator<(const hash_t &rhs) const { return h < rhs.h; }
 };
 const hash_t seed = uniform_int_distribution<u64>(hash_t::hmod >> 2, hash_t::hmod >> 1)(rng);
-template <size_t N>
-struct rolling_hash {
-  hash_t hsh[N], pw[N];  // prefix hashes and powers
-  void init(const string& s) {  // s is 1-indexed (prepend a placeholder)
+template <size_t N> struct rolling_hash {
+  hash_t hsh[N], pw[N];        // prefix hashes and powers
+  void init(const string &s) { // s is 1-indexed (prepend a placeholder)
     int m = (int)s.size() - 1;
     pw[0] = 1;
     for (int i = 1; i <= m; ++i) pw[i] = pw[i - 1] * seed;
     for (int j = 1; j <= m; ++j) hsh[j] = hsh[j - 1] * seed + s[j];
   }
-  hash_t query(int l, int r) const {  // substring hash, 1-indexed inclusive
+  hash_t query(int l, int r) const { // substring hash, 1-indexed inclusive
     return hsh[r] - hsh[l - 1] * pw[r - l + 1];
   }
 };

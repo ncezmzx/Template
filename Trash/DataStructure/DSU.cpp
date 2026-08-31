@@ -3,12 +3,11 @@ using namespace std;
 #define int long long
 
 // disjoint set union with path compression (merge x into y's set)
-template <size_t N>
-struct dsu {
+template <size_t N> struct dsu {
   int fa[N];
   dsu() { iota(fa, fa + N, 0); }
   int get(int x) { return x == fa[x] ? x : fa[x] = get(fa[x]); }
-  bool mer(int x, int y) {  // x -> y; true if they were separate
+  bool mer(int x, int y) { // x -> y; true if they were separate
     if ((x = get(x)) == (y = get(y))) return false;
     return fa[x] = y, true;
   }

@@ -4,8 +4,7 @@ using u64 = unsigned long long;
 
 mt19937_64 rng(random_device{}());
 
-template<class T, size_t N, size_t Mod = 3217>
-struct Hash {
+template <class T, size_t N, size_t Mod = 3217> struct Hash {
   unordered_map<T, int> mp;
   int hd[Mod], stk[N], tp, cnt[N], nxt[N];
   T w[N];
@@ -21,7 +20,7 @@ struct Hash {
           if (pr) nxt[pr] = nxt[i];
           else hd[u] = nxt[i];
         }
-        return ;
+        return;
       }
     }
     int i = stk[tp--];

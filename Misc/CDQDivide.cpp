@@ -19,17 +19,17 @@ long long bit_sum(int x) {
 }
 long long ans_;
 
-void cdq(int l, int r) {  // [l, r): v_ sorted by (a, original order)
+void cdq(int l, int r) { // [l, r): v_ sorted by (a, original order)
   if (r - l <= 1) return;
   int m = (l + r) / 2;
   cdq(l, m), cdq(m, r);
   int p = l;
-  for (int t = m; t < r; ++t) {  // left half's contribution to the right: 2D order on b, c
+  for (int t = m; t < r; ++t) { // left half's contribution to the right: 2D order on b, c
     while (p < m && v_[p].b <= v_[t].b) bit_add(v_[p].c, 1), ++p;
     ans_ += bit_sum(v_[t].c);
   }
-  for (int t = l; t < p; ++t) bit_add(v_[t].c, -1);  // restore
-  int i = l, j = m, k = l;  // merge by b (stable)
+  for (int t = l; t < p; ++t) bit_add(v_[t].c, -1); // restore
+  int i = l, j = m, k = l;                          // merge by b (stable)
   while (i < m && j < r) tmp_[k++] = v_[i].b <= v_[j].b ? v_[i++] : v_[j++];
   while (i < m) tmp_[k++] = v_[i++];
   while (j < r) tmp_[k++] = v_[j++];
@@ -40,13 +40,15 @@ void cdq(int l, int r) {  // [l, r): v_ sorted by (a, original order)
 long long count_3d(vector<array<int, 3>> pts) {
   int n = pts.size();
   vector<int> cs;
-  for (auto& p : pts) cs.push_back(p[2]);
+  for (auto &p : pts) cs.push_back(p[2]);
   sort(cs.begin(), cs.end()), cs.erase(unique(cs.begin(), cs.end()), cs.end());
   C_ = cs.size();
-  for (int i = 0; i < n; ++i) v_[i] = {pts[i][0], pts[i][1], (int)(lower_bound(cs.begin(), cs.end(), pts[i][2]) - cs.begin()) + 1};
+  for (int i = 0; i < n; ++i)
+    v_[i] = {pts[i][0], pts[i][1], (int)(lower_bound(cs.begin(), cs.end(), pts[i][2]) - cs.begin()) + 1};
   // sort by full (a, b, c) order: for a comparable pair {u, v} (u <= v dimensionwise),
-  // the dominator's lex order is always <= the dominated one's (equal triples comparable in any order); across levels only b, c matter
-  stable_sort(v_, v_ + n, [](const Node& x, const Node& y) {
+  // the dominator's lex order is always <= the dominated one's (equal triples comparable in any order); across levels
+  // only b, c matter
+  stable_sort(v_, v_ + n, [](const Node &x, const Node &y) {
     return x.a != y.a ? x.a < y.a : (x.b != y.b ? x.b < y.b : x.c < y.c);
   });
   ans_ = 0;

@@ -6,11 +6,9 @@ mt19937 rng(random_device{}());
 double rnd() { return (double)uniform_int_distribution<int>(0, 1e9)(rng) / 1e9; }
 
 double fx, fy;
-double target(double x, double y) {
-  return (x - 3) * (x - 3) + (y + 2) * (y + 2) + 1;
-}
+double target(double x, double y) { return (x - 3) * (x - 3) + (y + 2) * (y + 2) + 1; }
 
-void anneal(double& x, double& y) {
+void anneal(double &x, double &y) {
   double t = 1e4;
   double cur = target(x, y);
   while (t > 1e-12) {

@@ -2,14 +2,15 @@
 using namespace std;
 
 // weight-balanced BST as a sequence with lazy reverse (deterministic, no priorities)
-template <size_t N>
-struct wbst_seq {
+template <size_t N> struct wbst_seq {
   int tp, tot, rt;
   int ch[2 * N][2], sz[2 * N], val[2 * N], stk[2 * N], tg[2 * N];
   void up(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]], val[x] = val[ch[x][1]]; }
-  void apply(int x) { tg[x] ^= 1, swap(ch[x][0], ch[x][1]); }  // reverse tag
-  void down(int x) { if (tg[x]) apply(ch[x][0]), apply(ch[x][1]), tg[x] = 0; }
-  void erase(int &x) { stk[++tp] = x, x = 0; }  // recycle node
+  void apply(int x) { tg[x] ^= 1, swap(ch[x][0], ch[x][1]); } // reverse tag
+  void down(int x) {
+    if (tg[x]) apply(ch[x][0]), apply(ch[x][1]), tg[x] = 0;
+  }
+  void erase(int &x) { stk[++tp] = x, x = 0; } // recycle node
   int make(int x) { return ch[x][0] = ch[x][1] = val[x] = sz[x] = 0, x; }
   int make() { return make(tp ? stk[tp--] : ++tot); }
   int node(int v, int u) { return val[u] = v, sz[u] = 1, u; }
@@ -34,15 +35,15 @@ struct wbst_seq {
   bool heavy(int x, int y) { return x > 3 * y; }
   bool need(int x, int r) { return sz[ch[x][!r]] > 2 * sz[ch[x][r]]; }
   void balance(int &x) {
-    if (sz[x] == 1) return ;
+    if (sz[x] == 1) return;
     down(x);
     bool r = sz[ch[x][1]] > sz[ch[x][0]];
-    if (!heavy(sz[ch[x][r]], sz[ch[x][!r]])) return ;
+    if (!heavy(sz[ch[x][r]], sz[ch[x][!r]])) return;
     down(ch[x][r]);
     if (need(ch[x][r], r)) down(ch[ch[x][r]][!r]), rotate(ch[x][r], !r);
     rotate(x, r);
   }
-  int mer(int x, int y) {  // join two trees
+  int mer(int x, int y) { // join two trees
     if (!x || !y) return x + y;
     if (heavy(sz[x], sz[y])) {
       auto [a, b] = cut(x);
@@ -56,7 +57,7 @@ struct wbst_seq {
     }
     else return link(x, y);
   }
-  auto spl(int x, int k) {  // split into (first k, rest)
+  auto spl(int x, int k) { // split into (first k, rest)
     if (!x) return make_pair(0, 0);
     if (!k) return make_pair(0, x);
     if (k == sz[x]) return make_pair(x, 0);
@@ -70,12 +71,12 @@ struct wbst_seq {
       return make_pair(mer(a, c), d);
     }
   }
-  int build(int l, int r) {  // sequence l, l+1, ..., r
+  int build(int l, int r) { // sequence l, l+1, ..., r
     if (l == r) return node(l);
     int m = (l + r) >> 1;
     return link(build(l, m), build(m + 1, r));
   }
-  void print(int x) {  // in-order dump
+  void print(int x) { // in-order dump
     if (sz[x] == 1) return cout << val[x] << ' ', void();
     down(x);
     print(ch[x][0]), print(ch[x][1]);

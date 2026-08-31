@@ -1,34 +1,34 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// weighted DSU: d[x] = accumulated edge weight from x to its root (additive group, e.g. mod addition / xor)
-constexpr int N = 2e5 + 9;
-struct wdsu {
+// weighted DSU: d[x] = accumulated edge weight from x to its root (additive
+// group, e.g. mod addition / xor)
+template <size_t N> struct wdsu {
   int p[N];
   long long d[N];
   void init(int n) {
     for (int i = 0; i <= n; ++i) p[i] = i, d[i] = 0;
   }
-  int find(int x) {  // path compression accumulating weights
+  int find(int x) {
     if (p[x] == x) return x;
     int r = find(p[x]);
     d[x] += d[p[x]], p[x] = r;
     return r;
   }
-  // merge constraint y = x + w (x --w--> y); returns compatibility with existing constraints
+  // merge constraint y = x + w (x --w--> y); returns compatibility with
+  // existing constraints
   bool merge(int x, int y, long long w) {
     int rx = find(x), ry = find(y);
     if (rx == ry) return d[y] - d[x] == w;
-    p[rx] = ry, d[rx] = d[y] - d[x] - w;  // val[rx]-val[ry], derived from val[y]-val[x]=w
+    p[rx] = ry, d[rx] = d[y] - d[x] - w;
     return true;
   }
-  long long rel(int x, int y) { return d[y] - d[x]; }  // val[y] - val[x] (must share a root: find first)
+  long long rel(int x, int y) { return d[y] - d[x]; } // val[y] - val[x] (must share a root: find first)
 };
 
-// rollback DSU: union by rank without path compression; rollback to a historical size
-struct rdsu {
+template <size_t N> struct rdsu {
   int p[N], rk[N];
-  vector<pair<int, int>> hist;  // (attached root, did the rank increase)
+  vector<pair<int, int>> hist;
   void init(int n) {
     for (int i = 0; i <= n; ++i) p[i] = i, rk[i] = 0;
     hist.clear();
@@ -37,7 +37,7 @@ struct rdsu {
     while (p[x] != x) x = p[x];
     return x;
   }
-  bool merge(int a, int b) {  // true if merged (already-connected pushes a no-op record)
+  bool merge(int a, int b) {
     int ra = find(a), rb = find(b);
     if (ra == rb) return hist.push_back({-1, 0}), false;
     if (rk[ra] < rk[rb]) swap(ra, rb);
@@ -45,12 +45,12 @@ struct rdsu {
     rk[ra] += (rk[ra] == rk[rb]);
     return true;
   }
-  void rollback(size_t target) {  // undo until hist.size() == target
+  void rollback(size_t target) {
     while (hist.size() > target) {
       auto pr = hist.back();
       hist.pop_back();
       if (pr.first < 0) continue;
-      if (pr.second) rk[p[pr.first]]--;  // restore rank
+      if (pr.second) rk[p[pr.first]]--;
       p[pr.first] = pr.first;
     }
   }

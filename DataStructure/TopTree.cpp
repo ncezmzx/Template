@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // static Top Tree: cluster decomposition via HLD + in-chain splay-style BSTs
-template <size_t N>
-struct top_tree {
+template <size_t N> struct top_tree {
   static constexpr int INF = 0x3f3f3f3f3f3f3f3f;
   int n, idx;
   int val[N], fa[N], dep[N], sz[N], son[N], top[N], dfn[N], id[N], tail[N];
@@ -41,7 +40,7 @@ struct top_tree {
     pull(x);
     return x;
   }
-  void build(int n_) {  // HLD, then clusters chain by chain, deepest heads first
+  void build(int n_) { // HLD, then clusters chain by chain, deepest heads first
     n = n_, idx = 0;
     for (int h = 1; h <= n; ++h)
       if (!fa[h] && top[h] == 0) dfs1(h, 0), dfs2(h, h);
@@ -59,20 +58,20 @@ struct top_tree {
       crt[h] = build_chain(dfn[h], dfn[h] + len - 1);
     }
   }
-  int ck_query(int x, int l, int r) {  // cluster aggregate (includes light rakes)
+  int ck_query(int x, int l, int r) { // cluster aggregate (includes light rakes)
     if (!x || r < Lp[x] || Rp[x] < l) return -INF;
     if (l <= Lp[x] && Rp[x] <= r) return ck[x];
     int res = -INF;
     if (l <= dfn[x] && dfn[x] <= r) res = max(val[x], rake[x]);
     return max(res, max(ck_query(ch[x][0], l, r), ck_query(ch[x][1], l, r)));
   }
-  int pt_query(int x, int l, int r) {  // plain path aggregate (no rakes)
+  int pt_query(int x, int l, int r) { // plain path aggregate (no rakes)
     if (!x || r < Lp[x] || Rp[x] < l) return -INF;
     if (l <= Lp[x] && Rp[x] <= r) return smx[x];
     int res = (l <= dfn[x] && dfn[x] <= r) ? val[x] : -INF;
     return max(res, max(pt_query(ch[x][0], l, r), pt_query(ch[x][1], l, r)));
   }
-  int path_query(int u, int v) {  // max vertex weight on path u-v
+  int path_query(int u, int v) { // max vertex weight on path u-v
     int res = -INF;
     while (top[u] != top[v]) {
       if (dep[top[u]] < dep[top[v]]) swap(u, v);
@@ -83,11 +82,11 @@ struct top_tree {
     res = max(res, pt_query(crt[top[u]], dfn[u], dfn[v]));
     return res;
   }
-  int subtree_query(int x) {  // max vertex weight in the subtree of x
+  int subtree_query(int x) { // max vertex weight in the subtree of x
     int h = top[x];
     return ck_query(crt[h], dfn[x], dfn[tail[h]]);
   }
-  void point_set(int x, int v) {  // update value, propagate along splay + light edges
+  void point_set(int x, int v) { // update value, propagate along splay + light edges
     val[x] = v;
     while (true) {
       for (int u = x; u; u = f[u]) pull(u);

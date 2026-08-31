@@ -9,65 +9,69 @@ struct P {
 P operator-(P a, P b) { return {a.x - b.x, a.y - b.y}; }
 bool operator<(P a, P b) { return a.x != b.x ? a.x < b.x : a.y < b.y; }
 bool operator==(P a, P b) { return a.x == b.x && a.y == b.y; }
-int cross(P a, P b) { return a.x * b.y - a.y * b.x; }  // cross product
-int dot(P a, P b) { return a.x * b.x + a.y * b.y; }     // dot product
-int cr(P a, P b, P c) { return cross(b - a, c - a); }   // ab x ac (>0: c left of ab)
+int cross(P a, P b) { return a.x * b.y - a.y * b.x; } // cross product
+int dot(P a, P b) { return a.x * b.x + a.y * b.y; }   // dot product
+int cr(P a, P b, P c) { return cross(b - a, c - a); } // ab x ac (>0: c left of ab)
 
-bool on_seg(P a, P b, P p) {  // is p on segment ab (endpoints included)
+bool on_seg(P a, P b, P p) { // is p on segment ab (endpoints included)
   return cr(a, b, p) == 0 && dot(p - a, p - b) <= 0;
 }
-bool seg_inter(P a, P b, P c, P d) {  // do segments ab and cd intersect (touching counts)
+bool seg_inter(P a, P b, P c, P d) { // do segments ab and cd intersect (touching counts)
   int d1 = cr(a, b, c), d2 = cr(a, b, d), d3 = cr(c, d, a), d4 = cr(c, d, b);
-  if (d1 * d2 < 0 && d3 * d4 < 0) return true;  // proper crossing
+  if (d1 * d2 < 0 && d3 * d4 < 0) return true; // proper crossing
   return (!d1 && on_seg(a, b, c)) || (!d2 && on_seg(a, b, d)) || (!d3 && on_seg(c, d, a)) || (!d4 && on_seg(c, d, b));
 }
-int area2(const vector<P>& p) {  // doubled signed polygon area (CCW positive)
+int area2(const vector<P> &p) { // doubled signed polygon area (CCW positive)
   int s = 0;
   for (int i = 0, n = p.size(); i < n; ++i) s += cross(p[i], p[(i + 1) % n]);
   return s;
 }
-int pip(const vector<P>& p, P q) {  // point-in-polygon: 0 outside / 1 boundary / 2 inside (ray casting)
+int pip(const vector<P> &p, P q) { // point-in-polygon: 0 outside / 1 boundary / 2 inside (ray casting)
   int cnt = 0, n = p.size();
   for (int i = 0; i < n; ++i) {
     P a = p[i], b = p[(i + 1) % n];
     if (on_seg(a, b, q)) return 1;
-    if ((a.y > q.y) != (b.y > q.y)) {  // edge straddles the ray y = q.y
+    if ((a.y > q.y) != (b.y > q.y)) { // edge straddles the ray y = q.y
       int d = cross(b - a, q - a);
-      if (b.y > a.y ? d > 0 : d < 0) ++cnt;  // crossing is to the right of q
+      if (b.y > a.y ? d > 0 : d < 0) ++cnt; // crossing is to the right of q
     }
   }
   return cnt & 1 ? 2 : 0;
 }
 
-// Andrew convex hull (strict; collinear midpoints removed; all-collinear gives the two ends; CCW, no duplicate first/last)
+// Andrew convex hull (strict; collinear midpoints removed; all-collinear gives the two ends; CCW, no duplicate
+// first/last)
 vector<P> convex_hull(vector<P> p) {
   sort(p.begin(), p.end());
   p.erase(unique(p.begin(), p.end()), p.end());
   int m = p.size(), k = 0;
   if (m <= 2) return p;
   vector<P> h(2 * m + 1);
-  for (int i = 0; i < m; ++i) {  // lower hull
+  for (int i = 0; i < m; ++i) { // lower hull
     while (k > 1 && cr(h[k - 2], h[k - 1], p[i]) <= 0) --k;
     h[k++] = p[i];
   }
-  for (int i = m - 2, t = k; i >= 0; --i) {  // upper hull
+  for (int i = m - 2, t = k; i >= 0; --i) { // upper hull
     while (k > t && cr(h[k - 2], h[k - 1], p[i]) <= 0) --k;
     h[k++] = p[i];
   }
-  h.resize(k - 1);  // last point duplicates h[0]
+  h.resize(k - 1); // last point duplicates h[0]
   if ((int)h.size() == 2 && h[0] == h[1]) h.resize(1);
   return h;
 }
 
 // rotating calipers: convex hull diameter (squared distance); h = convex_hull result
-long long diameter2(const vector<P>& h) {
+long long diameter2(const vector<P> &h) {
   int n = h.size();
   if (n == 1) return 0;
-  if (n == 2) { P d = h[0] - h[1]; return dot(d, d); }
+  if (n == 2) {
+    P d = h[0] - h[1];
+    return dot(d, d);
+  }
   long long res = 0;
-  for (int i = 0, j = 2; i < n; ++i) {  // edge i->i+1, j = antipode candidate
+  for (int i = 0, j = 2; i < n; ++i) { // edge i->i+1, j = antipode candidate
     P e = h[(i + 1) % n] - h[i];
-    while (abs(cross(e, h[(j + 1) % n] - h[i])) > abs(cross(e, h[j] - h[i]))) j = (j + 1) % n;  // max area
+    while (abs(cross(e, h[(j + 1) % n] - h[i])) > abs(cross(e, h[j] - h[i]))) j = (j + 1) % n; // max area
     P d1 = h[i] - h[j], d2 = h[(i + 1) % n] - h[j];
     res = max({res, dot(d1, d1), dot(d2, d2)});
   }
@@ -77,10 +81,13 @@ long long diameter2(const vector<P>& h) {
 // closest pair of points (divide & conquer), returns squared distance; O(n log n)
 constexpr int CN = 1e6 + 9;
 P tmp_[CN];
-long long d2_(P a, P b) { P d = a - b; return dot(d, d); }
-long long closest2(P* a, int l, int r) {  // [l, r), a sorted by (x, y)
+long long d2_(P a, P b) {
+  P d = a - b;
+  return dot(d, d);
+}
+long long closest2(P *a, int l, int r) { // [l, r), a sorted by (x, y)
   if (r - l <= 1) return LLONG_MAX;
-  if (r - l == 2) {  // base cases must be y-sorted too (required by parent merge)
+  if (r - l == 2) { // base cases must be y-sorted too (required by parent merge)
     if (a[l].y > a[l + 1].y) swap(a[l], a[l + 1]);
     return d2_(a[l], a[l + 1]);
   }
@@ -90,8 +97,8 @@ long long closest2(P* a, int l, int r) {  // [l, r), a sorted by (x, y)
   inplace_merge(a + l, a + m, a + r, [](P u, P v) { return u.y != v.y ? u.y < v.y : u.x < v.x; });
   int c = 0;
   for (int i = l; i < r; ++i)
-    if ((a[i].x - xm) * (a[i].x - xm) < d) tmp_[c++] = a[i];  // middle strip
-  for (int i = 0; i < c; ++i)  // each strip point checks O(1) amortized successors
+    if ((a[i].x - xm) * (a[i].x - xm) < d) tmp_[c++] = a[i]; // middle strip
+  for (int i = 0; i < c; ++i)                                // each strip point checks O(1) amortized successors
     for (int j = i + 1; j < c && (tmp_[j].y - tmp_[i].y) * (tmp_[j].y - tmp_[i].y) < d; ++j)
       d = min(d, d2_(tmp_[i], tmp_[j]));
   return d;

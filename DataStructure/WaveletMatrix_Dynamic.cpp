@@ -9,14 +9,14 @@ struct wavelet {
   vector<int> zc;
   vector<int> a;
 
-  void build(const vector<int>& v) {
+  void build(const vector<int> &v) {
     a = v;
     int n = (int)v.size();
     pref.assign(LOG, vector<int>(n + 1, 0));
     zc.assign(LOG, 0);
     vector<int> cur = v, nxt(n);
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      int* P = pref[lv].data();   // hoist the row pointer, avoid per-element vector indexing
+      int *P = pref[lv].data(); // hoist the row pointer, avoid per-element vector indexing
       int z = 0;
       for (int i = 0; i < n; ++i) {
         int b = (cur[i] >> lv & 1) == 0;
@@ -28,14 +28,14 @@ struct wavelet {
         if (cur[i] >> lv & 1) nxt[p1++] = cur[i];
         else nxt[p0++] = cur[i];
       }
-      cur.swap(nxt);   // swap instead of copy
+      cur.swap(nxt); // swap instead of copy
     }
   }
 
   int kth(int l, int r, int k) const {
     int res = 0;
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      const int* P = pref[lv].data();
+      const int *P = pref[lv].data();
       int zl = P[l], zr = P[r];
       int zeros = zr - zl;
       if (k < zeros) l = zl, r = zr;
@@ -52,13 +52,14 @@ struct wavelet {
   int rank_lt(int l, int r, int x) const {
     int res = 0;
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      const int* P = pref[lv].data();
+      const int *P = pref[lv].data();
       int zl = P[l], zr = P[r];
       if (x >> lv & 1) {
         res += zr - zl;
         l = zc[lv] + (l - zl);
         r = zc[lv] + (r - zr);
-      } else l = zl, r = zr;
+      }
+      else l = zl, r = zr;
     }
     return res;
   }
@@ -74,7 +75,7 @@ struct dyn_wavelet {
   }
   int size() const {
     int s = 0;
-    for (auto& d : data) s += (int)d.size();
+    for (auto &d : data) s += (int)d.size();
     return s;
   }
 
@@ -120,7 +121,8 @@ struct dyn_wavelet {
           int zl = wm[i].pref[lv][l[i]], zr = wm[i].pref[lv][r[i]];
           l[i] = zl, r[i] = zr;
         }
-      } else {
+      }
+      else {
         k -= zeros;
         res |= 1 << lv;
         for (int i = 0; i < (int)wm.size(); ++i) {

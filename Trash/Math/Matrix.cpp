@@ -24,12 +24,12 @@ matrix operator*(const matrix &lhs, const matrix &rhs) {
   }
   return ret;
 }
-matrix I(int n) {  // identity matrix
+matrix I(int n) { // identity matrix
   matrix ret(n, n);
   for (int i = 0; i < n; ++i) ret[i][i] = 1;
   return ret;
 }
-matrix qpow(matrix a, int b) {  // matrix fast power
+matrix qpow(matrix a, int b) { // matrix fast power
   matrix r = I(a.n);
   for (; b; b >>= 1, a = a * a)
     if (b & 1) r = r * a;

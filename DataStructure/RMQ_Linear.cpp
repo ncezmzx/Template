@@ -3,8 +3,7 @@ using namespace std;
 
 // static RMQ (FastST): Z-sized blocks queried through a Cartesian-tree bitmask,
 // block extrema answered by a U-level sparse table
-template <size_t U = 20, size_t Z = 32, class T = int>
-struct FastST {
+template <size_t U = 20, size_t Z = 32, class T = int> struct FastST {
   static_assert(Z && (Z & (Z - 1)) == 0, "Z must be a power of two");
   static_assert(Z <= sizeof(size_t) * 8, "Z must fit in one size_t bitmask");
   int n;
@@ -14,7 +13,7 @@ struct FastST {
   function<bool(T, T)> comp;
   void set(const function<bool(T, T)> &cmp) { comp = cmp; }
   T get(const T &x, const T &y) { return comp(x, y) ? x : y; }
-  void build(vector<T> &vec, int sz) {  // vec is 1-indexed (vec[0] unused); it is consumed
+  void build(vector<T> &vec, int sz) { // vec is 1-indexed (vec[0] unused); it is consumed
     n = sz;
     f.assign(n + 1, 0);
     arr.swap(vec), pr = sf = arr;
@@ -28,9 +27,8 @@ struct FastST {
     for (int i = n - 1; i >= 1; --i)
       if ((i + 1) / Z == i / Z) sf[i] = get(sf[i + 1], sf[i]);
     for (int i = 1; i < U; ++i)
-      for (int j = 1; j + (1 << i) - 1 <= n / Z; ++j)
-        st[i][j] = get(st[i - 1][j], st[i - 1][j + (1 << (i - 1))]);
-    vector<int> stk(Z + 1);  // monotonic stack, reset at every block boundary
+      for (int j = 1; j + (1 << i) - 1 <= n / Z; ++j) st[i][j] = get(st[i - 1][j], st[i - 1][j + (1 << (i - 1))]);
+    vector<int> stk(Z + 1); // monotonic stack, reset at every block boundary
     int tp = 0;
     for (int i = 1; i <= n; ++i) {
       if (i / Z != (i - 1) / Z) tp = 0;
@@ -39,7 +37,7 @@ struct FastST {
       stk[++tp] = i, f[i] |= size_t(1) << (i & (Z - 1));
     }
   }
-  T query(int l, int r) {  // extremum over [l, r], 1 <= l <= r <= n
+  T query(int l, int r) { // extremum over [l, r], 1 <= l <= r <= n
     if (l / Z == r / Z) return arr[l + __builtin_ctzll(f[r] >> (l & (Z - 1)))];
     T ret = get(pr[r], sf[l]);
     l /= Z, r /= Z, ++l, --r;

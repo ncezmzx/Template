@@ -38,28 +38,28 @@ template <uint32_t m> struct modint {
   u32 val() const { return from_mont(v); }
   static u32 modval() { return mod; }
 
-  modint& operator+=(const modint& o) {
+  modint &operator+=(const modint &o) {
     u64 z = (u64)v + o.v;
     if (z >= mod) z -= mod;
     v = u32(z);
     return *this;
   }
-  modint& operator-=(const modint& o) {
+  modint &operator-=(const modint &o) {
     u32 x = v, y = o.v;
     v = x >= y ? x - y : x + mod - y;
     return *this;
   }
-  modint& operator*=(const modint& o) {
+  modint &operator*=(const modint &o) {
     v = reduce((u64)v * o.v);
     return *this;
   }
-  modint& operator/=(const modint& o) { return *this *= o.inv(); }
-  modint& operator%=(const modint& o) {
+  modint &operator/=(const modint &o) { return *this *= o.inv(); }
+  modint &operator%=(const modint &o) {
     v = to_mont(u32(val() % o.val()));
     return *this;
   }
-  modint& operator++() { return *this += 1; }
-  modint& operator--() { return *this -= 1; }
+  modint &operator++() { return *this += 1; }
+  modint &operator--() { return *this -= 1; }
   modint operator++(int) {
     modint t = *this;
     ++*this;
@@ -76,18 +76,18 @@ template <uint32_t m> struct modint {
     return r;
   }
 
-  friend modint operator+(modint a, const modint& b) { return a += b; }
-  friend modint operator-(modint a, const modint& b) { return a -= b; }
-  friend modint operator*(modint a, const modint& b) { return a *= b; }
-  friend modint operator/(modint a, const modint& b) { return a /= b; }
-  friend modint operator%(modint a, const modint& b) { return a %= b; }
+  friend modint operator+(modint a, const modint &b) { return a += b; }
+  friend modint operator-(modint a, const modint &b) { return a -= b; }
+  friend modint operator*(modint a, const modint &b) { return a *= b; }
+  friend modint operator/(modint a, const modint &b) { return a /= b; }
+  friend modint operator%(modint a, const modint &b) { return a %= b; }
 
-  bool operator==(const modint& o) const { return v == o.v; }
-  bool operator!=(const modint& o) const { return v != o.v; }
-  bool operator<(const modint& o) const { return val() < o.val(); }
-  bool operator>(const modint& o) const { return o < *this; }
-  bool operator<=(const modint& o) const { return !(o < *this); }
-  bool operator>=(const modint& o) const { return !(*this < o); }
+  bool operator==(const modint &o) const { return v == o.v; }
+  bool operator!=(const modint &o) const { return v != o.v; }
+  bool operator<(const modint &o) const { return val() < o.val(); }
+  bool operator>(const modint &o) const { return o < *this; }
+  bool operator<=(const modint &o) const { return !(o < *this); }
+  bool operator>=(const modint &o) const { return !(*this < o); }
 
   modint pow(long long b) const {
     modint r = 1, x = *this;
@@ -101,26 +101,26 @@ template <uint32_t m> struct modint {
   }
   modint sqrt() const {
     if (*this == 0) return 0;
-    if (pow((mod - 1) >> 1) != 1) return 0;      // not a quadratic residue
+    if (pow((mod - 1) >> 1) != 1) return 0; // not a quadratic residue
     if (mod % 4 == 3) return pow((mod + 1) >> 2);
     u32 q = mod - 1, s = 0;
     while (!(q & 1)) q >>= 1, ++s;
     modint z = 2;
-    while (z.pow((mod - 1) >> 1) == 1) z += 1;   // find a non-residue z
+    while (z.pow((mod - 1) >> 1) == 1) z += 1; // find a non-residue z
     modint c = z.pow(q), x = pow((q + 1) >> 1), t = pow(q);
     for (u32 mm = s; mm > 1;) {
       modint tt = t;
       u32 i = 0;
-      while (tt != 1) tt *= tt, ++i;             // least i with t^(2^i) == 1
+      while (tt != 1) tt *= tt, ++i; // least i with t^(2^i) == 1
       modint b = c;
-      for (u32 j = 0; j < mm - i - 1; ++j) b *= b;  // b = c^(2^(mm-i-1))
+      for (u32 j = 0; j < mm - i - 1; ++j) b *= b; // b = c^(2^(mm-i-1))
       x *= b, t *= b * b, c = b * b, mm = i;
     }
     return x;
   }
 
-  friend ostream& operator<<(ostream& os, const modint& x) { return os << x.val(); }
-  friend istream& operator>>(istream& is, modint& x) {
+  friend ostream &operator<<(ostream &os, const modint &x) { return os << x.val(); }
+  friend istream &operator>>(istream &is, modint &x) {
     long long t;
     is >> t;
     x = modint(t);

@@ -10,15 +10,15 @@ struct digit_dp_binary {
   int dfs(int p, int q, int top) {
     if (q < 0) return 0;
     if (!p) return q == 0;
-    auto& ret = dp[p][q][top];
+    auto &ret = dp[p][q][top];
     if (~ret) return ret;
     ret = 0;
     for (int i = 0, up = top ? a[p] : 1; i <= up; ++i) ret += dfs(p - 1, q - i, top && i == up);
     return ret;
   }
-  int sol(int x) {  // count in [0, x]; memoization only for non-tight states
+  int sol(int x) { // count in [0, x]; memoization only for non-tight states
     memset(dp, -1, sizeof dp);
-    for (c = 0; x; x >>= 1) a[++c] = x & 1;  // a[1] = lowest bit
+    for (c = 0; x; x >>= 1) a[++c] = x & 1; // a[1] = lowest bit
     return dfs(c, k, 1);
   }
 };

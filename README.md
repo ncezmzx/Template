@@ -16,12 +16,12 @@ Template/
 └── Trash/           removed common/basic/duplicate templates (kept for reference)
 ```
 
-119 templates (DataStructure 46 / Graph 22 / String 8 / Math 29 / Misc 11 /
+116 templates (DataStructure 41 / Graph 22 / String 8 / Math 30 / Misc 11 /
 Geometry 3) + Trash 23.
 
 ## Index
 
-### DataStructure/ (46, incl. Heaps/ 16)
+### DataStructure/ (41, incl. Heaps/ 16)
 
 | File | Content |
 |---|---|
@@ -33,15 +33,11 @@ Geometry 3) + Trash 23.
 | `CartesianTree.cpp` | Cartesian tree (monotonic-stack O(n) build; RMQ / largest rectangle) — `cartesian_tree<N>` |
 | `CatTree.cpp` | cat tree (static associative range query O(1), via operator+) — `cattree<T, N>` |
 | `ODT.cpp` | Chtholly tree / ODT (map-based interval assignment) — `odt_tree` |
-| `SegmentTreeGCD.cpp` | gcd segment tree (point update + prefix gcd) — `segtree_gcd<N>` |
 | `SegmentTreeBeats.cpp` | Segment Tree Beats (range add / chmin / chmax / sum & extrema) — `segbeats` |
 | `SegmentTree_Semigroup.cpp` | semigroup lazy segment tree (dynamic nodes, fully iterative; ACL-aligned get/all_prod/max_right/min_left + O(n) vector build) — `semigroup_segtree<S, op, e, F, mapping, composition, id>` |
-| `SegmentTree_IterativeLazy.cpp` | iterative (zkw-style) segment tree (range add + range sum, lazy tags) — `segtree_iterative_lazy<N>` |
 | `SegmentTree_ACL.cpp` | lazy segment tree, ACL style (static full tree, generic op/mapping; supports segment-length-dependent actions such as range affine + range sum; max_right/min_left) — `lazy_segtree<...>` |
-| `SegmentTree_LiChao.cpp` | Li Chao segment tree (line/segment insert, point minimum query) — `lichao_segtree<N, SP>` |
 | `PersistentDSU.cpp` | persistent DSU (segment trees for fa/siz + union by size, historical versions) — `persistent_dsu<N, MV>` |
 | `PersistentTreap.cpp` | persistent balanced tree (fully persistent fhq-Treap) — `persistent_treap<N>` |
-| `SegmentTree_Merge.cpp` | segment tree merging (dynamic value-segment trees) — `segtree_merge<SP>` |
 | `Trie_Binary.cpp` | persistent 01-Trie (xor extrema / rank over a version range, no compression needed) — `persistent_binary_trie<N, SP>` |
 | `DSU_Weighted_Rollback.cpp` | weighted DSU (relative constraints) + rollback DSU (for divide-&-conquer offline) — `wdsu`, `rdsu` |
 | `Bitset_Dynamic.cpp` | hand-written dynamic bitset (std::bitset operations + runtime resize) — `dynbitset` |
@@ -77,13 +73,6 @@ Geometry 3) + Trash 23.
 | `Heap_Quake.cpp` | quake heap — `heap_quake<N>` |
 | `Heap_Slim.cpp` | slim heap (reference: known defects) — `heap_slim<N>` |
 | `Heap_WeightLeftist.cpp` | weight-leftist heap (merges by subtree size) — `heap_weight_leftist<N>` |
-
-> Verified by randomized stress tests: Leftist, WeightLeftist, Skew, Pairing,
-> Binomial, Fibonacci, Hollow, LazyBinomial, OneRootFibonacci, Quake and PBDS
-> work correctly; **RankPairing_A, RankPairing_B, Thin, Slim and BinaryExt
-> carry the original article's known defects (decrease_key/erase paths) and
-> are marked reference implementations**. Global array sizes (N, M) are
-> template parameters — tune per problem.
 
 ### Graph/ (22)
 
@@ -158,6 +147,7 @@ Geometry 3) + Trash 23.
 | `SubsetConvolution.cpp` | subset convolution (popcount layering + OR zeta/Möbius, O(n² 2^n)) — `subset_convolution` |
 | `Pell.cpp` | Pell equation x²-Dy²=1 fundamental solution (continued fractions) — `pell` |
 | `NimProduct.cpp` | nim product (nimber multiplication, largest Fermat 2-power divide & conquer, 64-bit) — `nim_prod` |
+| `FixedInt.cpp` | fixed-width big integers like uint256 / int256 |
 
 ### Misc/ (11)
 

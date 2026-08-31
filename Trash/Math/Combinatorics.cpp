@@ -3,17 +3,16 @@ using namespace std;
 #define int long long
 
 // binomial coefficients modulo a prime (factorials + inverse factorials)
-template <size_t N>
-struct combinatorics {
+template <size_t N> struct combinatorics {
   static constexpr int md = 998244353;
-  int fac[N], inv[N];  // inv = inverse factorials: inv[i] = 1 / i!
+  int fac[N], inv[N]; // inv = inverse factorials: inv[i] = 1 / i!
   int qpow(int a, int b = md - 2) {
     int r = 1;
     for (; b; b >>= 1, a = a * a % md)
       if (b & 1) r = r * a % md;
     return r;
   }
-  void init(int n) {  // O(n) preprocessing of fac / inv up to n
+  void init(int n) { // O(n) preprocessing of fac / inv up to n
     fac[0] = 1;
     for (int i = 1; i <= n; ++i) fac[i] = fac[i - 1] * i % md;
     inv[n] = qpow(fac[n]);

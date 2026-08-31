@@ -2,10 +2,9 @@
 using namespace std;
 
 // segment tree with lazy tags: range add + range sum (+ prefix-search)
-template <size_t N>
-struct segtree_lazy {
+template <size_t N> struct segtree_lazy {
   int n;
-  long long sgt[N << 2], tg[N << 2];  // sgt = range sum, tg = lazy add
+  long long sgt[N << 2], tg[N << 2]; // sgt = range sum, tg = lazy add
   void apply(int u, int l, int r, long long x) { sgt[u] += (r - l + 1) * x, tg[u] += x; }
   void down(int u, int l, int r) {
     if (tg[u]) {
@@ -14,7 +13,7 @@ struct segtree_lazy {
       tg[u] = 0;
     }
   }
-  void update(int u, int l, int r, int x, int y, int z) {  // a[x..y] += z
+  void update(int u, int l, int r, int x, int y, int z) { // a[x..y] += z
     if (x <= l && r <= y) return apply(u, l, r, z);
     int m = (l + r) >> 1;
     down(u, l, r);
@@ -30,7 +29,7 @@ struct segtree_lazy {
     if (sgt[u << 1] >= k) return find(u << 1, l, m, k);
     else return find(u << 1 | 1, m + 1, r, k - sgt[u << 1]);
   }
-  long long query(int u, int l, int r, int x, int y) {  // sum(a[x..y])
+  long long query(int u, int l, int r, int x, int y) { // sum(a[x..y])
     if (x <= l && r <= y) return sgt[u];
     int m = (l + r) >> 1;
     long long res = 0;

@@ -3,8 +3,7 @@ using namespace std;
 #define int long long
 
 // Tarjan strongly connected components + condensation info
-template <size_t N>
-struct scc {
+template <size_t N> struct scc {
   int n, cl, idx, tp;
   int dfn[N], stk[N], low[N], col[N], vst[N];
   vector<int> es[N];

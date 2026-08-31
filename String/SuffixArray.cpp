@@ -3,11 +3,10 @@ using namespace std;
 #define int long long
 
 // suffix array (doubling + radix sort) with height array; 1-indexed
-template <size_t N>
-struct suffix_array {
-  int n, sw;  // sw = second-key offset of current round (-1 = none)
+template <size_t N> struct suffix_array {
+  int n, sw; // sw = second-key offset of current round (-1 = none)
   int a[N], rk[N], sa[N], id[N], buc[N], h[N];
-  bool samerank(int x, int y) {  // inline second-key compare, avoids pair construction
+  bool samerank(int x, int y) { // inline second-key compare, avoids pair construction
     if (rk[x] != rk[y]) return false;
     if (sw < 0) return true;
     int px = x + sw <= n ? rk[x + sw] : 0, py = y + sw <= n ? rk[y + sw] : 0;
@@ -17,10 +16,9 @@ struct suffix_array {
     memset(buc + 1, 0, m * sizeof(int));
     for (int i = 1; i <= n; ++i) ++buc[rk[i]];
     for (int i = 1; i <= m; ++i) buc[i] += buc[i - 1];
-    for (int i = n; i >= 1; --i) sa[buc[rk[id[i]]]--] = id[i];  // id is sorted by second key
+    for (int i = n; i >= 1; --i) sa[buc[rk[id[i]]]--] = id[i]; // id is sorted by second key
     id[sa[1]] = 1;
-    for (int i = 2; i <= n; ++i)
-      id[sa[i]] = id[sa[i - 1]] + !samerank(sa[i - 1], sa[i]);
+    for (int i = 2; i <= n; ++i) id[sa[i]] = id[sa[i - 1]] + !samerank(sa[i - 1], sa[i]);
     memcpy(rk + 1, id + 1, n * sizeof(int));
   }
   // requires a[1..n] filled with values in [1, n] and a[n+1] = 0 (sentinel)

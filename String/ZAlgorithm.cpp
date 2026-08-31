@@ -2,15 +2,15 @@
 using namespace std;
 
 // z[i] = LCP of s and s[i..]; z[0] = |s| (same convention as ACL z_algorithm)
-vector<int> z_algorithm(const string& s) {
+vector<int> z_algorithm(const string &s) {
   int n = (int)s.size();
   if (n == 0) return {};
   vector<int> z(n);
   z[0] = 0;
-  for (int i = 1, j = 0; i < n; i++) {  // j = start of the rightmost Z-box
-    int& k = z[i];
-    k = (j + z[j] <= i) ? 0 : min(j + z[j] - i, z[i - j]);  // reuse inside the Z-box
-    while (i + k < n && s[k] == s[i + k]) k++;  // brute-force extension
+  for (int i = 1, j = 0; i < n; i++) { // j = start of the rightmost Z-box
+    int &k = z[i];
+    k = (j + z[j] <= i) ? 0 : min(j + z[j] - i, z[i - j]); // reuse inside the Z-box
+    while (i + k < n && s[k] == s[i + k]) k++;             // brute-force extension
     if (j + z[j] < i + z[i]) j = i;
   }
   z[0] = n;
@@ -18,14 +18,13 @@ vector<int> z_algorithm(const string& s) {
 }
 
 // generic container version (same template signature as ACL; works for vector<int> etc.)
-template <class T>
-vector<int> z_algorithm(const vector<T>& s) {
+template <class T> vector<int> z_algorithm(const vector<T> &s) {
   int n = (int)s.size();
   if (n == 0) return {};
   vector<int> z(n);
   z[0] = 0;
   for (int i = 1, j = 0; i < n; i++) {
-    int& k = z[i];
+    int &k = z[i];
     k = (j + z[j] <= i) ? 0 : min(j + z[j] - i, z[i - j]);
     while (i + k < n && s[k] == s[i + k]) k++;
     if (j + z[j] < i + z[i]) j = i;

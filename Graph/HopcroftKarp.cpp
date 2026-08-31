@@ -3,14 +3,14 @@ using namespace std;
 #define int long long
 
 // Hopcroft-Karp maximum bipartite matching, O(E sqrt V)
-template <size_t N>
+template <size_t N> // n = nl + nr
 struct hopcroft_karp {
   int nl, nr, vstamp = 0;
   int dis[N], match[N], vis[N], q[N];
-  vector<int> g[N];  // adjacency of left vertices (right ids must not collide)
-  bool bfs() {  // layer free-left vertices by augmenting-path length
+  vector<int> g[N];
+  bool bfs() {
     bool f = false;
-    int qh = 0, qt = 0;  // flat queue, left vertices only
+    int qh = 0, qt = 0;
     for (int i = 1; i <= nl; ++i)
       if (!match[i]) dis[i] = 0, q[qt++] = i;
       else dis[i] = -1;
@@ -28,7 +28,7 @@ struct hopcroft_karp {
     return f;
   }
   bool dfs(int u) {
-    int du = dis[u] + 1;  // hoisted level check
+    int du = dis[u] + 1;
     for (int v : g[u]) {
       if (match[v] && dis[match[v]] != du) continue;
       if (vis[v] == vstamp) continue;
@@ -41,13 +41,12 @@ struct hopcroft_karp {
     dis[u] = -1;
     return false;
   }
-  // match[u]=v and match[v]=u after success; clear g/match between cases
   int solve(int nl_, int nr_) {
     nl = nl_, nr = nr_;
     for (int i = 1; i <= nl + nr; ++i) match[i] = 0;
     int ans = 0;
     while (bfs()) {
-      ++vstamp;  // timestamps replace per-phase memset(vis)
+      ++vstamp;
       for (int i = 1; i <= nl; ++i)
         if (!match[i] && dfs(i)) ++ans;
     }

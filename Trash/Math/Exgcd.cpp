@@ -10,9 +10,7 @@ tuple<int, int, int> exgcd(int a, int b, int c) {
   return {x, y - a / b * x, d};
 }
 // clean wrapper: returns {x, y, g} with a*x + b*y = g = gcd(a, b)
-tuple<int, int, int> exgcd(int a, int b) {
-  return exgcd(a, b, __gcd(a, b));
-}
+tuple<int, int, int> exgcd(int a, int b) { return exgcd(a, b, __gcd(a, b)); }
 
 /*
  * ============================================================
