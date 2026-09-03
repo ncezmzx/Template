@@ -7,7 +7,7 @@ template <uint32_t m> struct modint {
   using u128 = __uint128_t;
   static constexpr u32 mod = m;
 
-  // C++14 has no constexpr lambdas; use constexpr member functions instead
+
   static constexpr u32 calc_im() {
     u32 x = 1;
     for (int i = 0; i < 5; ++i) x *= 2 - mod * x;
@@ -96,24 +96,24 @@ template <uint32_t m> struct modint {
     return r;
   }
   modint inv() const {
-    // Fermat for prime MOD (extended gcd would be needed otherwise)
+
     return pow(mod - 2);
   }
   modint sqrt() const {
     if (*this == 0) return 0;
-    if (pow((mod - 1) >> 1) != 1) return 0; // not a quadratic residue
+    if (pow((mod - 1) >> 1) != 1) return 0;
     if (mod % 4 == 3) return pow((mod + 1) >> 2);
     u32 q = mod - 1, s = 0;
     while (!(q & 1)) q >>= 1, ++s;
     modint z = 2;
-    while (z.pow((mod - 1) >> 1) == 1) z += 1; // find a non-residue z
+    while (z.pow((mod - 1) >> 1) == 1) z += 1;
     modint c = z.pow(q), x = pow((q + 1) >> 1), t = pow(q);
     for (u32 mm = s; mm > 1;) {
       modint tt = t;
       u32 i = 0;
-      while (tt != 1) tt *= tt, ++i; // least i with t^(2^i) == 1
+      while (tt != 1) tt *= tt, ++i;
       modint b = c;
-      for (u32 j = 0; j < mm - i - 1; ++j) b *= b; // b = c^(2^(mm-i-1))
+      for (u32 j = 0; j < mm - i - 1; ++j) b *= b;
       x *= b, t *= b * b, c = b * b, mm = i;
     }
     return x;
@@ -128,22 +128,3 @@ template <uint32_t m> struct modint {
   }
 };
 
-/*
- * ============================================================
- * Name: full modint (Montgomery reduction, fixed modulus)
- * Complexity: arithmetic O(1) (Montgomery multiplication, no division / modulo
- *             instructions); pow O(log b)
- * Usage: complete integer arithmetic modulo a fixed prime: + - * / %, unary
- *        minus, increment / decrement, comparisons, stream IO, powers, inverses
- *        and modular square roots (Tonelli-Shanks).
- * Principle: values are stored in Montgomery form (value * R mod m with R =
- *            2^32); multiplication uses REDC (__int128 exact, no overflow),
- *            with im = -m^{-1} mod 2^32 from a compile-time Newton iteration
- *            and r2 = R^2 mod m
- * Notes: MOD must be an odd prime (inv via Fermat, sqrt via Tonelli-Shanks);
- *        inv(0) = 0 and dividing by zero is undefined; operator% has integer
- *        semantics (modulo val());
- *        compared with the Barrett version DynamicModInt.cpp, this fixed-
- *        modulus one is faster because there is no runtime reduction object
- * ============================================================
- */

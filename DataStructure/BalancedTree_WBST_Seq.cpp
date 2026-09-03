@@ -1,16 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// weight-balanced BST as a sequence with lazy reverse (deterministic, no priorities)
+
 template <size_t N> struct wbst_seq {
   int tp, tot, rt;
   int ch[2 * N][2], sz[2 * N], val[2 * N], stk[2 * N], tg[2 * N];
   void up(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]], val[x] = val[ch[x][1]]; }
-  void apply(int x) { tg[x] ^= 1, swap(ch[x][0], ch[x][1]); } // reverse tag
+  void apply(int x) { tg[x] ^= 1, swap(ch[x][0], ch[x][1]); }
   void down(int x) {
     if (tg[x]) apply(ch[x][0]), apply(ch[x][1]), tg[x] = 0;
   }
-  void erase(int &x) { stk[++tp] = x, x = 0; } // recycle node
+  void erase(int &x) { stk[++tp] = x, x = 0; }
   int make(int x) { return ch[x][0] = ch[x][1] = val[x] = sz[x] = 0, x; }
   int make() { return make(tp ? stk[tp--] : ++tot); }
   int node(int v, int u) { return val[u] = v, sz[u] = 1, u; }
@@ -43,7 +43,7 @@ template <size_t N> struct wbst_seq {
     if (need(ch[x][r], r)) down(ch[ch[x][r]][!r]), rotate(ch[x][r], !r);
     rotate(x, r);
   }
-  int mer(int x, int y) { // join two trees
+  int mer(int x, int y) {
     if (!x || !y) return x + y;
     if (heavy(sz[x], sz[y])) {
       auto [a, b] = cut(x);
@@ -57,7 +57,7 @@ template <size_t N> struct wbst_seq {
     }
     else return link(x, y);
   }
-  auto spl(int x, int k) { // split into (first k, rest)
+  auto spl(int x, int k) {
     if (!x) return make_pair(0, 0);
     if (!k) return make_pair(0, x);
     if (k == sz[x]) return make_pair(x, 0);
@@ -71,29 +71,15 @@ template <size_t N> struct wbst_seq {
       return make_pair(mer(a, c), d);
     }
   }
-  int build(int l, int r) { // sequence l, l+1, ..., r
+  int build(int l, int r) {
     if (l == r) return node(l);
     int m = (l + r) >> 1;
     return link(build(l, m), build(m + 1, r));
   }
-  void print(int x) { // in-order dump
+  void print(int x) {
     if (sz[x] == 1) return cout << val[x] << ' ', void();
     down(x);
     print(ch[x][0]), print(ch[x][1]);
   }
 };
 
-/*
- * ============================================================
- * Name: weight-balanced BST, sequence form (deterministic WBT with lazy reverse)
- * Complexity: split / merge / balance amortized O(log n); deterministic, no
- *             random priorities
- * Usage: sequence form, `wbst_seq<N>`: spl(x, k) -> (first k, rest); mer(x, y)
- *        joins; apply(x) tags a reversal; balance(x) rebalances.
- *        up / down / rotate / cut / erase / make / node / link are internal
- *        helpers.
- * Source: all.cpp lines 30725-30799 (namespace wrapped into a struct, logic unchanged)
- * Notes: deterministic drop-in replacement for the implicit splay / treap;
- *        reset between test cases
- * ============================================================
- */

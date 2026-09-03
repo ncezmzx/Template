@@ -12,7 +12,7 @@ struct matrix {
 };
 matrix operator*(const matrix &lhs, const matrix &rhs) {
   matrix ret(lhs.n, rhs.m);
-  // Floyd-style i-k-j loop + cached row pointers: sequential access, no per-element operator[]
+
   for (int i = 0; i < lhs.n; ++i) {
     const int *lk = lhs.vec.data() + i * lhs.m;
     int *ri = ret.vec.data() + i * rhs.m;
@@ -32,13 +32,4 @@ matrix qpow(matrix a, int b) {
     if (b & 1) ret = ret * a;
   return ret;
 }
-/*
- * ============================================================
- * Name: max-plus matrix fast exponentiation (generalized (max, +) matrices)
- * Complexity: multiplication O(n^3); fast power O(n^3 log b)
- * Usage: Floyd-style (max, +) path problems: maximum-weight paths of exactly k
- *        steps, longest-path counting, and friends.
- * Source: all.cpp lines 11324-11348 (kept verbatim, comments translated)
- * Notes: qpow requires b >= 1 (it is implemented as ret = a first, then --b)
- * ============================================================
- */
+

@@ -3,7 +3,7 @@ using namespace std;
 using u64 = unsigned long long;
 using i64 = long long;
 
-// closed form of sum_{i=1..n} i^m (m <= 3; T needs modular mul/div, e.g. modint / __int128)
+
 template <class T> T power_sum(i64 n, int m) {
   assert(m >= 0 && m <= 4);
   if (m == 0) return T(n);
@@ -14,7 +14,7 @@ template <class T> T power_sum(i64 n, int m) {
     T s = x * (x + 1) / 2;
     return s * s;
   }
-  // m == 4: n(n+1)(2n+1)(3n^2+3n-1)/30
+
   return x * (x + 1) * (2 * x + 1) * (3 * x * x + 3 * x - 1) / 30;
 }
 
@@ -94,7 +94,7 @@ template <typename T, int M, typename F> class Min25 {
     }
   }
   T get(i64 n, int k) {
-    if (k > pcnt || n < prime[k] || n <= 1) { // test k > pcnt first (avoids OOB prime[k])
+    if (k > pcnt || n < prime[k] || n <= 1) {
       return 0;
     }
     int id = idx(n);
@@ -139,20 +139,3 @@ template <typename T, int M, typename F> class Min25 {
   }
 };
 
-/*
- * ============================================================
- * Name: Min25 sieve (prefix sums of multiplicative functions, f(p) polynomial)
- * Complexity: ~O(n^{3/4} / log n); space O(sqrt n)
- * Usage: sum_{i=1..n} f(i) for multiplicative f whose values on primes are a
- *        polynomial in p of degree < M (coefficient array a, so f(p) = sum_m
- *        a[m]*p^m); f(p^c) comes from the callback f(p, c).
- * Depends: power_sum (closed form of sum i^m, m <= 4; T must support modular
- *        multiplication/division, e.g. modint)
- * Source: user-provided code; fixed the OOB prime[k] read in get() when
- *         k > pcnt and added the missing power_sum dependency
- * Notes: T needs default construction (zero), int construction, + - * / and
- *        compound assignment; each object may call operator() only once, since
- *        internal state is built for a single solve;
- *        depends on power_sum (closed form of sum i^m for m <= 4)
- * ============================================================
- */

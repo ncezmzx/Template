@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// leftist heap (mergeable, keyed by dist d), min-heap
+
 template <size_t N> struct heap_leftist {
   int fa[N], vl[N], d[N], ls[N], rs[N];
   int newnode(int x, int i) { return vl[i] = x, i; }
@@ -26,16 +26,4 @@ template <size_t N> struct heap_leftist {
   }
   void decrease_key(int &h, int p, int v) { erase(h, p), vl[p] = v, ls[p] = rs[p] = fa[p] = d[p] = 0, join(h, p); }
 };
-/*
- * ============================================================
- * Name: leftist heap (mergeable, dist-based merging), min-heap
- * Complexity: join / top O(1); merge / erase / decrease_key O(log n) worst case
- * Usage: `heap_leftist<N>`: newnode / top / join / decrease_key / erase; a heap
- *        is identified by its root node (h passed by reference), empty heap =
- *        0.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 2, wrapped into a struct
- * Notes: join uses x |= y for empty heaps; self-merge x == y not handled; erase
- *        repairs d along the fa chain
- * ============================================================
- */
+

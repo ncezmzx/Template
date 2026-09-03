@@ -63,15 +63,5 @@ namespace {
       if (b & 1) r = r * a;
     return r;
   }
-} // namespace
-/*
- * ============================================================
- * Name: dynamic modulus (Barrett reduction modint, runtime modulus)
- * Complexity: arithmetic O(1) (Barrett-reduced multiply); qpow O(log b)
- * Usage: modular arithmetic when the modulus is only known at runtime (e.g.
- *        read from input); set_mod switches the modulus on the fly.
- * Source: all.cpp lines 9559-9623 (kept verbatim, comments translated)
- * Notes: the templated constructor requires integer arguments: do not write
- *        mint(1e9 + 9), because 1e9+9 is a double and fails to compile
- * ============================================================
- */
+}
+

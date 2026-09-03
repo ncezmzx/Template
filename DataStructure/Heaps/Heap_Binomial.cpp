@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// binomial heap (no amortized-constant insert specialization), mergeable min-heap
+
 template <size_t N> struct heap_binomial {
   int a[N], fa[N], vl[N], tp[N], rk[N], pos[N], msk[N];
   list<int> nd[N], sn[N];
@@ -11,7 +11,7 @@ template <size_t N> struct heap_binomial {
   void cmin(int &x, int y) { x > y && (x = y); }
   int newnode(int x, int i) { return add(nd[i], i), tp[i] = vl[i] = x, pos[i] = msk[i] = i; }
   int top(int x) { return tp[x]; }
-  void join(int x, list<int> &ndy) { // carry-based consolidation of root lists
+  void join(int x, list<int> &ndy) {
     int mx = -1;
     for (int h : nd[x]) mx = max(mx, rk[h]), a[rk[h]] = h;
     for (int h : ndy) {
@@ -26,7 +26,7 @@ template <size_t N> struct heap_binomial {
       if (int &h = a[i]) add(nd[x], h), cmin(tp[x], vl[h]), h = 0;
   }
   void join(int x, int y) { join(x, nd[y]); }
-  void decrease_key(int h, int p, int v) { // bubble up swapping masked values
+  void decrease_key(int h, int p, int v) {
     cmin(tp[h], vl[p = pos[p]] = v);
     for (int f = fa[p]; f && vl[f] > v; f = fa[p = f])
       swap(msk[p], msk[f]), swap(pos[msk[p]], pos[msk[f]]), swap(vl[p], vl[f]);
@@ -37,17 +37,4 @@ template <size_t N> struct heap_binomial {
     nd[h].erase(it[x]), join(h, sn[x]);
   }
 };
-/*
- * ============================================================
- * Name: binomial heap (mergeable, no amortized-constant insert), min-heap
- * Complexity: newnode / top O(1); join / erase / decrease_key O(log n) worst
- *             case (join has no amortized constant)
- * Usage: `heap_binomial<N>`: newnode / top / join / decrease_key / erase; heaps
- *        are identified by their container index.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 4, wrapped into a struct
- * Notes: tp uses the LLONG_MAX empty sentinel; after join(x, y) heap y's root
- *        list is emptied; erase decreases to LLONG_MIN then re-joins the child
- *        list; empty-heap / self-merge boundaries not handled
- * ============================================================
- */
+

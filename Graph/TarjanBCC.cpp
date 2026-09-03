@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Vertex-biconnected components / block-cut tree, with LCA binary lifting
+
 template <size_t N> struct block_cut_tree {
   int n, sq, idx, tp;
   int dfn[N], low[N], stk[N];
   int dep[N << 1], fa[N << 1][20];
-  vector<int> g[N], e[N << 1]; // g = original graph, e = block-cut tree
+  vector<int> g[N], e[N << 1];
   void tarjan(int u) {
     dfn[u] = low[u] = ++idx;
     stk[++tp] = u;
@@ -14,7 +14,7 @@ template <size_t N> struct block_cut_tree {
       if (!dfn[v]) {
         tarjan(v);
         low[u] = min(low[u], low[v]);
-        if (low[v] >= dfn[u]) { // u is a cut vertex (or root): pop one BCC
+        if (low[v] >= dfn[u]) {
           e[u].push_back(++sq);
           e[sq].push_back(u);
           for (int x = 0; x != v;) {
@@ -26,17 +26,17 @@ template <size_t N> struct block_cut_tree {
       else low[u] = min(low[u], dfn[v]);
     }
   }
-  // square nodes are numbered n+1..; call once per connected component
+
   void build(int n_) {
     n = n_, sq = n, idx = tp = 0;
     for (int i = 1; i <= n; ++i) dfn[i] = 0;
     for (int i = 1; i <= n; ++i)
       if (!dfn[i]) tarjan(i);
   }
-  void dfs(int u, int f) { // root the tree + build lifting table
+  void dfs(int u, int f) {
     dep[u] = dep[f] + 1;
     fa[u][0] = f;
-    for (int i = 1; fa[u][i - 1]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1]; // stop at 0
+    for (int i = 1; fa[u][i - 1]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];
     for (int v : e[u]) {
       if (v == f) continue;
       dfs(v, u);
@@ -59,18 +59,3 @@ template <size_t N> struct block_cut_tree {
   }
 };
 
-/*
- * ============================================================
- * Name: Tarjan vertex-biconnected components (v-BCC) / block-cut tree
- * Complexity: O(n + m)
- * Usage: vertex-biconnected components + block-cut tree, `block_cut_tree<N>`: g
- *        holds the original graph; build(n) contracts the BCCs
- *        (square nodes numbered from n+1 up, total sq, adjacency e sized 2N);
- *        then dfs(root, 0) per component roots the tree and builds the lifting
- *        table for lca(x, y).
- *        Cut vertices are the round nodes with degree >= 2 in the block-cut
- *        tree.
- * Source: all.cpp lines 55913-55931 (tarjan verbatim; sq = n from 55972;
- *         dfs/lca 55932-55955 came with the same block); wrapped into a struct
- * ============================================================
- */

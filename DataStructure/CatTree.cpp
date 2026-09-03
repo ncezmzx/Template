@@ -19,13 +19,4 @@ template <class T, size_t N> struct cattree {
     return ct[h][l] + ct[h][r];
   }
 };
-/*
- * ============================================================
- * Name: cat tree (static O(1) associative range queries)
- * Complexity: preprocessing O(n log n); query O(1)
- * Usage: static associative range queries (+, max, min, gcd, xor, ... expressed
- *        as operator+), `cattree<T, N>`: build, then query(l, r).
- * Source: all.cpp lines 814-833 (kept verbatim, comments translated)
- * Notes: static only; op must be associative
- * ============================================================
- */
+

@@ -2,8 +2,7 @@
 using namespace std;
 #define int long long
 
-// STL binary heap extension: mergeable heap built on priority_queue with lazy
-// deletion (eraseable_heap) and a buffered fast-push wrapper (fastpush_heap)
+
 template <size_t N> struct heap_binary_ext {
   static constexpr size_t M = N << 1;
   int ivl[M], bel[M], vl[M];
@@ -12,7 +11,7 @@ template <size_t N> struct heap_binary_ext {
   void cmin(int &x, int y) { x > y && (x = y); }
   struct eraseable_heap {
     heap_binary_ext *H;
-    priority_queue<int> pq, dl; // main heap + lazy-delete heap
+    priority_queue<int> pq, dl;
     void push(int x, int i) { pq.push(H->ivl[i] = x); }
     int top() {
       while (!dl.empty() && !pq.empty() && pq.top() == dl.top()) pq.pop(), dl.pop();
@@ -42,7 +41,7 @@ template <size_t N> struct heap_binary_ext {
       return x;
     }
     static void erase(vector<int> &v, int t) { v.erase(find(v.begin(), v.end(), t)); }
-    void push(int x, int i) { // buffer pushes, flush a block when it pays off
+    void push(int x, int i) {
       H->cmin(tp, H->vl[i] = x), H->bel[i] = -1;
       nbuf.push_back(i);
       if ((1 << ((int)nbuf.size() >> 1)) > ++sz) {
@@ -74,7 +73,7 @@ template <size_t N> struct heap_binary_ext {
   }
   int newnode(int x, int i) { return pq[i].push(x, i), i; }
   int top(int x) { return pq[x].top(); }
-  void join(int &x, int y) { // push y's top as sentinel node y+N into x
+  void join(int &x, int y) {
     if (rk[x] < rk[y]) swap(x, y);
     if (rk[x] == rk[y]) ++rk[x];
     pq[x].push(pq[y].top(), y + N), fa[y] = x;
@@ -92,21 +91,4 @@ template <size_t N> struct heap_binary_ext {
   }
   void erase(int h, int x) { decrease_key(h, x, LLONG_MAX); }
 };
-/*
- * ============================================================
- * Name: STL binary heap extension (binary(STL)(extended), mergeable, based on
- *       priority_queue with lazy deletion)
- * Complexity: push / top O(1) amortized (top lazily pops dl, then O(1)); modify
- *             / erase O(log n) amortized; size O(1)
- * Usage: `heap_binary_ext<N>`: push / top / modify / erase / size (node i's key
- *        lives in vl[i]); newnode / top / join / decrease_key / erase; min-
- *        heap.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 9, wrapped into a struct
- * Notes: decrease_key / erase use LLONG_MAX lazy deletion; join inserts y's top
- *        as sentinel node y + N into x's pq, so ids must stay < M.
- *        KNOWN ISSUE (from the source article): on some operation sequences
- *        decrease_key's fa-chain lift loses the minimum contribution, so top
- *        reads high. Reference only.
- * ============================================================
- */
+

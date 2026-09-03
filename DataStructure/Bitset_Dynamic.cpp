@@ -40,13 +40,13 @@ struct Bitset {
     return memcmp(a.v.data(), b.v.data(), sizeof(u64) * a.n) == 0;
   }
   friend bool operator!=(const Bitset &a, const Bitset &b) { return !(a == b); }
-  friend bool operator<=(const Bitset &a, const Bitset &b) { // a is subset of b
+  friend bool operator<=(const Bitset &a, const Bitset &b) {
     for (int i = 0; i < a.n; ++i)
       if ((a.v[i] & b.v[i]) != a.v[i]) return false;
     return true;
   }
   friend bool operator>=(const Bitset &a, const Bitset &b) { return b <= a; }
-  friend bool operator<(const Bitset &a, const Bitset &b) { // a is proper subset of b
+  friend bool operator<(const Bitset &a, const Bitset &b) {
     bool neq = false;
     for (int i = 0; i < a.n; ++i)
       if (neq |= (a.v[i] != b.v[i]), (a.v[i] & b.v[i]) != a.v[i]) return false;
@@ -110,7 +110,7 @@ struct Bitset {
 
   void swap(Bitset &a) { ::swap(n, a.n), ::swap(len, a.len), ::swap(mask, a.mask), v.swap(a.v); }
 
-  int find0(int p) const { // find first 0 after p, v shouldn't be all 1s
+  int find0(int p) const {
     if (p >= len) return len;
     int sp = p >> 6;
     u64 msk = ~((1ULL << (p & 63)) - 1), cur = (~v[sp]) & msk;
@@ -119,7 +119,7 @@ struct Bitset {
       if (v[i] != W) return min(len, i * 64 + __builtin_ctzll(~v[i]));
     return len;
   }
-  int find1(int p) const { // find first 1 after p, v shouldn't be all 0s
+  int find1(int p) const {
     if (p >= len) return len;
     int sp = p >> 6;
     u64 msk = ~((1ULL << (p & 63)) - 1), cur = v[sp] & msk;
@@ -182,7 +182,7 @@ struct Bitset {
     return os;
   }
 
-  vector<Bitset> split(int k) const { // cut into pieces of length k, last piece may be shorter
+  vector<Bitset> split(int k) const {
     vector<Bitset> res(len / k + 1, Bitset(k));
     int c = 0, s = 0;
     while (s < len) {
@@ -199,17 +199,3 @@ struct Bitset {
   }
 };
 
-/*
- * ============================================================
- * Name: hand-written dynamic bitset (all std::bitset operations + runtime resizing)
- * Complexity: and / or / xor / shift / popcount O(n/64); single bit O(1)
- * Usage: runtime-resizable bitset (reachability, subset convolution, string
- *        matching, bit-parallel DP); `dynamic_bitset`
- *        keeps every std::bitset operation plus resize; find_first / find_next
- *        enumerate set bits.
- * Notes: stored as 64-bit words, low bits first; shifts keep the logical length
- *        (overflow dropped, high bits zero);
- *        mixed-length & | ^ use the longer length, missing bits read as 0;
- *        resize changes the length and clears; to_string prints MSB first
- * ============================================================
- */

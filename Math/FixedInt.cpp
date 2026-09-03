@@ -25,7 +25,7 @@ template <int L> struct uintN {
     v[0] = (u64)x;
     v[1] = (u64)((u128)x >> 64);
   }
-  
+
   template <typename T>
   static void assign_limb(u64 *vv, T x, true_type) {
     if (x < 0) {
@@ -104,7 +104,7 @@ template <int L> struct uintN {
   explicit operator long long() const { return to_ll(); }
   explicit operator u128() const { return to_u128(); }
 
-  // -------------------- arithmetic --------------------
+
   uintN operator+() const { return *this; }
   uintN operator-() const { return ~*this + 1; }
   uintN operator+(const uintN &o) const {
@@ -149,7 +149,7 @@ template <int L> struct uintN {
     }
     return r;
   }
-  
+
   static pair<uintN, uintN> divmod(const uintN &x, const uintN &y) {
     int n = L;
     while (n > 0 && y.v[n - 1] == 0) --n;
@@ -557,28 +557,3 @@ using int256 = intN<4>;
 using uint512 = uintN<8>;
 using int512 = intN<8>;
 
-/*
- * ============================================================
- * Name: fixed-width big integers: uint256 / int256 / uint512 / int512
- * Complexity: add / sub O(L); multiply O(L^2) (schoolbook, 64-bit limbs);
- *             divide / mod O(L^2) (Knuth algorithm D)
- * Usage: arbitrary precision arithmetic with a FIXED width, built on 64-bit
- *        limbs (little-endian). Everything a builtin integer supports:
- *          uint256 = uintN<4>, int256 = intN<4>, uint512 = uintN<8>,
- *          int512 = intN<8>
- *        + - * / % (and = forms), unary + and -, ++ / --, comparisons,
- *        bitwise & | ^ ~ (and = forms), logical !, shifts << >> (and = forms;
- *        arithmetic for the signed types), pow, gcd, stream IO, to_string,
- *        conversions to long long / int / __int128 (throwing on overflow).
- * Principle: uintN is an unsigned magnitude that wraps mod 2^(64L) (exactly
- *            like a builtin unsigned type); intN stores two's complement in a
- *            uintN so + - * and every bitwise op match builtin int semantics;
- *            division follows Knuth's TAOCP algorithm D with __int128
- *            products; decimal conversion works in 1e9 chunks.
- * Notes: division by zero is UB (not checked); arithmetic wraps mod 2^width
- *        (signed overflow is NOT UB here, it wraps like unsigned); shifts take
- *        an int amount and a negative amount shifts the other direction;
- *        to_ll() / to_int() / to_u128() throw std::overflow_error when out of
- *        range. No heap allocation anywhere (all buffers are fixed arrays).
- * ============================================================
- */

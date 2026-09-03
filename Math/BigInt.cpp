@@ -15,7 +15,7 @@ struct bigint {
     if (t >> 32) a.push_back(u32(t >> 32));
     trim();
   }
-  // (*this) = (*this) * 10^k + v in one shot (k<=9, v < 10^9); core parsing primitive
+
   void mul_add_small(int k, u64 v) {
     static constexpr u64 pw10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
     u64 m = pw10[k], carry = v;
@@ -31,8 +31,8 @@ struct bigint {
     bool n = false;
     if (i < (int)s.size() && (s[i] == '-' || s[i] == '+')) n = s[i++] == '-';
     a.assign(1, 0);
-    neg = false;  // must init: only set to true below when a '-' was seen
-    // parse 9 decimal digits per chunk: 9x fewer multiply-adds than per-digit
+    neg = false;
+
     while (i < (int)s.size()) {
       int take = min(9, (int)s.size() - i);
       u64 v = 0;
@@ -54,12 +54,12 @@ struct bigint {
     r.neg = false;
     return r;
   }
-  // number of significant bits in the magnitude (0 for zero)
+
   int bitlen() const {
     if (is_zero()) return 0;
     return (int)(a.size() - 1) * 32 + 32 - __builtin_clz(a.back());
   }
-  // exact conversion to long long / int; throws std::overflow_error if it does not fit
+
   long long to_ll() const {
     if (*this > (bigint)LLONG_MAX) throw overflow_error("bigint::to_ll: value out of range");
     if (*this < (bigint)LLONG_MIN) throw overflow_error("bigint::to_ll: value out of range");
@@ -71,7 +71,7 @@ struct bigint {
   explicit operator long long() const { return to_ll(); }
   explicit operator int() const { return (int)to_ll(); }
 
-  // compare two raw magnitude vectors
+
   static int cmp_vec(const vector<u32> &x, const vector<u32> &y) {
     if (x.size() != y.size()) return x.size() < y.size() ? -1 : 1;
     for (int i = (int)x.size() - 1; i >= 0; --i)
@@ -194,7 +194,7 @@ struct bigint {
     return {q, r};
   }
 
-  // sign-extended two's-complement image of x over n limbs (n*32 bits)
+
   static vector<u32> to_twos(const bigint &x, int n) {
     vector<u32> r(n, 0);
     for (int i = 0; i < (int)x.a.size() && i < n; ++i) r[i] = x.a[i];
@@ -209,7 +209,7 @@ struct bigint {
     }
     return r;
   }
-  // inverse of to_twos; the top bit of the highest limb is the sign bit
+
   static bigint from_twos(const vector<u32> &v) {
     bool neg = (v.back() >> 31) & 1;
     vector<u32> mag = v;
@@ -275,7 +275,7 @@ struct bigint {
     return t;
   }
 
-  // ---- bitwise ops (two's-complement semantics, same results as builtin int) ----
+
   bigint operator&(const bigint &o) const {
     int n = max(bitlen(), o.bitlen()) / 32 + 2;
     vector<u32> a = to_twos(*this, n), b = to_twos(o, n);
@@ -300,11 +300,11 @@ struct bigint {
     return from_twos(a);
   }
   bool operator!() const { return is_zero(); }
-  // && / || provided for parity with builtin ints; note they do NOT short-circuit
+
   bool operator&&(const bigint &o) const { return !is_zero() && !o.is_zero(); }
   bool operator||(const bigint &o) const { return !is_zero() || !o.is_zero(); }
 
-  // ---- shifts (arithmetic; a negative amount shifts the other direction) ----
+
   bigint operator<<(long long k) const {
     if (k < 0) return *this >> -k;
     if (k == 0 || is_zero()) return *this;
@@ -324,8 +324,8 @@ struct bigint {
     if (k == 0 || is_zero()) return *this;
     u64 sh = (u64)k;
     bigint m = abs();
-    if ((u64)m.bitlen() <= sh) return bigint(neg ? -1 : 0);  // all bits shifted out
-    if (neg) m += (bigint(1) << k) - 1;                      // floor(-m/2^k) = -ceil(m/2^k)
+    if ((u64)m.bitlen() <= sh) return bigint(neg ? -1 : 0);
+    if (neg) m += (bigint(1) << k) - 1;
     int ls = (int)(sh / 32), bs = (int)(sh % 32);
     int n = (int)m.a.size();
     vector<u32> r(n - ls, 0);
@@ -405,26 +405,3 @@ struct bigint {
   bigint(bool n, vector<u32> v) : neg(n), a(std::move(v)) { trim(); }
 };
 
-/*
- * ============================================================
- * Name: big integer (BigInt, base 2^32, binary storage)
- * Complexity: add / sub O(n); multiply O(nm) (schoolbook); divide / mod
- *             O((n-m)m) (Knuth algorithm D)
- * Usage: arbitrary precision integer arithmetic beyond 64 bits. Full op set:
- *        + - * / % (and compound = forms), unary + and -, ++ / --, comparisons
- *        < > <= >= == !=, bitwise & | ^ ~ (and &= |= ^=), logical !, shifts
- *        << >> (and <<= >>=, arithmetic), powers and gcd.
- * Principle: little-endian uint32 array in base 2^32 with the sign stored
- *            separately; division follows Knuth's TAOCP algorithm D for any
- *            length; decimal conversion works in 1e9 chunks; bitwise ops run on
- *            a sign-extended two's-complement image so results match builtin
- *            int semantics for negative operands
- * Notes: division truncates toward zero (C/C++ semantics, the remainder takes
- *        the dividend's sign); shifts are arithmetic (like int) and a negative
- *        shift amount shifts the other direction; operator&& / operator|| do
- *        NOT short-circuit; to_string and stream IO are O(n^2)-ish, so use
- *        them for IO only; the divisor must be non-zero; mixes with int / long
- *        long through implicit construction; to_ll() / (long long) / (int)
- *        throw std::overflow_error when the value does not fit
- * ============================================================
- */

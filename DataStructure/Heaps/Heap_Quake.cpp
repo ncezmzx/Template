@@ -2,18 +2,18 @@
 using namespace std;
 #define int long long
 
-// quake heap (mergeable; rebuilds levels when their sizes unbalance), min-heap
+
 template <size_t N> struct heap_quake {
   static constexpr size_t M = N << 1;
   static constexpr double alpha = .75;
   int a[N], vl[N], tp[N], pos[N], frm[M], d[M], fa[M];
   int ls[M], rs[M], stk[N], stkt, tot;
   int pre[M], nxt[M], bg[N], ed[N], bid[M], eid[M];
-  vector<int> bel[N]; // nodes grouped by depth level
+  vector<int> bel[N];
   void cmin(int &x, int y) { x > y && (x = y); }
   int newnode(int x, int i) { return tp[i] = vl[i] = x, bg[i] = ed[i] = eid[i] = bid[i] = pos[i] = frm[i] = i; }
   int top(int x) { return tp[x]; }
-  int merge(int l, int r) { // build an internal node over two roots
+  int merge(int l, int r) {
     int x = stkt ? stk[stkt--] : (int)(N << 1) - (++tot), tl = frm[l], tr = frm[r];
     ls[x] = l, rs[x] = r, d[x] = d[l] + 1, fa[l] = fa[r] = x;
     if (vl[tl] < vl[tr]) frm[pos[tl] = x] = tl;
@@ -22,7 +22,7 @@ template <size_t N> struct heap_quake {
   }
   void add(int x, int l, int r) { nxt[ed[x]] = l, pre[l] = ed[x], eid[ed[x] = r] = x; }
   void join(int x, int y) { add(x, bg[y], ed[y]), cmin(tp[x], tp[y]); }
-  void destroy(int x) { // dismantle an internal node back into the root chain
+  void destroy(int x) {
     int u = pre[x], v = nxt[x], l = ls[x], r = rs[x];
     fa[l] = fa[r] = 0;
     pos[frm[x]] = frm[x] == frm[l] ? l : r;
@@ -46,7 +46,7 @@ template <size_t N> struct heap_quake {
   void erase(int h, int x) {
     decrease_key(h, x, LLONG_MIN);
     while (int p = pos[x]) destroy(p);
-    int mx = -1; // consolidate roots by depth
+    int mx = -1;
     for (int x = bg[h], p; x; x = p) {
       p = nxt[x], pre[x] = nxt[x] = fa[x] = 0;
       while (int &y = a[d[x]]) x = merge(x, exchange(y, 0));
@@ -59,7 +59,7 @@ template <size_t N> struct heap_quake {
         if (!ed[h]) bg[h] = ed[h] = x, bid[x] = eid[x] = h;
         else add(h, x, x);
       }
-    mx = 0; // quake: rebuild overloaded levels
+    mx = 0;
     while (!bel[mx].empty()) ++mx;
     for (int i = 0; i < mx; ++i) {
       if (bel[i + 1].size() <= bel[i].size() * alpha) continue;
@@ -70,18 +70,4 @@ template <size_t N> struct heap_quake {
     }
   }
 };
-/*
- * ============================================================
- * Name: quake heap (mergeable), min-heap
- * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
- *             erase O(log n) amortized
- * Usage: `heap_quake<N>`: newnode / top / join / decrease_key / erase; heaps
- *        are identified by their container index.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 13, wrapped into a struct
- * Notes: alpha = 0.75 triggers the quake: when the per-level counts bel[] get
- *        unbalanced, whole levels are destroyed and rebuilt; merge nodes come
- *        from the stk recycle pool or fresh allocation (tot up to ~2N); tp uses
- *        the LLONG_MAX sentinel; empty-heap / self-merge not handled
- * ============================================================
- */
+

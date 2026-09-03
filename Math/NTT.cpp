@@ -14,7 +14,7 @@ namespace Poly {
     if (a < 0) a += Mod;
     return a;
   }
-  // Barrett reduction: replaces 64-bit division with a multiply (saves one div per butterfly)
+
   static constexpr unsigned long long BIM = ~0ull / Mod + 1;
   inline int mulmod(long long a, long long b) {
     unsigned long long z = (unsigned long long)a * (unsigned)b;
@@ -190,7 +190,7 @@ namespace Poly {
     for (int i = 1; i < n; i++) b[i - 1] = mulmod(a[i], i);
     return b;
   }
-  // linear inverse table: inte avoids one O(log) pow per coefficient
+
   static vector<int> invs{0, 1};
   static int inv_mod(int x) {
     if ((int)invs.size() <= x) {
@@ -238,17 +238,6 @@ namespace Poly {
     res.resize(n);
     return res;
   }
-} // namespace Poly
+}
 using namespace Poly;
-/*
- * ============================================================
- * Name: NTT + polynomial toolkit (namespace Poly)
- * Complexity: ntt O(n log n); convolution / inv / ln / exp O(n log n); deri /
- *             inte O(n)
- * Usage: polynomial convolution, inverse, ln, exp, derivative, integral, shifts
- *        and trailing-zero trim under modulus 998244353 (namespace Poly).
- * Source: all.cpp lines 39879-40104 (kept verbatim, comments translated)
- * Notes: inv / ln require a non-zero constant term; exp requires the constant
- *        term 0 (formal power series semantics)
- * ============================================================
- */
+

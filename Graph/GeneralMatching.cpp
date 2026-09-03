@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// general graph maximum matching (blossom algorithm), O(n^3); 1-indexed
-// colors: col 1 = outer (black, queued, includes root), col 2 = inner (white)
+
 constexpr int N = 509;
 struct Blossom {
   int n, par[N], match_[N], pre[N], col[N], q_[N], hd, tl;
@@ -14,7 +13,7 @@ struct Blossom {
   }
   void add(int u, int v) { g[u].push_back(v), g[v].push_back(u); }
   int find_(int x) { return par[x] == x ? x : par[x] = find_(par[x]); }
-  int lca(int x, int y) { // first common point of the two alternating chains (blossom base)
+  int lca(int x, int y) {
     static int tim = 0, vis[N] = {0};
     ++tim;
     for (;; swap(x, y))
@@ -22,32 +21,32 @@ struct Blossom {
         x = find_(x);
         if (vis[x] == tim) return x;
         vis[x] = tim;
-        x = pre[match_[x]]; // outer -> pre of its inner mate (outer again); ends at root
+        x = pre[match_[x]];
       }
   }
-  void blossom(int x, int y, int l) { // walk x's chain to base l: redirect pre, contract
+  void blossom(int x, int y, int l) {
     while (find_(x) != l) {
-      pre[x] = y;                                // outer x's pre points to the other side
-      int w = match_[x];                         // inner mate
-      if (col[w] == 2) col[w] = 1, q_[tl++] = w; // inner vertices become outer, enqueued
-      if (find_(x) == x) par[x] = l;             // contract into blossom l
+      pre[x] = y;
+      int w = match_[x];
+      if (col[w] == 2) col[w] = 1, q_[tl++] = w;
+      if (find_(x) == x) par[x] = l;
       if (find_(w) == w) par[w] = l;
       y = w;
-      x = pre[w]; // climb the chain
+      x = pre[w];
     }
   }
-  bool augment(int s) { // find an augmenting path from free vertex s
+  bool augment(int s) {
     for (int i = 1; i <= n; ++i) par[i] = i, col[i] = 0;
     hd = tl = 0, q_[tl++] = s, col[s] = 1;
     while (hd < tl) {
       int u = q_[hd++];
       for (int v : g[u]) {
-        if (find_(u) == find_(v) || col[v] == 2) continue; // same blossom / inner (even cycle): skip
-        if (col[v] == 1) {                                 // outer-outer edge: odd cycle -> contract blossom
+        if (find_(u) == find_(v) || col[v] == 2) continue;
+        if (col[v] == 1) {
           int l = lca(u, v);
           blossom(u, v, l), blossom(v, u, l);
         }
-        else if (!match_[v]) { // free: flip along the pre chain
+        else if (!match_[v]) {
           pre[v] = u;
           for (int x = v; x;) {
             int y = pre[x], z = match_[y];
@@ -56,7 +55,7 @@ struct Blossom {
           }
           return true;
         }
-        else if (!col[v]) { // uncolored: v inner, its mate outer and enqueued
+        else if (!col[v]) {
           pre[v] = u, col[v] = 2;
           if (!col[match_[v]]) col[match_[v]] = 1, q_[tl++] = match_[v];
         }
@@ -64,7 +63,7 @@ struct Blossom {
     }
     return false;
   }
-  int solve() { // max matching size; match_[i] = partner of i (0 = free)
+  int solve() {
     int res = 0;
     for (int i = 1; i <= n; ++i)
       if (!match_[i] && augment(i)) ++res;
@@ -72,21 +71,3 @@ struct Blossom {
   }
 };
 
-/*
- * ============================================================
- * Name: general graph maximum matching (blossom algorithm)
- * Complexity: O(n^3) (much faster in practice)
- * Usage: maximum matching on non-bipartite graphs (odd cycles), `struct
- *        Blossom`: solve() returns the matching size; match_[i] is i's partner
- *        (0 = unmatched).
- * Principle: BFS alternating tree (outer / inner colors) searches augmenting
- *            paths; adjacent outer-outer pairs form odd cycles, which are
- *            contracted into blossoms (DSU par) with their inner vertices
- *            promoted to outer; lca climbs the pre / match chains with
- *            timestamps to find the blossom base; hitting a free vertex flips
- *            along pre
- * Source: rewritten against the classic the-tourist/algo flows/blossom.cpp
- * Notes: callers should avoid self-loops and duplicate edges; adjacency is
- *        stored undirected and symmetric
- * ============================================================
- */

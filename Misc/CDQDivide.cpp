@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// CDQ divide & conquer (3D partial order counting): pairs i < j with a_i <= a_j, b_i <= b_j, c_i <= c_j
-// swap the contribution step for "how many points dominate each point", etc.
+
 constexpr int N = 2e5 + 9;
 struct Node {
   int a, b, c;
@@ -19,24 +18,24 @@ long long bit_sum(int x) {
 }
 long long ans_;
 
-void cdq(int l, int r) { // [l, r): v_ sorted by (a, original order)
+void cdq(int l, int r) {
   if (r - l <= 1) return;
   int m = (l + r) / 2;
   cdq(l, m), cdq(m, r);
   int p = l;
-  for (int t = m; t < r; ++t) { // left half's contribution to the right: 2D order on b, c
+  for (int t = m; t < r; ++t) {
     while (p < m && v_[p].b <= v_[t].b) bit_add(v_[p].c, 1), ++p;
     ans_ += bit_sum(v_[t].c);
   }
-  for (int t = l; t < p; ++t) bit_add(v_[t].c, -1); // restore
-  int i = l, j = m, k = l;                          // merge by b (stable)
+  for (int t = l; t < p; ++t) bit_add(v_[t].c, -1);
+  int i = l, j = m, k = l;
   while (i < m && j < r) tmp_[k++] = v_[i].b <= v_[j].b ? v_[i++] : v_[j++];
   while (i < m) tmp_[k++] = v_[i++];
   while (j < r) tmp_[k++] = v_[j++];
   copy(tmp_ + l, tmp_ + r, v_ + l);
 }
 
-// each pts entry {a, b, c} (c within [1, 1e9]; compressed internally)
+
 long long count_3d(vector<array<int, 3>> pts) {
   int n = pts.size();
   vector<int> cs;
@@ -45,9 +44,8 @@ long long count_3d(vector<array<int, 3>> pts) {
   C_ = cs.size();
   for (int i = 0; i < n; ++i)
     v_[i] = {pts[i][0], pts[i][1], (int)(lower_bound(cs.begin(), cs.end(), pts[i][2]) - cs.begin()) + 1};
-  // sort by full (a, b, c) order: for a comparable pair {u, v} (u <= v dimensionwise),
-  // the dominator's lex order is always <= the dominated one's (equal triples comparable in any order); across levels
-  // only b, c matter
+
+
   stable_sort(v_, v_ + n, [](const Node &x, const Node &y) {
     return x.a != y.a ? x.a < y.a : (x.b != y.b ? x.b < y.b : x.c < y.c);
   });
@@ -56,25 +54,3 @@ long long count_3d(vector<array<int, 3>> pts) {
   return ans_;
 }
 
-/*
- * ============================================================
- * Name: CDQ divide & conquer (3D partial order)
- * Complexity: O(n log^2 n) (divide levels x BIT)
- * Usage: count comparable pairs in a 3D partial order (this file is the total-
- *        count form: an unordered pair {u, v} counts once whenever u <= v
- *        dimensionwise);
- *        the CDQ idea generalizes to "left-half updates contribute to right-
- *        half queries" style 2D problems. Method list: see Interface below.
- * Interface: count_3d({{a, b, c}, ...}) counts unordered pairs {u, v} whose
- *        min dominates the max dimensionwise (equal triples counted once in
- *        input order)
- * Principle: the first dimension is sorted by full (a, b, c) order, so
- *            dominators always precede; the second dimension is handled by
- *            divide-and-conquer merging — during a merge the left half enters
- *            the BIT keyed by c (a is already guaranteed by the sorting) and
- *            the right half queries prefix sums
- * Notes: to count pairs strictly distinct in all 3 dimensions, deduplicate
- *        equal triples first (combining counts inside a group separately); for
- *        mixed update / query CDQ, put the queries into v_ as elements too
- * ============================================================
- */

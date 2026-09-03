@@ -10,7 +10,7 @@ constexpr struct ACK_PRECALCER {
   trip pos[H][A] = {};
   int cnt[H] = {};
   constexpr ACK_PRECALCER() {
-    for (int t = 0; t < H; ++t) Ack[0][t] = t + 1; // hand-written iota (no constexpr iota in C++14)
+    for (int t = 0; t < H; ++t) Ack[0][t] = t + 1;
     for (int i = 1; i < A; ++i)
       for (int j = 0; j < H; ++j)
         for (int T = j + 1, &x = Ack[i][j] = j; T && x < H; --T) x = Ack[i - 1][x];
@@ -22,7 +22,7 @@ constexpr struct ACK_PRECALCER {
         while (Ack[x][i] <= j) i = Ack[x][i], ++c;
         pos[j][t++] = trip{k, x, c};
       }
-      cnt[j] = t; // the original span becomes a (pos, cnt) pair, usable in C++14
+      cnt[j] = t;
     }
   }
 } Ack;
@@ -73,25 +73,3 @@ template <class S, S (*op)(S, S), S (*e)()> class uttree {
   explicit uttree(const vector<S> &v) { build(v); }
 };
 
-/*
- * ============================================================
- * Name: static range semigroup queries (Ackermann-function blocking + jump table, uttree)
- * Complexity: preprocessing O(n); query O(alpha(n)) (inverse Ackermann, <= 4 in
- *             practice)
- * Usage: associative range queries on a static array (sum / max / gcd / xor,
- *        ...), answered online;
- *        O(n) preprocessing beats sparse table / cat tree O(n log n), queries
- *        are essentially O(1).
- * Principle: bottom-layer blocking at B = 2(A+1) = 8 with prefix / suffix sums,
- *            a zkw segment tree over the blocks, and a jump table over
- *            Ackermann heights (ACK_PRECALCER precomputes at compile time)
- * Source: Luogu article "Segment trees, Ackermann, blocking"
- *         (Luogu blog 2: segment trees, Ackermann, blocking); rewritten for C++14
- *         (span/requires/auto template params -> arrays + function pointers)
- * Notes: 0-indexed HALF-OPEN ranges: query(l, r) covers [l, r), so for the
- *        closed range [l, r] call query(l, r + 1);
- *        static only (no updates after build); op / e are plain function
- *        pointer template parameters; C++14+ (__lg / __int128 are GNU
- *        extensions)
- * ============================================================
- */

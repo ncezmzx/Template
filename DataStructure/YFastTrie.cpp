@@ -138,7 +138,7 @@ struct yfast {
       id = (int)blk.size();
       blk.emplace_back();
     }
-    rep_link(minv); // link predecessor/successor first (minv is not in the trie yet)
+    rep_link(minv);
     trie_insert(minv);
     min2id[minv] = id;
     return id;
@@ -153,7 +153,7 @@ struct yfast {
     trie_delete(old_min);
     rep_unlink(old_min);
     min2id.erase(old_min);
-    rep_link(new_min); // link before inserting (with new_min absent, pred_succ takes the longest-prefix branch)
+    rep_link(new_min);
     trie_insert(new_min);
     min2id[new_min] = id;
   }
@@ -265,25 +265,3 @@ struct yfast {
   }
 };
 
-/*
- * ============================================================
- * Name: y-fast trie (x-fast trie + blocking); source: Luogu o99sh6m1 (sketch, self-implemented)
- * Complexity: find / pred / succ / max / min O(log omega) (omega = 64); insert
- *             / delete amortized O(log omega)
- * Principle: x-fast trie: a 64-bit prefix trie with one hash table per level,
- *            subtree min / max per node, plus a doubly-linked list of
- *            representatives, so a longest-prefix binary search finds a key
- *            whose rank differs from x's by at most 1.
- *            y-fast trie: elements are grouped into blocks (sorted vector + in-
- *            block binary search, target size B = 64) whose minima live in the
- *            x-fast trie; a block above 2B splits, below B/2 merges (amortized
- *            O(1)).
- * Usage: dynamic set of 64-bit integers (find / pred / succ / min / max /
- *        insert / delete);
- *        lower constants than std::set (O(log n), cache-unfriendly) on very
- *        heavy workloads (~1e6 operations).
- * Notes: 0 is reserved as "not stored" (pred / succ / max / min return 0 when
- *        empty); tune the block threshold B to the data scale (larger B = less
- *        blocking overhead, slower in-block search)
- * ============================================================
- */

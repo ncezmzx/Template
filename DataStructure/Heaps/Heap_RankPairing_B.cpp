@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// rank-pairing heap, type B (multi-way tree form), mergeable min-heap
+
 template <size_t N> struct heap_rank_pairing_b {
   int a[N], fa[N], vl[N], tp[N], rk[N];
   list<int> nd[N], sn[N];
@@ -13,13 +13,13 @@ template <size_t N> struct heap_rank_pairing_b {
   int top(int x) { return tp[x]; }
   void join(int x, int y) { cmin(tp[x], tp[y]), nd[x].splice(nd[x].end(), nd[y]); }
   int getls(int x) { return sn[x].empty() ? 0 : sn[x].front(); }
-  int getrs(int x) { // next sibling via list order
+  int getrs(int x) {
     int f = fa[x];
     if (!f || it[x] == prev(sn[f].end())) return 0;
     return *next(it[x]);
   }
   int getrk(int x) { return x ? rk[x] : -1; }
-  int getfa(int x) { // previous sibling acts as heap-parent in this form
+  int getfa(int x) {
     int f = fa[x];
     if (!f || it[x] == sn[f].begin()) return f;
     return *prev(it[x]);
@@ -52,18 +52,4 @@ template <size_t N> struct heap_rank_pairing_b {
       if (int &x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
   }
 };
-/*
- * ============================================================
- * Name: rank-pairing heap type B (multi-way tree form), mergeable min-heap
- * Complexity: newnode / top / join O(1) amortized; decrease_key / erase O(log
- *             n) amortized
- * Usage: `heap_rank_pairing_b<N>`: newnode / top / join / decrease_key / erase;
- *        heaps are identified by their container index.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 6 (type B + multi-way tree), wrapped into
- * a struct Notes: child lists sn[] are std::lists; getls / getrs / getfa derive left / right siblings from it[]
- * iterators and list order. KNOWN ISSUE: the erase rebuild (nd[h].clear() + re-insert) occasionally misbehaves or
- * crashes on some sequences (suspected iterator invalidation) — validate with stress tests; empty-heap / self-merge not
- * handled
- * ============================================================
- */
+

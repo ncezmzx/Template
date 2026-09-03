@@ -1,9 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// generic-monoid Link-Cut Tree: dp[x] = dp[ls] * val[x] * dp[rs]; Mono must be reversible (flip)
-// Mono requirements: default constructor = identity; operator*; flip() (swap left/right aggregates on reversal); Mono()
-// (if queried path doesn't exist)
+
 template <typename Mono, int N> class LinkCutTree {
 #define ls son[x][0]
 #define rs son[x][1]
@@ -68,25 +66,3 @@ template <typename Mono, int N> class LinkCutTree {
 #undef rs
 };
 
-/*
- * ============================================================
- * Name: Link-Cut Tree (generic monoid version: path products + reversal)
- * Complexity: amortized O(log n) per operation
- * Usage: dynamic forest over any invertible monoid: link / cut / find
- *        (component representative) / set (point update) / query (path product
- *        u..v).
- * Comparison: against LCT.cpp (int-max specialization, array form): this
- *        version supports any invertible monoid (sums / extrema / gcd /
- *        commutative matrix products, ...) at the cost of Mono providing
- *        flip() and a default identity constructor; more features, same
- *        amortized-splay speed class (the specialized version is slightly
- *        faster — no generic-multiply indirection)
- * Source: user-provided code; two bugs fixed:
- *        1) push_down flipped tag[0]/dp[0] on null children (sentinel
- *           pollution) -> null checks added;
- *        2) find's loop descended before pushing tags (wrong direction under
- *           reverse tags) -> order corrected
- * Notes: Mono must supply flip() and a default identity constructor; see
- *        Comparison below
- * ============================================================
- */

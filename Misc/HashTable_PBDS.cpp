@@ -26,18 +26,4 @@ static uint64_t splitmix64(uint64_t x) {
   x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
   return x ^ (x >> 31);
 }
-/*
- * ============================================================
- * Name: custom hash table — __gnu_pbds::gp_hash_table + splitmix64 (anti-hack)
- * Complexity: expected O(1) amortized per insert / lookup / delete
- * Usage: O(1) hash tables when hack-attacks on hashes are a concern:
- *        gp_hash_table is open-addressing with much smaller constants than
- *        unordered_map,
- *        and splitmix64 with a random FIXED_RANDOM seed defeats targeted
- *        constructions.
- * Notes: needs the pb_ds headers; prefer the two dedicated headers over
- *        <bits/extc++.h> (some MinGW builds miss iconv.h); HashTable_Chain.cpp
- *        is the hand-written alternative
- * Source: all.cpp lines 41931-41953 (kept verbatim, comments translated)
- * ============================================================
- */
+

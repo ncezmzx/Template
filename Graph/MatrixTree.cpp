@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// Matrix-Tree theorem: spanning tree counting (undirected / directed arborescences), mod 998244353
+
 constexpr long long MOD = 998244353;
 int pw(int x, int n, int p) {
   int r = 1 % p;
@@ -13,7 +13,7 @@ int pw(int x, int n, int p) {
   }
   return r;
 }
-// determinant by Gaussian elimination (prime mod); a is n x n and gets overwritten
+
 int det_mod(vector<vector<int>> &a, int n) {
   int res = 1;
   for (int i = 0; i < n; ++i) {
@@ -24,7 +24,7 @@ int det_mod(vector<vector<int>> &a, int n) {
         break;
       }
     if (k < 0) return 0;
-    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD; // row swap flips sign
+    if (k != i) swap(a[i], a[k]), res = (MOD - res) % MOD;
     res = res * a[i][i] % MOD;
     int iv = pw(a[i][i], MOD - 2, MOD);
     for (int r = i + 1; r < n; ++r) {
@@ -35,7 +35,7 @@ int det_mod(vector<vector<int>> &a, int n) {
   }
   return res;
 }
-// number of spanning trees of an undirected graph (multi-edges ok, loops ignored)
+
 int count_spanning(int n, const vector<pair<int, int>> &edges) {
   if (n <= 1) return 1;
   vector<vector<int>> L(n - 1, vector<int>(n - 1, 0));
@@ -48,15 +48,15 @@ int count_spanning(int n, const vector<pair<int, int>> &edges) {
   }
   return det_mod(L, n - 1);
 }
-// number of out-arborescences rooted at root (each non-root has exactly one in-edge)
+
 int count_arborescence(int n, const vector<pair<int, int>> &edges, int root) {
   if (n <= 1) return 1;
-  vector<vector<int>> L(n, vector<int>(n, 0)); // in-degree Laplacian
+  vector<vector<int>> L(n, vector<int>(n, 0));
   vector<int> idx;
   for (int i = 0; i < n; ++i)
     if (i != root) idx.push_back(i);
   for (auto &e : edges) {
-    int u = e.first, v = e.second; // edge u -> v: an in-edge of v
+    int u = e.first, v = e.second;
     if (v == root || u == v) continue;
     L[v][v]++;
     L[v][u] = (L[v][u] + MOD - 1) % MOD;
@@ -67,22 +67,3 @@ int count_arborescence(int n, const vector<pair<int, int>> &edges, int root) {
   return det_mod(A, (int)idx.size());
 }
 
-/*
- * ============================================================
- * Name: Matrix-Tree theorem (spanning tree counting)
- * Complexity: O(n^3) (determinant elimination)
- * Usage: count_spanning(n, edges): spanning trees of an undirected graph
- *        (multi-edges allowed);
- *        count_arborescence(n, edges, root): out-arborescences rooted at root
- *        of a directed graph (reverse all edges for in-arborescences); both
- *        modulo 998244353.
- * Principle: undirected: the determinant of the Laplacian L = D - A with any
- *            one row and column removed (Kirchhoff);
- *            directed out-arborescences: the in-degree Laplacian (L[v][v] =
- *            indeg(v), an edge u->v contributes L[v][u] -= 1) with the root's
- *            row and column removed
- * Notes: self-loops are ignored; the modulus is fixed at 998244353 (change MOD
- *        and the inverse to switch); counting trees with exactly k special
- *        edges is a different problem (see KruskalWQS / polynomial Laplacians)
- * ============================================================
- */

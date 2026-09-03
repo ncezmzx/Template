@@ -221,7 +221,7 @@ public:
     inline int reduct(ll x, ll y, ll z, const int &mod) {
       return (x % mod + ((y % mod) << 15) + ((z % mod) << 30)) % mod;
     }
-  } // namespace _FEISTDLIB_SECURITY_
+  }
 
   inline poly poly::prefix(std::size_t len) const {
     std::vector<int> f(len);
@@ -663,7 +663,7 @@ public:
     f.resize(h.size());
     return f;
   }
-} // namespace fstdlib
+}
 
 #endif
 
@@ -671,23 +671,3 @@ public:
 #undef int
 #endif
 
-/*
- * ============================================================
- * Name: fstdlib polynomial library (poly: fixed-modulus NTT; m_poly: arbitrary-modulus MTT)
- * Complexity: multiply / inv / log / exp all O(n log n) (NTT, or 3-mod /
- *             complex MTT)
- * Usage: use poly over 998244353, and m_poly for arbitrary moduli (including
- *        1e9+7); both support + - * with scalars, inv, log, exp and sqrt.
- * Comparison: against NTT.cpp (Barrett butterflies + precomputed roots +
- *        linear inverse table): this library is more feature-complete
- *        (arbitrary-modulus MTT, two types) but slower for the fixed modulus
- *        (roots recomputed per dft round, per-element % reduction); use
- *        NTT.cpp for fixed-modulus performance, this file for arbitrary
- *        moduli / quick integration
- * Source: fstdlib (feist), included verbatim; compiles under C++14 (has its
- *         own C++11 gate); MTT precision is good up to ~n <= 1e5 (author's note)
- * Notes: sqrt's modulo_sqrt is a placeholder returning 1, so implement
- *        quadratic residues first; MTT precision is good up to ~n <= 1e5
- *        (author's note); compiles under C++14
- * ============================================================
- */

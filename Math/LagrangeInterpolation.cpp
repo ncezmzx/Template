@@ -24,7 +24,7 @@ int lagrange(const vector<int> &x, const vector<int> &y, int k) {
   return res;
 }
 
-// O(n) version for nodes x = 1..n (prefix/suffix products + factorial inverses)
+
 int lagrange_1n(const vector<int> &y, int k) {
   int n = (int)y.size() - 1;
   if (k >= 1 && k <= n) return y[k];
@@ -49,19 +49,3 @@ int lagrange_1n(const vector<int> &y, int k) {
   return res;
 }
 
-/*
- * ============================================================
- * Name: Lagrange interpolation
- * Complexity: general form O(n^2); O(n) for consecutive abscissas x = 1..n
- * Usage: evaluate the unique polynomial of degree <= n through n+1 points (x_i,
- *        y_i), distinct x_i, at any point k:
- *        lagrange(x, y, k) for general abscissas; lagrange_1n(y, k) is the O(n)
- *        version for abscissas 1..n (k may far exceed n, even be a modular
- *        negative).
- * Principle: Lagrange basis polynomials L_i(k) = prod_{j!=i} (k - x_j) / (x_i -
- *            x_j); the answer is sum y_i * L_i(k)
- * Notes: denominators must be non-zero (prime modulus plus distinct x_i); in
- *        lagrange_1n, y is indexed 0..n against abscissas 1..n, so y[0] is
- *        unused; pass k as long long, it is reduced internally
- * ============================================================
- */

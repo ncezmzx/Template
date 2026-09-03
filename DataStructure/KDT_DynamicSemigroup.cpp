@@ -5,11 +5,11 @@ struct SumCfg3D {
   using Coord = long long;
   static constexpr int MAXK = 3;
   using Pos = array<Coord, MAXK>;
-  struct Info { long long sum = 0, cnt = 0; }; // length folded in, so S + F needs no sz
+  struct Info { long long sum = 0, cnt = 0; };
   using Tag = long long;
   friend Info operator+(const Info &a, const Info &b) { return {a.sum + b.sum, a.cnt + b.cnt}; }
   friend Info operator+(const Info &a, const Tag &f) { return {a.sum + f * a.cnt, a.cnt}; }
-  // Tag + Tag: built-in long long addition
+
 };
 
 struct MaxCfg2D {
@@ -27,7 +27,7 @@ struct MinCfg2D {
   static constexpr int MAXK = 2;
   using Pos = array<Coord, MAXK>;
   struct Info { long long v = 0; };
-  using Tag = Info; // same type: combine / apply / compose are all min
+  using Tag = Info;
   friend Info operator+(const Info &a, const Info &b) { return {min(a.v, b.v)}; }
 };
 
@@ -428,68 +428,3 @@ int main() {
   return 0;
 }
 
-/*
- * ====================================================================
- * Generic K-D Tree with dynamic insertion and lazy tags
- *
- * - Custom Info and Tag types (dual semigroups), arbitrary compile-time
- *   dimension K, and clear() support for reuse.
- *
- * Complexity: insert amortized O(log n * n^(1-1/K)) (binary-grouping rebuild);
- *   update / query expected O(sqrt n) on typical competitive data
- *
- * Compared with KDT_BinaryGroup.cpp (static 2D, int weights, query-only):
- *   1) Info and Tag are fully customizable and only need semigroup laws;
- *   2) dimension K is any compile-time constant;
- *   3) clear() releases memory and allows the object to be reused.
- *
- * Public interface:
- *   KDT<Cfg> tree;
- *   tree.init(cap);                 // optional pre-reserve capacity
- *   tree.clear();                   // clear and allow reuse
- *   tree.insert(pos, info);         // insert one weighted point
- *   tree.update(l, r, tag);         // apply tag to all points in [l, r]
- *   tree.query(l, r) -> Info;       // merge info of all points in [l, r]
- *   tree.size() -> size_t;          // current number of points
- *
- * Config struct (Cfg) requirements, a "dual semigroup":
- *   using Coord          coordinate type (must support < and std::min/max)
- *   static constexpr int K = dimension count (compile-time)
- *   using Info           node info type      (original w / s)
- *   using Tag            lazy tag type       (original tg)
- *   operator+ overloads (free functions / friends of Info and Tag):
- *     Info + Info -> Info   // associative combine
- *     Info + Tag  -> Info   // apply tag f to info (Info is the first operand)
- *     Tag  + Tag  -> Tag    // compose tags; left tag first, then right tag
- *   The template itself only uses `a + b`, `x + f`, `f + g`.
- *
- * Notes:
- *   query() pushes lazy tags down on partially covered nodes, so it can
- *   change the tag distribution inside the tree while preserving semantics.
- *   An empty query returns the default-constructed Info.
- *   Since Info + Tag has no length parameter, length-dependent actions (range
- *   add + range sum) fold the count into Info, e.g. Info = {sum, cnt} with
- *   (sum, cnt) + f = (sum + f * cnt, cnt).
- *
- * Fixes applied over the original code:
- *   1) up() previously merged child bounding boxes even for missing children
- *      (node 0 treated as all-zero), which polluted the box whenever any
- *      coordinate was negative; now only existing children are merged.
- *   2) sum is merged only over existing children, dropping the implicit
- *      "empty node is identity" assumption, so Info needs no identity.
- *      A lazy flag distinguishes pending tags, so Tag also needs no identity.
- *   3) fixed-size arrays were replaced by an auto-growing vector node pool,
- *      removing the hard-coded limits N / M.
- *   4) combine / apply / compose static methods were replaced by operator+.
- *
- * Self-test:
- *   main() runs randomized stress tests against a brute-force reference and
- *   a large workload smoke test; it prints "ALL TESTS PASSED" on success.
- *     - stress_3d:       3D additive sum, negative coordinates.
- *     - stress_2d_clear: 2D additive sum across multiple clear() rounds.
- *     - stress_min_2d:   2D min semigroup (non-additive, non-commutative).
- *     - perf_smoke:      large 3D workload correctness/performance smoke test.
- *   Compile with -std=c++17.
- *
- * ====================================================================
- */

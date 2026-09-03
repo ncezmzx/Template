@@ -22,22 +22,3 @@ void anneal(double &x, double &y) {
   }
 }
 
-/*
- * ============================================================
- * Name: simulated annealing (generic template)
- * Complexity: O(iterations * evaluation cost); iterations ~ ln(T0/T_end) /
- *             ln(1/cooling rate)
- * Usage: continuous or discrete optimization without an analytic solution
- *        (geometric extrema, shuffled-greedy tuning, ...); this template is a
- *        continuous 2D example — swap the target function and the perturbation
- *        to adapt.
- * Principle: perturb the current solution into a candidate; accept if better,
- *            otherwise accept with probability exp(-dE / T) (the Metropolis
- *            rule, which allows escaping local optima); the temperature T cools
- *            geometrically until convergence
- * Notes: tune the parameters (initial T0, cooling rate, perturbation scale = T)
- *        per problem; run anneal several times and keep the best, since it is
- *        randomized; the objective is minimization, so negate for maxima; for
- *        discrete problems use random swaps / flips as the perturbation
- * ============================================================
- */
