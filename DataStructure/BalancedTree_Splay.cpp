@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 template <size_t N> struct splay {
   int rt, tot;
