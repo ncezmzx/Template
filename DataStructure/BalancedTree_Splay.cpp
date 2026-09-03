@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Splay tree for sequence maintenance (range reverse, etc.)
 template <size_t N> struct splay {
   int rt, tot;
   int ch[N][2], fa[N], sz[N], val[N], tg[N];
@@ -57,19 +56,3 @@ template <size_t N> struct splay {
     print(ch[x][0]), cout << val[x] << ' ', print(ch[x][1]);
   }
 };
-
-/*
- * ============================================================
- * Name: splay tree (sequence operations: range reverse etc.)
- * Complexity: amortized O(log n) per operation
- * Usage: sequence maintenance (range reverse / insert / delete / move):
- *        `splay<N>`; build(l, r) balanced build; kth(k) node at 1-indexed
- *        position k; reverse(l, r); print(x) in-order dump.
- *        Sentinel convention: build(0, n + 1) around a length-n sequence, then
- *        kth positions shift by +1.
- * Principle: every access rotates the node to the root; amortized O((n + q) log
- *            n) overall
- * Notes: reset rt / tot between test cases; alternatives:
- *        BalancedTree_Treap.cpp, BalancedTree_WBST_*.cpp
- * ============================================================
- */
