@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 int mul(int x, int y, int md) { return (unsigned __int128)x * y % md; }
 int qpow(int a, int b, int md) {

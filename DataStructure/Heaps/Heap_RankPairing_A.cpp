@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct heap_rank_pairing_a {
   int a[N], fa[N], vl[N], tp[N], rk[N], ls[N], rs[N];

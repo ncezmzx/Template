@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct virtual_tree {
   int n, idx;
@@ -23,7 +20,6 @@ template <size_t N> struct virtual_tree {
       if (fa[x][i] != fa[y][i]) x = fa[x][i], y = fa[y][i];
     return fa[x][0];
   }
-
 
   vector<int> build(vector<int> v) {
     sort(v.begin(), v.end(), [&](int x, int y) -> bool { return dfn[x] < dfn[y]; });

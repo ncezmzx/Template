@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct palindromic_tree {
   int tot, last_;

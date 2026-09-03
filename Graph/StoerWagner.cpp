@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct stoer_wagner {
   int n_;

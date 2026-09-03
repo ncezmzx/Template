@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <class S, S (*op)(S, S), S (*e)(), size_t N = 200000> struct SqrtTree {
   int n, bsz, bn, tsz;

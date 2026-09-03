@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 struct log_trick_odt {
   map<int, int> mp;

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 struct xor_basis {
   int b[60] = {}, cnt = 0;

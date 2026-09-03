@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 template <class T, size_t N> struct cattree {
   T ct[__lg(N) + 2][N];
   void build(int n, const T a[]) {

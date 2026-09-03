@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 template <class T> struct dinic {
   vector<int> cur, hd, nxt, to, dis;

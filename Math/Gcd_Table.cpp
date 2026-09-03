@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 constexpr int K = 11;
 int G[1 << K][1 << K];

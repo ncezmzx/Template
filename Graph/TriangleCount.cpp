@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N, size_t M> struct triangle_count {
   int n, m, deg[N];

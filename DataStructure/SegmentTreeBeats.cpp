@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 constexpr int N = 5e5 + 9;

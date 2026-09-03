@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 int pw(int x, int n, int p) {
@@ -11,7 +9,6 @@ int pw(int x, int n, int p) {
   }
   return r;
 }
-
 
 struct cpx {
   int x, y;

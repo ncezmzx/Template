@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 struct two_sat {
   int _n, ecnt = 0;
@@ -21,7 +18,6 @@ struct two_sat {
     add_clause(i, f, j, g), add_clause(i, !f, j, !g);
   }
   void add_eq(int i, bool f, int j, bool g) { add_xor(i, !f, j, g); }
-
 
   bool satisfiable() {
     int m = 2 * _n, idx = 0, cl = 0;

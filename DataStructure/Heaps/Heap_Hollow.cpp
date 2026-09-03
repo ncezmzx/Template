@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct heap_hollow {
   struct node {

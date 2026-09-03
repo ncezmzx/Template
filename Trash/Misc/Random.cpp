@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 mt19937 rng(random_device{}());
-
 
 struct splitmix64_hash {
   static uint64_t splitmix64(uint64_t x) {
@@ -17,7 +14,6 @@ struct splitmix64_hash {
     return splitmix64(x + FIXED_RANDOM);
   }
 };
-
 
 int rg(int l, int r) { return uniform_int_distribution<int>(l, r)(rng); }
 

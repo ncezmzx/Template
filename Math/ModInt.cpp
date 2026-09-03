@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 constexpr int md = 998244353;
 template <class T> using must_int = enable_if_t<is_integral<T>::value> *;
 struct Montgomery {

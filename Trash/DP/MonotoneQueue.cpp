@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 vector<int> window_max(const vector<int> &a, int y) {
   int m = (int)a.size();

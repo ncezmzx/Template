@@ -1,13 +1,9 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 constexpr int NV = 109;
 struct edge {
   int u, v, w;
 };
-
 
 long long zhu_liu(int n, int m, int root, vector<edge> &e) {
   static int id_[NV], vis_[NV], pre[NV], ine[NV];

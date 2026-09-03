@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <typename Mono, int N> class LinkCutTree {
 #define ls son[x][0]

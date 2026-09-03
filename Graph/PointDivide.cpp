@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct centroid_tree {
   int n, idx, rt, cnt, lca_built = -1;

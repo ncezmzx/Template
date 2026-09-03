@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N, size_t SP> struct persistent_binary_trie {
   static constexpr int B = 24;

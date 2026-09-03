@@ -1,10 +1,6 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
-
 constexpr int INF = 0x3f3f3f3f3f3f3f3fLL;
-
 
 int steiner_tree(int n, const vector<array<int, 3>> &edges, const vector<int> &keys) {
   int k = keys.size(), m = 1 << k;

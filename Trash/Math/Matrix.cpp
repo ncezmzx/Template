@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 using d64 = long double;
-
 
 struct matrix {
   vector<d64> vec;

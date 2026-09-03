@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct heap_fibonacci {
   int a[N], fa[N], vl[N], tp[N], dg[N];

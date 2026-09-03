@@ -1,7 +1,4 @@
 
-#include <bits/stdc++.h>
-using namespace std;
-
 char buf[1 << 20], *p1, *p2;
 char obuf[1 << 23], *O = obuf;
 #define pc(x) (*O++ = (x))

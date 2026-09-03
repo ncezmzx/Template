@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 int pw(int x, int n, int p) {
@@ -23,7 +21,6 @@ int inv_mod(int a, int m) {
   return (x % m + m) % m;
 }
 
-
 struct lucas {
   int p_;
   vector<int> fac_, ifac_;
@@ -44,7 +41,6 @@ struct lucas {
     return c_small(n % p_, m % p_) * solve(n / p_, m / p_) % p_;
   }
 };
-
 
 int fact_pe(int n, int p, int pe) {
   if (!n) return 1;

@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N, class S, S (*e)(), class F, F (*id)()>
 struct global_bst {
@@ -114,7 +111,6 @@ struct global_bst {
     if (dep[u] > dep[v]) swap(u, v);
     range_apply(root[top[u]], dfn[u], dfn[v], g);
   }
-
 
   S path_prod(int u, int v) {
     S left = e(), right = e();

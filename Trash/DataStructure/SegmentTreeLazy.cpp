@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct segtree_lazy {
   int n;

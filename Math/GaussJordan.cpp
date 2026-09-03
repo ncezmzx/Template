@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 constexpr int md = 998244353;
@@ -9,7 +7,6 @@ int qpow(int a, int b) {
     if (b & 1) r = r * a % md;
   return r;
 }
-
 
 template <size_t N> struct gauss_jordan {
   int a[N][N];

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 tuple<int, int, int> exgcd(int a, int b, int c) {
   if (!b) return {c / a, 0, a};

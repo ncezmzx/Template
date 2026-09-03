@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-using namespace std;
 using u64 = unsigned long long;
 using i64 = long long;
-
 
 template <class T> T power_sum(i64 n, int m) {
   assert(m >= 0 && m <= 4);

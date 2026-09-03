@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 constexpr int N = 2e5 + 9;
 struct Node {
@@ -35,7 +32,6 @@ void cdq(int l, int r) {
   copy(tmp_ + l, tmp_ + r, v_ + l);
 }
 
-
 long long count_3d(vector<array<int, 3>> pts) {
   int n = pts.size();
   vector<int> cs;
@@ -44,7 +40,6 @@ long long count_3d(vector<array<int, 3>> pts) {
   C_ = cs.size();
   for (int i = 0; i < n; ++i)
     v_[i] = {pts[i][0], pts[i][1], (int)(lower_bound(cs.begin(), cs.end(), pts[i][2]) - cs.begin()) + 1};
-
 
   stable_sort(v_, v_ + n, [](const Node &x, const Node &y) {
     return x.a != y.a ? x.a < y.a : (x.b != y.b ? x.b < y.b : x.c < y.c);

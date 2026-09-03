@@ -1,7 +1,5 @@
-#include <bits/stdc++.h>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/hash_policy.hpp>
-using namespace std;
 
 struct splitmix64_hash {
   static uint64_t splitmix64(uint64_t x) {

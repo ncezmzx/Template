@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct persistent_treap {
   int lc[N], rc[N], sz[N], pri[N], tot;

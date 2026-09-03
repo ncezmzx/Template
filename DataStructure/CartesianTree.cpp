@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct cartesian_tree {
   int n, a[N], lc[N], rc[N], fa[N], stk[N];

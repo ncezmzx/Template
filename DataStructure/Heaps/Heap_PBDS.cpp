@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
 #include <ext/pb_ds/priority_queue.hpp>
-using namespace std;
-
 
 template <size_t N> struct pbds_heap {
   typedef __gnu_pbds::priority_queue<int, greater<int>> heap_t;

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 constexpr int N = 2e5 + 9;
 int bit[N], n_;

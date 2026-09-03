@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 struct P {
   int x, y;
@@ -39,7 +36,6 @@ int pip(const vector<P> &p, P q) {
   return cnt & 1 ? 2 : 0;
 }
 
-
 vector<P> convex_hull(vector<P> p) {
   sort(p.begin(), p.end());
   p.erase(unique(p.begin(), p.end()), p.end());
@@ -59,7 +55,6 @@ vector<P> convex_hull(vector<P> p) {
   return h;
 }
 
-
 long long diameter2(const vector<P> &h) {
   int n = h.size();
   if (n == 1) return 0;
@@ -76,7 +71,6 @@ long long diameter2(const vector<P> &h) {
   }
   return res;
 }
-
 
 constexpr int CN = 1e6 + 9;
 P tmp_[CN];

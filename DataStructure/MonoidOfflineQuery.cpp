@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <typename Mono, typename F>
 void monoid_product(const std::vector<Mono> &vec, const std::vector<std::pair<int, int>> &query, F f) {

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct ac_automaton {
   int ch[N][26], fail[N], ed[N], cnt[N], inq[N], q[N];

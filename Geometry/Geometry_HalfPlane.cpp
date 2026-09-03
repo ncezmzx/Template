@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 const double EPS = 1e-9;
 struct P {
@@ -21,7 +18,6 @@ P line_inter(const HP &a, const HP &b) {
   double t = cross(b.p - a.p, b.v) / cross(a.v, b.v);
   return a.p + a.v * t;
 }
-
 
 vector<P> hpi(vector<HP> ls) {
   sort(ls.begin(), ls.end(), [](const HP &a, const HP &b) { return a.ang < b.ang; });

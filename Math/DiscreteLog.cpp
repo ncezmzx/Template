@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 int pw(int x, int n, int m) {
@@ -24,7 +22,6 @@ int inv_mod(int a, int m) {
   return (x % m + m) % m;
 }
 
-
 int bsgs(int a, int b, int m) {
   if (m == 1) return 0;
   a %= m, b %= m;
@@ -45,7 +42,6 @@ int bsgs(int a, int b, int m) {
   }
   return -1;
 }
-
 
 int exbsgs(int a, int b, int m) {
   if (m == 1) return 0;

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct wqs_mst {
   struct e {
@@ -20,7 +17,6 @@ template <size_t N> struct wqs_mst {
     sort(spi + 1, spi + cs + 1, byz), sort(nsi + 1, nsi + cn + 1, byz);
     es_sorted = true;
   }
-
 
   pair<int, int> calc(int x) {
     ensure_sorted();

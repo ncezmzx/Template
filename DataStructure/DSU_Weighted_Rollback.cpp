@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct wdsu {
   int p[N];
@@ -14,7 +11,6 @@ template <size_t N> struct wdsu {
     d[x] += d[p[x]], p[x] = r;
     return r;
   }
-
 
   bool merge(int x, int y, long long w) {
     int rx = find(x), ry = find(y);
