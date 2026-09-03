@@ -1,0 +1,37 @@
+template<class T> struct Queue {
+  vector<T> a, b, pra, prb;
+  void clear() { vector<T>().swap(a), vector<T>().swap(b), vector<T>().swap(pra), vector<T>().swap(prb); }
+  void push_back(T x) {
+    if (!a.empty()) pra.push_back(pra.back() + x), a.push_back(x);
+    else pra.push_back(x), a.push_back(x);
+  }
+  void push_front(T x) {
+    if (!b.empty()) prb.push_back(prb.back() + x), b.push_back(x);
+    else prb.push_back(x), b.push_back(x);
+  }
+  void pop_front() {
+    if (!b.empty()) return b.pop_back(), prb.pop_back(), void();
+    b.swap(a), prb.swap(pra);
+    reverse(b.begin(), b.end());
+    prb[0] = b[0];
+    for (int i = 1; i < prb.size(); ++i) prb[i] = b[i] + prb[i - 1];
+    b.pop_back(), prb.pop_back();
+  }
+  void pop_back() {
+    if (!a.empty()) return a.pop_back(), pra.pop_back(), void();
+    a.swap(b), pra.swap(prb);
+    reverse(a.begin(), a.end());
+    pra[0] = a[0];
+    for (int i = 1; i < pra.size(); ++i) pra[i] = pra[i - 1] + a[i];
+    a.pop_back(), pra.pop_back();
+  }
+  T raw() const {
+    if (a.empty() && b.empty()) return T();
+    if (a.empty()) return prb.back();
+    if (b.empty()) return pra.back();
+    return prb.back() + pra.back();
+  }
+  T front() const { return b.empty() ? a.front() : b.back(); }
+  T back() const { return a.empty() ? b.front() : a.back(); }
+  size_t size() const { return a.size() + b.size(); }
+};
