@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct suffix_automaton {
   int ch[N][26], lnk[N], len[N], sz[N];

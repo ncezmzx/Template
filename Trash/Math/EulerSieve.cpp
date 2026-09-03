@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct euler_sieve {
   int phi[N], pri[N], c, vst[N];

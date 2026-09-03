@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 constexpr int N = 5e5 + 9, MQ = 5e5 + 9;
 int a[N], cnt_[N], cur, ans[MQ];
@@ -10,7 +7,6 @@ struct Qry {
 };
 inline void mo_add(int i) { cur += cnt_[a[i]]++ == 0; }
 inline void mo_del(int i) { cur -= --cnt_[a[i]] == 0; }
-
 
 vector<int> mo_distinct(int n, const vector<int> &val, vector<array<int, 2>> qs) {
   int q = qs.size(), B = max(1, (int)(n / max(1.0, sqrt((double)q))));

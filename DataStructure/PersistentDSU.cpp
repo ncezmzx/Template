@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N, size_t MV> struct persistent_dsu {
   int lc[N], rc[N], val[N], tot;

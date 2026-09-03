@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 #define int long long
 constexpr int N = 5e3 + 9, M = 5e4 + 9, inf = 0x3f3f3f3f3f3f3f3f;

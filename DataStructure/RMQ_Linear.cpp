@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t U = 20, size_t Z = 32, class T = int> struct FastST {
   static_assert(Z && (Z & (Z - 1)) == 0, "Z must be a power of two");

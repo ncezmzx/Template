@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N> struct heap_slim {
   int fa[N], vl[N], tp[N], sn[N], bt[N];

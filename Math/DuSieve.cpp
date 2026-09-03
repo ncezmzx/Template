@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t SN> struct du_sieve {
   int phi_[SN], mu_[SN], prime_[SN], pc_;

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 constexpr long long MOD = 998244353;
 int pw(int x, int n, int p) {

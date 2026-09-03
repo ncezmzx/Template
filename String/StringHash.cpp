@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 constexpr int N = 5e4 + 9;
 mt19937_64 rng(random_device{}());

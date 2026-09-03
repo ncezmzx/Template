@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 int floor_sum(int n, int m, int a, int b) {
   unsigned long long ans = 0;

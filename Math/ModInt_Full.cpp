@@ -1,12 +1,9 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 template <uint32_t m> struct modint {
   using u32 = uint32_t;
   using u64 = uint64_t;
   using u128 = __uint128_t;
   static constexpr u32 mod = m;
-
 
   static constexpr u32 calc_im() {
     u32 x = 1;

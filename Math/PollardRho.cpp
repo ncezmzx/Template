@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 int mul_mod(int x, int y, int md) { return (__int128)x * y % md; }

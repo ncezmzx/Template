@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 vector<int> z_algorithm(const string &s) {
   int n = (int)s.size();
@@ -16,7 +13,6 @@ vector<int> z_algorithm(const string &s) {
   z[0] = n;
   return z;
 }
-
 
 template <class T> vector<int> z_algorithm(const vector<T> &s) {
   int n = (int)s.size();

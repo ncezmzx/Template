@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 template <class S, S (*e)(), class F, F (*id)()>
 struct semigroup_segtree {
@@ -23,7 +21,6 @@ struct semigroup_segtree {
     n = n_;
     clear();
   }
-
 
   void init(int n_, const vector<S> &a) {
     init(n_);
@@ -58,7 +55,6 @@ struct semigroup_segtree {
   }
   void push(int u) {
 
-
     if (!pool[u].lc) {
       int c = new_node();
       pool[u].lc = c;
@@ -74,7 +70,6 @@ struct semigroup_segtree {
     }
   }
   void pull(int u) { pool[u].s = pool[pool[u].lc].s + pool[pool[u].rc].s; }
-
 
   void update(int x, int y, F f) {
     if (x > y) return;
@@ -187,7 +182,6 @@ struct semigroup_segtree {
   S get(int x) { return query(x, x); }
   S all_prod() { return root ? pool[root].s : e(); }
 
-
   template <class G> int max_right(int x, G g) {
     if (x > n || !root) return n;
     int u = root, l = 1, r = n, tp = 0;
@@ -223,7 +217,6 @@ struct semigroup_segtree {
     }
     return n;
   }
-
 
   template <class G> int min_left(int y, G g) {
     if (y < 1 || !root) return 1;

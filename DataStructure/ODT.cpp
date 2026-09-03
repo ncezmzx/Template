@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 struct odt_tree {
   map<int, int> seg;

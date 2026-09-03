@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 struct bigint {
   using u32 = uint32_t;
@@ -70,7 +68,6 @@ struct bigint {
   explicit operator bool() const { return !is_zero(); }
   explicit operator long long() const { return to_ll(); }
   explicit operator int() const { return (int)to_ll(); }
-
 
   static int cmp_vec(const vector<u32> &x, const vector<u32> &y) {
     if (x.size() != y.size()) return x.size() < y.size() ? -1 : 1;
@@ -194,7 +191,6 @@ struct bigint {
     return {q, r};
   }
 
-
   static vector<u32> to_twos(const bigint &x, int n) {
     vector<u32> r(n, 0);
     for (int i = 0; i < (int)x.a.size() && i < n; ++i) r[i] = x.a[i];
@@ -275,7 +271,6 @@ struct bigint {
     return t;
   }
 
-
   bigint operator&(const bigint &o) const {
     int n = max(bitlen(), o.bitlen()) / 32 + 2;
     vector<u32> a = to_twos(*this, n), b = to_twos(o, n);
@@ -303,7 +298,6 @@ struct bigint {
 
   bool operator&&(const bigint &o) const { return !is_zero() && !o.is_zero(); }
   bool operator||(const bigint &o) const { return !is_zero() || !o.is_zero(); }
-
 
   bigint operator<<(long long k) const {
     if (k < 0) return *this >> -k;

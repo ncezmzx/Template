@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 long long isqrt(long long x) {
   long long r = (long long)sqrtl((long double)x);

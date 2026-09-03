@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 double simpson(double (*f)(double), double a, double b) {
   double m = (a + b) / 2;

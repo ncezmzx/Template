@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 using d64 = long double;
-
 
 template <size_t N> struct slope_opt_wqs {
   constexpr static d64 eps = 1e-9;
@@ -10,7 +7,6 @@ template <size_t N> struct slope_opt_wqs {
   d64 x(int i) { return s[i]; }
   d64 y(int i) { return f[i] + s[i] * s[i]; }
   d64 slope(int i, int j) { return (y(j) - y(i)) / (x(j) - x(i)); }
-
 
   pair<int, int> calc(int x) {
     for (int i = 0; i <= n; ++i) f[i] = g[i] = 0;

@@ -1,7 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 template <size_t N, size_t M> struct spfa {
   int n_, ecnt, hd[N], nxt[M], to[M], cnt_[N];
@@ -39,7 +36,6 @@ template <size_t N, size_t M> struct spfa {
     }
     return true;
   }
-
 
   bool diff_constraints(const vector<array<long long, 3>> &cs, int n, vector<long long> &x) {
     init(n + 1);

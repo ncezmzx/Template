@@ -1,12 +1,8 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 constexpr int N = 1e6 + 9;
 int n, nxt[N];
 string s;
-
 
 void build_nxt() {
   for (int j = 0, i = 2; i <= n; ++i) {
@@ -14,7 +10,6 @@ void build_nxt() {
     j = nxt[i] = j + (s[j + 1] == s[i]);
   }
 }
-
 
 int match(const string &t, const string &s) {
   int m = t.size() - 1, M = s.size() - 1, cnt = 0;

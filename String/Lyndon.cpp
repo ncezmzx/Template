@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 vector<pair<int, int>> duval(const string &s) {
   int n = (int)s.size(), i = 0;
@@ -19,7 +16,6 @@ vector<pair<int, int>> duval(const string &s) {
   }
   return res;
 }
-
 
 int min_representation(const string &s) {
   int n = (int)s.size(), i = 0, j = 1, k = 0;

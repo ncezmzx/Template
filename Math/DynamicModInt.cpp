@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 constexpr int md = 1e9 + 9;
 namespace {
   using u32 = unsigned;

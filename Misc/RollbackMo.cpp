@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 constexpr int N = 2e5 + 9;
 int a[N], first[N], last[N];

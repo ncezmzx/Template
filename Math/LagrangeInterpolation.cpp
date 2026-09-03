@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
 
 constexpr int md = 998244353;
@@ -23,7 +21,6 @@ int lagrange(const vector<int> &x, const vector<int> &y, int k) {
   }
   return res;
 }
-
 
 int lagrange_1n(const vector<int> &y, int k) {
   int n = (int)y.size() - 1;

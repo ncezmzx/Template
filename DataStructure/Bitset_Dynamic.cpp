@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 struct Bitset {
   using u64 = unsigned long long;

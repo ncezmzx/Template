@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 constexpr int N = 2e5 + 9, M = 4e5 + 9;
 
@@ -21,7 +18,6 @@ struct euler_undirected {
     for (int i = 1; i <= n; ++i) c += deg[i] & 1;
     return c;
   }
-
 
   vector<int> path(int s) {
     vector<int> stk, res;

@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-using namespace std;
 using u64 = unsigned long long;
 using i64 = long long;
-
 
 template <typename T> u64 custom_hash(const T &x);
 
@@ -14,7 +11,6 @@ template <> u64 custom_hash<string>(const string &s) {
   for (char c : s) h = (h * 1000003ull) ^ static_cast<u64>(c);
   return h;
 }
-
 
 template <typename K, typename V, int B = 20> class HashMap {
   static constexpr int N = 1 << B;

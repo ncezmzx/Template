@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct heap_leftist {
   int fa[N], vl[N], d[N], ls[N], rs[N];

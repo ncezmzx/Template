@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 
 template <int L> struct uintN {
   using u64 = uint64_t;
@@ -103,7 +101,6 @@ template <int L> struct uintN {
   explicit operator unsigned long long() const { return v[0]; }
   explicit operator long long() const { return to_ll(); }
   explicit operator u128() const { return to_u128(); }
-
 
   uintN operator+() const { return *this; }
   uintN operator-() const { return ~*this + 1; }

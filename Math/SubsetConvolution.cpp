@@ -1,12 +1,8 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 constexpr int MOD = 998244353;
 inline void addm(int &x, int y) { (x += y) >= MOD && (x -= MOD); }
 inline void subm(int &x, int y) { (x -= y) < 0 && (x += MOD); }
-
 
 vector<int> subset_convolution(int n, const vector<int> &f, const vector<int> &g) {
   int m = 1 << n;

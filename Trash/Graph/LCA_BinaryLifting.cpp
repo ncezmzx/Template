@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 
 template <size_t N> struct lca_binary_lifting {
   int dep[N], fa[N][20];

@@ -1,11 +1,7 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define int long long
-
 
 struct digit_dp_binary {
   int k, dp[100][100][2], c, a[100];
-
 
   int dfs(int p, int q, int top) {
     if (q < 0) return 0;

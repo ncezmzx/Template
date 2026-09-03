@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 using u64 = unsigned long long;
 
 mt19937_64 rng(random_device{}());

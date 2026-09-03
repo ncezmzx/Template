@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
 namespace Poly {
   constexpr int Mod = 998244353;
   constexpr int Pr = 3;
