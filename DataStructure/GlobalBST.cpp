@@ -1,16 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Global balanced BST maintaining a monoid `S` with lazy tags `F`, following the
-// same algebraic conventions as SegmentTree_Semigroup.cpp:
-//   S + S -> S   (associative info combine; e() is the identity)
-//   S + F -> S   (apply a tag to a combined info; S is the first operand)
-//   F + F -> F   (tag merge; left tag first, then right)
-//   e()          identity info;  id() identity tag
-// Each heavy chain becomes a weighted-median BST whose in-order traversal equals
-// the chain's dfn order (top -> bottom); `mx` is the forward (in-order) product
-// and `rmx` the reversed one, so ordered path products work for non-commutative
-// op. Lazy tags act pointwise, so both products transform identically under a tag.
+
 template <size_t N, class S, S (*e)(), class F, F (*id)()>
 struct global_bst {
   int n, idx;
@@ -41,9 +32,9 @@ struct global_bst {
     Lp[x] = ls[x] ? Lp[ls[x]] : dfn[x];
     Rp[x] = rs[x] ? Rp[rs[x]] : dfn[x];
     S a = ls[x] ? mx[ls[x]] : e(), b = rs[x] ? mx[rs[x]] : e();
-    mx[x] = (a + val[x]) + b; // in-order:  ls, x, rs
+    mx[x] = (a + val[x]) + b;
     a = ls[x] ? rmx[ls[x]] : e(), b = rs[x] ? rmx[rs[x]] : e();
-    rmx[x] = (b + val[x]) + a; // reversed:  rs, x, ls
+    rmx[x] = (b + val[x]) + a;
   }
   void apply(int x, F g) {
     if (!x) return;
@@ -59,7 +50,7 @@ struct global_bst {
       tag[x] = id();
     }
   }
-  int build_chain(int l, int r) { // weighted-median BST of one heavy chain
+  int build_chain(int l, int r) {
     if (l > r) return 0;
     int tot = 0;
     for (int i = l; i <= r; ++i) tot += w[who[i]];
@@ -79,9 +70,9 @@ struct global_bst {
     up(x);
     return x;
   }
-  void build(int n_) { // HLD + one BST per heavy chain; val[1..n] must be set first
+  void build(int n_) {
     n = n_, idx = 0;
-    for (int i = 1; i <= n; ++i) { // reset HLD/BST state so build() is repeatable per test case
+    for (int i = 1; i <= n; ++i) {
       tag[i] = id();
       fa[i] = dep[i] = sz[i] = son[i] = top[i] = dfn[i] = light[i] = 0;
       ls[i] = rs[i] = f[i] = root[i] = 0;
@@ -123,30 +114,28 @@ struct global_bst {
     if (dep[u] > dep[v]) swap(u, v);
     range_apply(root[top[u]], dfn[u], dfn[v], g);
   }
-  // ordered product along u -> v (correct for non-commutative op):
-  // left accumulates the u-side segments (each reversed) in path order, right the
-  // v-side segments (forward) in path order; the final chain is finished by the
-  // LCA w = shallower of the two current endpoints, included exactly once.
+
+
   S path_prod(int u, int v) {
     S left = e(), right = e();
     while (top[u] != top[v]) {
-      if (dep[top[u]] < dep[top[v]]) { // v-side top deeper: climb v
+      if (dep[top[u]] < dep[top[v]]) {
         right = range_prod(root[top[v]], dfn[top[v]], dfn[v]) + right;
         v = fa[top[v]];
       }
-      else { // climb u
+      else {
         left = left + range_prod(root[top[u]], dfn[top[u]], dfn[u], true);
         u = fa[top[u]];
       }
     }
-    if (dep[u] > dep[v]) // v == w: finish the u side (reversed, includes w)
+    if (dep[u] > dep[v])
       left = left + range_prod(root[top[u]], dfn[v], dfn[u], true);
-    else // u == w: finish the v side (forward, includes w)
+    else
       right = range_prod(root[top[u]], dfn[u], dfn[v]) + right;
     return left + right;
   }
   void point_set(int x, S v) {
-    int tp2 = 0; // reuse member stack array instead of a large local
+    int tp2 = 0;
     for (int y = x; y; y = f[y]) pstk[++tp2] = y;
     while (tp2) pushdown(pstk[tp2--]);
     val[x] = v;
@@ -154,30 +143,3 @@ struct global_bst {
   }
 };
 
-/*
- * ============================================================
- * Name: Global balanced BST over a monoid with lazy tags
- *        (static-tree path operations, ordered for non-commutative op)
- * Complexity: preprocessing O(n log n); path apply / path prod / point set
- *             amortized O(log n)
- * Usage: path updates and queries on a static tree,
- *        `global_bst<N, S, e, F, id>`: fill es, set val[1..n], build(n), then
- *        path_apply / path_prod / point_set.
- *        S and F must define operator+: S + S (info combine), S + F (apply tag
- *        to info, S first), F + F (compose tags, "left first then right").
- *        O(log n) in-chain operations vs O(log^2 n) for HLD + segment tree.
- *        Works for sum / max / xor / gcd / matrix products / strings, etc.
- *        (x + (f + g)) == ((x + f) + g): f is applied first, then g.
- *        Caveat (same as semigroup_segtree): range-add on a sum needs the length
- *        folded into S (e.g. S = {sum, cnt} and S + F adds f * cnt); a
- *        range-assign tag works as-is since pointwise tags ignore length.
- * Principle: after HLD each heavy chain becomes a weighted-median BST (in-order
- *            = chain order, subtrees cover contiguous dfn ranges); path ops =
- *            chain climbing + in-chain range ops. mx/rmx keep forward and
- *            reversed products so path_prod(u, v) is in true path order.
- * Notes: vertex weights (push edge weights down to the child); forests are
- *        handled; `who` maps dfn -> node (array `id` renamed to avoid clashing
- *        with the template's identity-tag function); lazy tags require
- *        F to support `tag != id()`.
- * ============================================================
- */

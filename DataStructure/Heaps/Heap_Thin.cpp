@@ -2,10 +2,10 @@
 using namespace std;
 #define int long long
 
-// thin heap (mergeable; nodes may become "thin" after losing one child), min-heap
+
 template <size_t N> struct heap_thin {
   int a[N], fa[N], vl[N], tp[N], rk[N], ls[N], rs[N];
-  bool ist[N]; // thin marks
+  bool ist[N];
   list<int> nd[N];
   typename list<int>::iterator it[N];
   void add(list<int> &x, int y) { it[y] = x.insert(x.end(), y); }
@@ -14,7 +14,7 @@ template <size_t N> struct heap_thin {
   int top(int x) { return tp[x]; }
   void join(int x, int y) { cmin(tp[x], tp[y]), nd[x].splice(nd[x].end(), nd[y]); }
   int getrk(int x) { return x ? rk[x] : -1; }
-  void decrease_key(int h, int p, int v) { // unlink + thinning/restructuring up the path
+  void decrease_key(int h, int p, int v) {
     cmin(tp[h], vl[p] = v);
     int f = fa[p];
     if (!f || (p == ls[f] && vl[f] <= v)) return;
@@ -61,20 +61,4 @@ template <size_t N> struct heap_thin {
       if (int &x = a[i]) add(nd[h], x), cmin(tp[h], vl[x]), x = 0;
   }
 };
-/*
- * ============================================================
- * Name: thin heap (mergeable), min-heap
- * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
- *             erase O(log n) amortized
- * Usage: `heap_thin<N>`: newnode / top / join / decrease_key / erase; heaps are
- *        identified by their container index.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 10, wrapped into a struct
- * Notes: ist[] marks thin nodes (allowed to lose one child); decrease_key thins
- *        / restructures while climbing.
- *        KNOWN DEFECTS (from the source article): erase-rebuild fa semantics
- *        conflict with decrease_key unlinking, non-first-child unlink is wrong,
- *        erase may leave LLONG_MIN ghost nodes. Reference only, do not use in
- *        contests
- * ============================================================
- */
+

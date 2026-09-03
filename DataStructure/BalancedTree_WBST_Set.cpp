@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// weight-balanced BST (deterministic) as an ordered multiset
+
 template <size_t N> struct wbst_set {
   int tp, tot, rt;
   int ch[2 * N][2], sz[2 * N], val[2 * N], stk[2 * N];
@@ -37,7 +37,7 @@ template <size_t N> struct wbst_set {
     if (need(ch[x][r], r)) rotate(ch[x][r], !r);
     rotate(x, r);
   }
-  int mer(int x, int y) { // join two trees (all keys of x <= all keys of y)
+  int mer(int x, int y) {
     if (!x || !y) return x + y;
     if (heavy(sz[x], sz[y])) {
       auto [a, b] = cut(x);
@@ -57,7 +57,7 @@ template <size_t N> struct wbst_set {
     else ins(ch[x][v > val[ch[x][0]]], v);
     up(x), balance(x);
   }
-  void remove(int &x, int v) { // removes one copy of v
+  void remove(int &x, int v) {
     if (!x) return;
     if (sz[x] == 1) return erase(x);
     else {
@@ -67,7 +67,7 @@ template <size_t N> struct wbst_set {
       else up(x), balance(x);
     }
   }
-  int rnk(int x, int v) { // number of elements < v
+  int rnk(int x, int v) {
     if (!x) return 0;
     int res = 0;
     while (sz[x] > 1) {
@@ -76,7 +76,7 @@ template <size_t N> struct wbst_set {
     }
     return res + (val[x] < v);
   }
-  int kth(int x, int k) { // k-th smallest
+  int kth(int x, int k) {
     while (sz[x] > 1) {
       if (sz[ch[x][0]] < k) k -= sz[ch[x][0]], x = ch[x][1];
       else x = ch[x][0];
@@ -85,16 +85,3 @@ template <size_t N> struct wbst_set {
   }
 };
 
-/*
- * ============================================================
- * Name: weight-balanced BST, set form (ordered multiset via deterministic WBT)
- * Complexity: ins / remove / rnk / kth amortized O(log n); deterministic, no
- *             random priorities
- * Usage: ordered multiset, `wbst_set<N>`: ins(v); remove(v); rnk(v) = count of
- *        values < v; kth(k) = k-th smallest; mer(x, y) joins; balance(x)
- *        rotates when skewed.
- *        up / rotate / cut / erase / make / node / link are internal helpers.
- * Source: all.cpp lines 30633-30722 (namespace wrapped into a struct, logic unchanged)
- * Notes: deterministic; reset between test cases
- * ============================================================
- */

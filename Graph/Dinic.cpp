@@ -15,7 +15,7 @@ template <class T> struct dinic {
   T dfs(int u, int t, T flow) {
     if (u == t) return flow;
     T ret = 0;
-    int du = dis[u] + 1; // hoisted level, avoids per-edge recomputation
+    int du = dis[u] + 1;
     for (int i = cur[u]; i && flow; i = nxt[i]) {
       cur[u] = i;
       int v = to[i];
@@ -30,7 +30,7 @@ template <class T> struct dinic {
   }
   T calc(int s, int t) {
     T ret = 0;
-    vector<int> q(dis.size()); // flat array queue replaces per-phase std::queue
+    vector<int> q(dis.size());
     while (true) {
       fill(dis.begin(), dis.end(), -1);
       int qh = 0, qt = 0;
@@ -49,15 +49,3 @@ template <class T> struct dinic {
   }
 };
 
-/*
- * ============================================================
- * Name: Dinic maximum flow (current-arc optimization)
- * Complexity: O(V^2 E) worst case, much faster in practice
- * Usage: `dinic<T>`: construct dinic<T>(n, m) (m = number of add calls), add(u,
- *        v, w), then calc(s, t);
- *        use T = long long for large capacities.
- * Implementation: BFS layers + DFS blocking flow with current-arc pointers;
- *        a flat array queue replaces std::queue
- * Source: all.cpp (vector version dinic<T>; wrapped, logic unchanged)
- * ============================================================
- */

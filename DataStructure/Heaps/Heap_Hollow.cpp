@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// hollow heap (mergeable; decrease_key leaves hollowed old nodes), min-heap
+
 template <size_t N> struct heap_hollow {
   struct node {
     int vl, sn, bt, af, rk, ps;
@@ -18,7 +18,7 @@ template <size_t N> struct heap_hollow {
     else if (v) join(u, v);
   }
   int top(int u) { return nd[u].vl; }
-  void decrease_key(int &u, int x, int v) { // hollow the old node, insert a fresh one
+  void decrease_key(int &u, int x, int v) {
     int y = pos[x];
     if (u == y) return nd[u].vl = v, void();
     int p = newnode(v, x);
@@ -29,7 +29,7 @@ template <size_t N> struct heap_hollow {
     int y = exchange(pos[x], 0), mx = 0;
     if (nd[y].ps = 0, nd[u].ps) return;
     nd[u].bt = 0;
-    while (u) { // sweep: drop hollow nodes, bucket the rest by rank
+    while (u) {
       int w = nd[u].sn, v = exchange(u, nd[u].bt);
       while (w) {
         int z = exchange(w, nd[w].bt);
@@ -48,17 +48,4 @@ template <size_t N> struct heap_hollow {
     memset(a, 0, (mx + 1) * sizeof(int));
   }
 };
-/*
- * ============================================================
- * Name: hollow heap (mergeable), min-heap
- * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
- *             erase O(log n) amortized
- * Usage: `heap_hollow<N>`: newnode / top / join / decrease_key / erase; nodes
- *        live in the nd[] pool, pos[] maps external id -> node.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 8, wrapped into a struct
- * Notes: node pool nd[N] (N = 2e6 recommended); tot allocates without recycling
- *        (each newnode creates a node); ps marks hollow nodes (invalidated by
- *        decrease_key); decrease_key edits the root in place when u == y
- * ============================================================
- */
+

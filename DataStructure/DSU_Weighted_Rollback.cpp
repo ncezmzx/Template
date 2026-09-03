@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// weighted DSU: d[x] = accumulated edge weight from x to its root (additive
-// group, e.g. mod addition / xor)
+
 template <size_t N> struct wdsu {
   int p[N];
   long long d[N];
@@ -15,15 +14,15 @@ template <size_t N> struct wdsu {
     d[x] += d[p[x]], p[x] = r;
     return r;
   }
-  // merge constraint y = x + w (x --w--> y); returns compatibility with
-  // existing constraints
+
+
   bool merge(int x, int y, long long w) {
     int rx = find(x), ry = find(y);
     if (rx == ry) return d[y] - d[x] == w;
     p[rx] = ry, d[rx] = d[y] - d[x] - w;
     return true;
   }
-  long long rel(int x, int y) { return d[y] - d[x]; } // val[y] - val[x] (must share a root: find first)
+  long long rel(int x, int y) { return d[y] - d[x]; }
 };
 
 template <size_t N> struct rdsu {
@@ -56,23 +55,3 @@ template <size_t N> struct rdsu {
   }
 };
 
-/*
- * ============================================================
- * Name: weighted DSU / rollback DSU
- * Complexity: wdsu merge / find amortized O(alpha); rdsu find O(log n), merge /
- *             rollback O(1)
- * Usage: `wdsu<N>`: merges carrying relative relations (food chains, parity, y
- *        = x + w) over any additive group.
- *        `rdsu<N>`: connectivity with rollback, for offline edge deletion /
- *        divide & conquer / parallel binary search.
- *        Method list: see Interface below.
- * Interface: wdsu: merge(x, y, w) (constraint y = x + w; returns
- *        compatibility), rel(x, y) (val[y] - val[x] once same root);
- *        rdsu: merge(a, b), rollback(snapshot of hist.size())
- * Principle: wdsu path compression accumulates weights up to the root (d[rx] =
- *            w + d[y] - d[x]); rdsu unions by rank, height O(log n), undoes via
- *            a stack
- * Notes: wdsu's weight group must support + and - (replace both with ^ for xor
- *        groups); rdsu must not path-compress (it breaks rollback)
- * ============================================================
- */

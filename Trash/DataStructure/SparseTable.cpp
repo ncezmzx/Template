@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// sparse table: static range minimum RMQ
+
 template <size_t N> struct sparse_table {
   int n;
   int a[N], d[N][20], lg[N];
@@ -18,26 +18,3 @@ template <size_t N> struct sparse_table {
   }
 };
 
-/*
- * ============================================================
- * Name: sparse table (ST table, static RMQ, here range minimum)
- * Complexity: preprocessing O(n log n), query O(1)
- * Usage: static range minimum queries (no updates), wrapped as
- *        sparse_table<N>: fill a[1..n], init(n), query(l, r);
- *        swap min for max to get range maxima
- * Source: all.cpp lines 27805-27821 (struct ST_Table, originally built over a
- *         suffix array's height array; wrapped and self-contained here)
- * ============================================================
- * Example (uncomment to compile):
- * static sparse_table<200005> st;
- * signed main() {
- *   cin.tie(nullptr)->sync_with_stdio(false);
- *   st.a[1] = 3, st.a[2] = 1, st.a[3] = 4, st.a[4] = 1, st.a[5] = 5;
- *   st.init(5);
- *   cout << st.query(1, 5) << '\n';  // 1
- *   cout << st.query(2, 3) << '\n';  // 1
- *   cout << st.query(3, 5) << '\n';  // 1
- *   return 0;
- * }
- * ============================================================
- */

@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// Dominator tree (Lengauer-Tarjan): idom[x] = immediate dominator of x from source s
+
 template <size_t N> struct dominator_tree {
   int n, idx;
   int dfn[N], id[N], fa[N];
@@ -49,23 +49,3 @@ template <size_t N> struct dominator_tree {
   }
 };
 
-/*
- * ============================================================
- * Name: dominator tree (Lengauer-Tarjan algorithm)
- * Complexity: O((n + m) log n) (DSU find with path compression), effectively
- *             O((n + m) alpha)
- * Usage: dominators of a directed graph from a source s, `dominator_tree<N>`: g
- *        / rg hold the forward / reverse adjacency; build(n, s);
- *        then idom[x] is the immediate dominator of x (every s->x path passes
- *        through it) and the dominators of x are its ancestors in the idom
- *        tree.
- *        Applications: mandatory vertices / edges, control flow graphs,
- *        connectivity after vertex deletion.
- * Principle: DFS for dfn / fa; compute semidominators sdom in reverse dfn order
- *            (a path-compressing DSU keeps the current best candidate), then
- *            refine them into idom
- * Notes: only vertices reachable from s are handled (dfn != 0), so unreachable
- *        vertices stay outside the tree; idom[s] = 0; multi-edges / self-loops
- *        are harmless; clear g / rg between test cases
- * ============================================================
- */

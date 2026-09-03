@@ -2,11 +2,11 @@
 using namespace std;
 #define int long long
 
-// Dinic core + flows with lower bounds (feasible / max / min flow)
+
 template <size_t N, size_t M> struct bounded_flow {
   static constexpr int INF = 0x3f3f3f3f3f3f3f3f;
   int hd[N], nxt[M], to[M], cap[M], tot = 1, cur[N], dep[N], q[N], nv = 2;
-  int in[N]; // lower-bound balance: in[x] = sum(in-lower) - sum(out-lower)
+  int in[N];
   void init() {
     tot = 1, nv = 2;
     memset(hd, 0, sizeof hd), memset(in, 0, sizeof in);
@@ -15,11 +15,11 @@ template <size_t N, size_t M> struct bounded_flow {
     nxt[++tot] = hd[x], hd[x] = tot, to[tot] = y, cap[tot] = c;
     nxt[++tot] = hd[y], hd[y] = tot, to[tot] = x, cap[tot] = 0;
     if (x >= nv) nv = x + 1;
-    if (y >= nv) nv = y + 1; // track real vertex count to shrink memset/memcpy
+    if (y >= nv) nv = y + 1;
   }
   bool bfs(int s, int t) {
     memset(dep, -1, nv * sizeof(int));
-    int qh = 0, qt = 0; // flat array queue
+    int qh = 0, qt = 0;
     q[qt++] = s, dep[s] = 0;
     while (qh < qt) {
       int x = q[qh++], dx = dep[x] + 1;
@@ -50,23 +50,3 @@ template <size_t N, size_t M> struct bounded_flow {
   }
 };
 
-/*
- * ============================================================
- * Name: flows with lower bounds (feasible / max / min flow)
- * Complexity: O(Dinic) = O(V^2 E) worst case, much faster in practice
- * Usage: networks whose edges carry lower bounds [l, r], `bounded_flow<N, M>`
- *        (Dinic's add / maxflow plus the balance array in[]):
- *        circulation (no fixed source / sink): a feasible flow with every
- *        edge's flow in [l, r]; max / min flow with fixed source / sink
- *        respecting the lower bounds.
- *        Edge (u, v, l, r): add(u, v, r - l) plus in[u] -= l, in[v] += l.
- * Principle: split each edge into mandatory l and optional [0, r-l]; balance
- *            every vertex's in/out difference with a super source / sink (in[x]
- *            > 0 adds S->x with cap in[x], else x->T with cap -in[x]); S->T
- *            saturating flow means feasible; for fixed SS / TT add an INF edge
- *            TT->SS to reduce to a circulation (the flow on it is the min
- *            feasible flow), then augment SS->TT for the maximum
- * Notes: init() between test cases; SS / TT are the original source / sink, S /
- *        T the super source / sink
- * ============================================================
- */

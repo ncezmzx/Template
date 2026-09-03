@@ -31,7 +31,7 @@ struct expr_eval {
     long long res = parse_uni();
     if (pos < (int)s.size() && s[pos] == '^') {
       ++pos;
-      long long e = parse_pow(); // right-associative
+      long long e = parse_pow();
       long long r = 1;
       for (long long i = 0; i < e; ++i) r *= res;
       return r;
@@ -52,7 +52,7 @@ struct expr_eval {
   }
 
   long long parse_pri() {
-    if (pos >= (int)s.size()) return 0; // guard truncated input (never hit on valid input)
+    if (pos >= (int)s.size()) return 0;
     if (s[pos] == '(') {
       ++pos;
       long long res = parse_expr();
@@ -77,19 +77,3 @@ struct expr_eval {
   }
 };
 
-/*
- * ============================================================
- * Name: expression evaluation (recursive descent: + - * / % ^ parentheses, unary minus, variables)
- * Complexity: O(expression length)
- * Usage: arithmetic expression parsing: the four operations, modulo, power (^,
- *        right-associative), parentheses, unary +/-, and letter variables
- *        (assigned via the var map).
- * Principle: recursive descent: expr -> term (+|-) term; term -> pow (*|/|%)
- *            pow; pow -> uni (^ pow), so ^ is right-associative; uni -> (+|-)
- *            uni | pri; pri -> (expr) | variable | number
- * Notes: the expression must contain no spaces (strip them first); powers
- *        multiply step by step, so large exponents overflow or time out (use
- *        fast exponentiation instead); divide / modulo by zero is UB; undefined
- *        variables read as 0
- * ============================================================
- */

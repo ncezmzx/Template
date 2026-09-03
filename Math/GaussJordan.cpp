@@ -10,10 +10,10 @@ int qpow(int a, int b) {
   return r;
 }
 
-// Gauss-Jordan elimination over the prime field Z_md
+
 template <size_t N> struct gauss_jordan {
-  int a[N][N]; // a[i][j] coefficients, a[i][n] constants
-  // returns 1 = unique solution (x[i] in a[i][n]), 2 = infinitely many, 0 = none
+  int a[N][N];
+
   int solve(int n) {
     int r = 0;
     for (int c = 0; c < n; ++c) {
@@ -27,7 +27,7 @@ template <size_t N> struct gauss_jordan {
         if (i != r && a[i][c]) {
           int t = a[i][c];
           for (int j = c; j <= n; ++j) {
-            // one mod + conditional subtract instead of two mods (t*a[r][j] < 2^60)
+
             int v = a[i][j] - (int)(t * a[r][j] % md);
             a[i][j] = v < 0 ? v + md : v;
           }
@@ -40,22 +40,3 @@ template <size_t N> struct gauss_jordan {
   }
 };
 
-/*
- * ============================================================
- * Name: Gauss-Jordan elimination (prime field; solve linear systems / rank)
- * Complexity: O(n^3)
- * Usage: solve n-variable linear systems Ax = b, `gauss_jordan<N>`: a[i][j]
- *        holds the coefficients and a[i][n] the constants; solve(n) returns 1
- *        (unique solution, left in a[i][n]),
- *        2 (infinitely many) or 0 (none). A fully-pivoting double-precision
- *        version is included in the comments for real systems.
- * Principle: Gauss-Jordan: for each column pick a non-zero pivot row and
- *            eliminate that column from ALL other rows, reaching a diagonal
- *            matrix whose entries are the solution, so no back-substitution is
- *            needed
- * Notes: the modulus must be prime (division goes through inverses); pivot-less
- *        columns are free variables (the infinite-solution case); for the
- *        matrix inverse run the same elimination on [A | I], the right side
- *        becomes A^{-1}
- * ============================================================
- */

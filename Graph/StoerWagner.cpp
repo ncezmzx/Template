@@ -2,11 +2,11 @@
 using namespace std;
 #define int long long
 
-// Stoer-Wagner global minimum cut (undirected, non-negative weights, multi-edges ok)
+
 template <size_t N> struct stoer_wagner {
   int n_;
-  int edge[N][N];              // adjacency matrix (1-indexed, multi-edges accumulated)
-  int dist[N], vis[N], bin[N]; // bin[i]: vertex i already contracted
+  int edge[N][N];
+  int dist[N], vis[N], bin[N];
   void init(int n) {
     n_ = n;
     for (int i = 1; i <= n; ++i) {
@@ -15,7 +15,7 @@ template <size_t N> struct stoer_wagner {
     }
   }
   void add(int u, int v, int w) { edge[u][v] += w, edge[v][u] += w; }
-  // one phase: maximum-adjacency ordering; s = second last, t = last added
+
   int contract_(int &s, int &t) {
     memset(dist, 0, sizeof dist), memset(vis, 0, sizeof vis);
     int mincut = 0;
@@ -37,28 +37,11 @@ template <size_t N> struct stoer_wagner {
       int cur = contract_(s, t);
       bin[t] = 1;
       ans = min(ans, cur);
-      if (ans == 0) return 0; // disconnected graph: min cut is 0
+      if (ans == 0) return 0;
       for (int j = 1; j <= n_; ++j)
-        if (!bin[j]) edge[s][j] = (edge[j][s] += edge[j][t]); // merge t into s
+        if (!bin[j]) edge[s][j] = (edge[j][s] += edge[j][t]);
     }
     return ans;
   }
 };
 
-/*
- * ============================================================
- * Name: Stoer-Wagner global minimum cut
- * Complexity: O(nm + n^2 log n) (naive form O(n^3); fine for n <= 600)
- * Usage: global min cut of an undirected non-negative-weight graph without
- *        fixing a source / sink, `stoer_wagner<N>`: init(n), add(u, v, w)
- *        (multi-edges accumulate), solve() returns the global min cut;
- *        much faster than running max flow for all source / sink pairs;
- *        disconnected graphs answer 0.
- * Principle: each phase runs a maximum-adjacency ordering (Prim-like greedy on
- *            w(A, .)) to obtain the cut-of-phase, then merges t into s (edge
- *            weights add up); the answer is the minimum over all n-1 phases
- * Notes: 1-indexed; weights must be non-negative (a 0 cut returns early); size
- *        N per vertex count; n < 2 is meaningless
- * Source: OI-Wiki "Stoer-Wagner" (https://oi-wiki.org/graph/stoer-wagner/)
- * ============================================================
- */

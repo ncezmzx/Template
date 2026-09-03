@@ -16,7 +16,7 @@ struct wavelet {
     zc.assign(LOG, 0);
     vector<int> cur = v, nxt(n);
     for (int lv = LOG - 1; lv >= 0; --lv) {
-      int *P = pref[lv].data(); // hoist the row pointer, avoid per-element vector indexing
+      int *P = pref[lv].data();
       int z = 0;
       for (int i = 0; i < n; ++i) {
         int b = (cur[i] >> lv & 1) == 0;
@@ -28,7 +28,7 @@ struct wavelet {
         if (cur[i] >> lv & 1) nxt[p1++] = cur[i];
         else nxt[p0++] = cur[i];
       }
-      cur.swap(nxt); // swap instead of copy
+      cur.swap(nxt);
     }
   }
 
@@ -146,21 +146,3 @@ struct dyn_wavelet {
   int count(int x) const { return rank_lt(x + 1) - rank_lt(x); }
 };
 
-/*
- * ============================================================
- * Name: dynamic Wavelet Matrix via binary grouping (insertable value sequence)
- * Complexity: insert amortized O(log n * LOG); kth / rank_lt O(LOG * log n)
- * Usage: dynamically maintained insert-only multiset: insert(x); kth(k) global
- *        k-th smallest (0-based);
- *        rank_lt(x) global count of values < x; count(x) count of x; each block
- *        is a static Wavelet Matrix over [0, 2^LOG).
- * Principle: logarithmic method: blocks of sizes exactly 1, 2, 4, ...; an
- *            insert creates a size-1 block and repeatedly merges with an equal-
- *            sized block (binary carry), keeping O(log n) blocks; queries
- *            descend bitwise across all blocks in parallel (kth) or accumulate
- *            (rank_lt)
- * Notes: values must lie in [0, 2^LOG) (LOG = 30; shift negatives into range);
- *        erase is a simple O(sum of block sizes) rebuild, so prefer a
- *        persistent segment tree / balanced tree for deletion-heavy workloads
- * ============================================================
- */

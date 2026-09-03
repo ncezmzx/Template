@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// slim heap (mergeable; erase converges roots by pairwise merges), min-heap
+
 template <size_t N> struct heap_slim {
   int fa[N], vl[N], tp[N], sn[N], bt[N];
   list<int> nd[N];
@@ -19,7 +19,7 @@ template <size_t N> struct heap_slim {
     (p == sn[f] ? sn[f] : bt[f]) = exchange(bt[p], 0);
     add(nd[h], p), fa[p] = bt[p] = 0;
   }
-  int merge(int x, int y) { // hang y as first child of x
+  int merge(int x, int y) {
     return fa[bt[y] = exchange(sn[fa[y] = x], y)] = y, x;
   }
   void erase(int h, int x) {
@@ -27,7 +27,7 @@ template <size_t N> struct heap_slim {
     for (int y = sn[x]; y; y = exchange(bt[y], 0)) add(nd[h], y), fa[y] = 0;
     nd[h].erase(it[x]);
     if (nd[h].empty()) return;
-    auto ii = nd[h].begin(); // pairwise merge roots until local minima settle
+    auto ii = nd[h].begin();
     while (true)
       if (ii == prev(nd[h].end()) || vl[*ii] >= vl[*next(ii)])
         if (ii != prev(nd[h].end()) && (ii == nd[h].begin() || vl[*prev(ii)] < vl[*next(ii)]))
@@ -38,17 +38,4 @@ template <size_t N> struct heap_slim {
     it[*ii] = ii, tp[h] = vl[*ii];
   }
 };
-/*
- * ============================================================
- * Name: slim heap (mergeable), min-heap
- * Complexity: newnode / top / join O(1) amortized; decrease_key O(1) amortized;
- *             erase O(log n) amortized
- * Usage: `heap_slim<N>`: newnode / top / join / decrease_key / erase; heaps are
- *        identified by their container index.
- * Source: Luogu article "In Praise of the Priority Queue"
- *         (the Luogu blog article "In Praise of the Priority Queue") section 14, wrapped into a struct
- * Notes: with #define int long long the LLONG_MIN sentinel stays correct.
- *        KNOWN DEFECT (from the source article): decrease_key unlinking a non-
- *        first child p mishandles the sibling chain. Reference only
- * ============================================================
- */
+

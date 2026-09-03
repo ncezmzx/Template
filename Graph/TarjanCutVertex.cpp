@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// Tarjan cut vertices (articulation points) in an undirected graph
+
 template <size_t N> struct cut_vertex {
   int n, idx, rt;
   int dfn[N], low[N], is_cut[N];
@@ -18,7 +18,7 @@ template <size_t N> struct cut_vertex {
       }
       else low[x] = min(low[x], dfn[y]);
     }
-    if (x == rt && sz > 1) is_cut[x] = 1; // root needs >= 2 child subtrees
+    if (x == rt && sz > 1) is_cut[x] = 1;
   }
   void build(int n_) {
     n = n_, idx = 0;
@@ -28,14 +28,3 @@ template <size_t N> struct cut_vertex {
   }
 };
 
-/*
- * ============================================================
- * Name: Tarjan cut vertices (articulation points, undirected graph)
- * Complexity: O(n + m)
- * Usage: cut vertices of an undirected graph, `cut_vertex<N>`: es holds the
- *        undirected edges, build(n), then is_cut[x] = 1 marks a cut vertex.
- *        Criterion: a non-root x with a child y satisfying low[y] >= dfn[x];
- *        the root needs >= 2 child subtrees (sz > 1).
- * Source: all.cpp lines 56109-56127 (wrapped into a struct, recursion unchanged)
- * ============================================================
- */

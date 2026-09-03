@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// offline static range monoid products (cat-tree divide, topbit bucketing);
-// queries are inclusive [l, r]
+
 template <typename Mono, typename F>
 void monoid_product(const std::vector<Mono> &vec, const std::vector<std::pair<int, int>> &query, F f) {
   const int n = vec.size();
@@ -13,7 +12,7 @@ void monoid_product(const std::vector<Mono> &vec, const std::vector<std::pair<in
       f(id, vec[l]);
       continue;
     }
-    int k = 31 - __builtin_clz(l ^ r); // topbit
+    int k = 31 - __builtin_clz(l ^ r);
     buk[r >> k << k].push_back(id);
   }
 
@@ -32,20 +31,3 @@ void monoid_product(const std::vector<Mono> &vec, const std::vector<std::pair<in
   }
 }
 
-/*
- * ============================================================
- * Name: offline static range monoid products (cat-tree divide / topbit bucketing)
- * Complexity: O((n + q) log n) total, O(1) per query; space O(n + q)
- * Usage: static array, batch associative range products (sum / max / gcd /
- *        matrices).
- *        Queries are inclusive (l, r); l == r is answered with vec[l] directly;
- *        otherwise the callback receives f(id, product) and the answer is dp[l]
- *        * dp[r].
- * Principle: with k = topbit(l ^ r), mid = the top n-k bits of r splits l < mid
- *            <= r; dp stores prefix / suffix products outward from mid, O(log
- *            n) levels of O(n) scans
- * Source: user-provided code (structured bindings rewritten as .first/.second
- *         for pure C++14)
- * Notes: static only, and all queries must be known up front
- * ============================================================
- */

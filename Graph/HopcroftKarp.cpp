@@ -2,8 +2,8 @@
 using namespace std;
 #define int long long
 
-// Hopcroft-Karp maximum bipartite matching, O(E sqrt V)
-template <size_t N> // n = nl + nr
+
+template <size_t N>
 struct hopcroft_karp {
   int nl, nr, vstamp = 0;
   int dis[N], match[N], vis[N], q[N];
@@ -54,20 +54,3 @@ struct hopcroft_karp {
   }
 };
 
-/*
- * ============================================================
- * Name: Hopcroft-Karp (maximum bipartite matching)
- * Complexity: O(E sqrt(V))
- * Usage: maximum bipartite matching, `hopcroft_karp<N>`: g[left vertex] holds
- *        right-side ids; solve(nl, nr) returns the matching size;
- *        the result lives in match[] (match[u] = v and match[v] = u); left
- *        vertices 1..nl.
- * Principle: BFS layers free left vertices by augmenting-path length; DFS only
- *            follows next-layer edges (multi-path augmentation), so each phase
- *            finds all shortest augmenting paths: O(sqrt(V)) phases of O(E)
- *            each
- * Notes: right ids must not collide with left ids (the match array is shared,
- *        so map right vertices to nl+1..nl+nr or use disjoint ranges); clear g
- *        / match between test cases
- * ============================================================
- */

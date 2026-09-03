@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-// Suffix automaton over lowercase letters; states <= 2n
+
 template <size_t N> struct suffix_automaton {
   int ch[N][26], lnk[N], len[N], sz[N];
   int buc[N], o[N];
@@ -31,7 +31,7 @@ template <size_t N> struct suffix_automaton {
     }
     lst = cur;
   }
-  // counting sort by len, then sz[u] = endpos size of state u (occurrences)
+
   void count() {
     memset(buc, 0, (tot + 1) * sizeof(int));
     for (int i = 1; i <= tot; ++i) ++buc[len[i]];
@@ -41,26 +41,3 @@ template <size_t N> struct suffix_automaton {
   }
 };
 
-/*
- * ============================================================
- * Name: suffix automaton (SAM)
- * Complexity: build O(n * |Sigma|) (transition table ch[N][26]); <= 2n states,
- *             <= 3n edges
- * Usage: all substring information of one string, `suffix_automaton<N>`.
- *        Classic facts:
- *        number of distinct substrings = sum_{i=2..tot} (len[i] - len[lnk[i]]);
- *        after count(), sz[i] is the size of state i's endpos set, i.e. the
- *        occurrence count of the substrings state i represents (the root state
- *        1 is meaningless);
- *        minimal representation, longest common substring and k-th smallest
- *        substring all extend this skeleton.
- *        Call pattern: sam.init(); for (char c : s) sam.extend(c - 'a');
- *        sam.count();
- * Principle: online construction; each state is an endpos equivalence class and
- *            lnk points to the longest-suffix state with strictly smaller len
- *            (the suffix-link tree)
- * Notes: lowercase alphabet (26); for other alphabets change ch's second
- *        dimension and c's values; take N >= 2*|S| + 5; init() between test
- *        cases
- * ============================================================
- */

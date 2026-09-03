@@ -59,15 +59,4 @@ template <int id> struct modint {
   bool operator!=(const modint &rhs) const { return v != rhs.v; }
 };
 using mint = modint<md>;
-/*
- * ============================================================
- * Name: fast modular wrapper (Montgomery modint, fixed modulus)
- * Complexity: arithmetic O(1) (one Montgomery reduction per multiply); qpow
- *             O(log b)
- * Usage: general-purpose arithmetic modulo a fixed prime, replacing plain %
- *        with faster operations; division goes through the inverse
- *        automatically.
- * Source: all.cpp lines 5615-5678 (kept verbatim, comments translated)
- * Notes: the modulus must be prime
- * ============================================================
- */
+

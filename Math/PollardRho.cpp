@@ -66,20 +66,3 @@ void factorize(int n, vector<int> &fac) {
   factorize(d, fac), factorize(n / d, fac);
 }
 
-/*
- * ============================================================
- * Name: Pollard-Rho factorization (Floyd cycle detection, pairs with Miller-Rabin)
- * Complexity: expected O(n^{1/4}) to find a non-trivial factor; full
- *             factorization O(n^{1/4} log n)
- * Usage: factor 64-bit composites (e.g. ~1e18); check primality first (is_prime
- *        is embedded), then split with Pollard-Rho.
- *        After factorize(n, fac), fac holds every prime factor of n, with
- *        multiplicity and unordered.
- * Principle: the pseudo-random map f(x) = (x^2 + c) mod n eventually cycles;
- *            Floyd cycle detection takes differences and gcds them with n to
- *            hit a non-trivial factor; on failure (d == n) retry with a new
- *            random seed
- * Notes: #define int long long makes int 64-bit; mul_mod uses __int128 against
- *        overflow; relies on __gcd (a GNU extension, C++14-compatible)
- * ============================================================
- */

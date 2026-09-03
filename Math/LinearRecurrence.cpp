@@ -1,9 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Berlekamp-Massey: shortest recurrence s_n = c1*s_{n-1} + ... + cd*s_{n-d}
-// for sequence s over a prime field; needs |s| >= 2d terms
-// k-th term (0-indexed); s must contain >= 2*order terms
 
 #define int long long
 
@@ -66,22 +63,3 @@ int kth_term(const vector<int> &s, int k, int mod) {
   return ans;
 }
 
-/*
- * ============================================================
- * Name: Berlekamp-Massey + Kitamasa (k-th term of a linear recurrence)
- * Complexity: BM O(n^2); kth_term O(d^2 log k) (d = recurrence order)
- * Usage: given the first terms of a sequence s (modulo a prime), BM finds the
- *        shortest linear recurrence automatically, then the k-th term costs
- *        O(d^2 log k) for k up to 1e18;
- *        a typical alternative to matrix fast exponentiation (smaller constants
- *        when the data is recurrent).
- * Principle: BM incrementally maintains the characteristic polynomial C and the
- *            last discrepancy B, correcting C by B/b on a discrepancy and
- *            updating B when the length more than doubles; the k-th term is x^k
- *            mod f(x) with f = x^d - sum ci*x^{d-i}, and the answer is sum (x^k
- *            mod f)_i * s_i
- * Notes: mod must be prime (BM uses inverses); reduce s entries to [0, mod)
- *        first; s needs at least 2d terms for correctness; rec[i-1] is the
- *        coefficient of x^{d-i}, i.e. c_i
- * ============================================================
- */
